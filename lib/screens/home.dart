@@ -10,6 +10,7 @@ import '../ui/kit.dart';
 import '../ui/theme.dart';
 import 'calendar.dart';
 import 'entry.dart';
+import 'onboarding.dart';
 import 'people.dart';
 import 'settings.dart';
 import 'wrapped.dart';
@@ -118,7 +119,7 @@ class HomeTab extends StatelessWidget {
           ]),
         )
       else
-        Btn('Записати зустріч', icon: Icons.edit_note_rounded, onTap: () => go(context, s.people.isEmpty ? const PersonEdit() : const EntryForm())),
+        Btn('Записати зустріч', icon: Icons.edit_note_rounded, onTap: () => go(context, s.people.isEmpty ? const AddPersonScreen() : const EntryForm())),
       Row(children: [
         StatTile(monthsNom[now.month - 1], '${monthEntries.length}', suffix: p.premium ? null : ' з $freeEntriesPerMonth'),
         const SizedBox(width: 10),

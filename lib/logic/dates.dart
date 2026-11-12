@@ -28,7 +28,7 @@ String? parseUA(String s) {
   return iso(dt);
 }
 
-String toUA(String? isoDate) => isoDate == null ? '' : isoDate.split('-').reversed.join('.');
+String toUA(String? isoDate) => isoDate == null ? '' : (isoDate.startsWith('0000-') ? isoDate.substring(5).split('-').reversed.join('.') : isoDate.split('-').reversed.join('.'));
 
 /// маска вводу: цифри → ДД.ММ.РРРР
 String maskDate(String s) {

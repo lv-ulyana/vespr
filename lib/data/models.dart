@@ -20,6 +20,8 @@ class Profile {
   bool pinEnabled;
   bool onboarded;
   bool premium; // тестовий перемикач, поки нема оплати
+  String lang; // uk | en (англійська ще не перекладена)
+  String appIcon; // dark | light
   List<String> sexQs;
   List<String> ptQs;
 
@@ -30,6 +32,8 @@ class Profile {
     this.pinEnabled = true,
     this.onboarded = false,
     this.premium = false,
+    this.lang = 'uk',
+    this.appIcon = 'dark',
     List<String>? sexQs,
     List<String>? ptQs,
   })  : sexQs = sexQs ?? <String>[],
@@ -42,6 +46,8 @@ class Profile {
         'pinEnabled': pinEnabled,
         'onboarded': onboarded,
         'premium': premium,
+        'lang': lang,
+        'appIcon': appIcon,
         'sexQs': sexQs,
         'ptQs': ptQs,
       };
@@ -53,6 +59,8 @@ class Profile {
         pinEnabled: j['pinEnabled'] != false,
         onboarded: j['onboarded'] == true,
         premium: j['premium'] == true,
+        lang: _str(j['lang']) ?? 'uk',
+        appIcon: _str(j['appIcon']) ?? 'dark',
         sexQs: _strList(j['sexQs']),
         ptQs: _strList(j['ptQs']),
       );
@@ -61,8 +69,9 @@ class Profile {
 class Person {
   final String id;
   String name;
+  String gender; // m | f
   String rel;
-  String? birth;
+  String? birth; // РРРР-ММ-ДД; якщо рік невідомий — 0000-ММ-ДД
   int? signOnly;
   int? size;
   int? met;
@@ -76,6 +85,7 @@ class Person {
   Person({
     required this.id,
     required this.name,
+    this.gender = 'm',
     this.rel = 'date',
     this.birth,
     this.signOnly,
@@ -92,7 +102,7 @@ class Person {
   bool get isPast => status == 'past';
 
   Map<String, dynamic> toJson() => {
-        'id': id, 'name': name, 'rel': rel, 'birth': birth, 'signOnly': signOnly, 'size': size,
+        'id': id, 'name': name, 'gender': gender, 'rel': rel, 'birth': birth, 'signOnly': signOnly, 'size': size,
         'met': met, 'want': want, 'notes': notes, 'status': status, 'pastReason': pastReason,
         'pastAt': pastAt, 'createdAt': createdAt,
       };
@@ -100,6 +110,7 @@ class Person {
   factory Person.fromJson(Map<String, dynamic> j) => Person(
         id: _str(j['id']) ?? '',
         name: _str(j['name']) ?? '',
+        gender: _str(j['gender']) ?? 'm',
         rel: _str(j['rel']) ?? 'date',
         birth: _str(j['birth']),
         signOnly: _int(j['signOnly']),

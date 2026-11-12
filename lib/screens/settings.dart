@@ -13,6 +13,7 @@ import '../ui/theme.dart';
 import 'export_screen.dart';
 import 'import_screen.dart';
 import 'onboarding.dart';
+import 'pin_screens.dart';
 import 'table_screen.dart';
 
 class SettingsScreen extends StatelessWidget {

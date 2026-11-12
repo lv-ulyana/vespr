@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'data/demo.dart';
 import 'data/store.dart';
 import 'screens/onboarding.dart';
+import 'screens/pin_screens.dart';
 import 'screens/shell.dart';
 import 'services/pin.dart';
-import 'ui/pin_pad.dart';
+import 'ui/d.dart' show appNav;
 import 'ui/theme.dart';
 
 Future<void> main() async {
@@ -14,6 +17,12 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   final store = AppStore();
   await store.load();
+  // Веб-версія для показу: ?demo=1 — вигадані дані, ?reset=1 — почати з нуля (онбординг)
+  if (kIsWeb) {
+    final q = Uri.base.queryParameters;
+    if (q['reset'] == '1') await store.wipe();
+    if (q['demo'] == '1' && !store.profile.onboarded) await store.replaceAll(demoDb());
+  }
   runApp(Store(store: store, child: const VesprApp()));
 }
 
@@ -22,6 +31,7 @@ class VesprApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Vespr',
+        navigatorKey: appNav,
         debugShowCheckedModeBanner: false,
         theme: vesprTheme(),
         locale: const Locale('uk'),
@@ -88,31 +98,20 @@ class _LockLayerState extends State<LockLayer> with WidgetsBindingObserver {
     final locked = p.onboarded && p.pinEnabled && !unlocked;
     return Stack(children: [
       widget.child,
-      if (locked)
+      if (locked && pinExists != null)
         Positioned.fill(
-          child: Scaffold(
-            backgroundColor: C.bg,
-            body: pinExists == null
-                ? const SizedBox()
-                : SafeArea(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
-                          const Logo(),
-                          const SizedBox(height: 28),
-                          PinEntry(
-                            key: ValueKey(pinExists),
-                            // PIN увімкнено, але його нема (дані відновились на новому телефоні) — задаємо новий
-                            create: !pinExists!,
-                            createHint: 'Дані відновлено. На новому телефоні PIN треба задати знову.',
-                            onDone: () => setState(() { unlocked = true; pinExists = true; }),
-                          ),
-                        ]),
-                      ),
-                    ),
-                  ),
+          // окремий навігатор, щоб «Забула PIN?» і скидання працювали поверх замка
+          child: Navigator(
+            key: ValueKey(pinExists),
+            onGenerateRoute: (_) => MaterialPageRoute(
+              builder: (_) => pinExists!
+                  ? PinLockScreen(onUnlock: () => setState(() => unlocked = true))
+                  // PIN увімкнено, але його нема (дані відновились на новому телефоні) — задаємо новий
+                  : PinNewScreen(onDone: (_) => setState(() { unlocked = true; pinExists = true; })),
+            ),
           ),
         ),
+      if (locked && pinExists == null) const Positioned.fill(child: ColoredBox(color: C.bg)),
     ]);
   }
 }

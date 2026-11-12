@@ -21,7 +21,7 @@ class PeopleTab extends StatelessWidget {
     final s = Store.of(context);
     if (s.people.isEmpty) {
       return Screen(
-        footer: [Btn('Додати людину', onTap: () => go(context, const PersonEdit()))],
+        footer: [Btn('Додати людину', onTap: () => go(context, const AddPersonScreen()))],
         children: const [
           H1('Поки', accent: 'нікого'),
           Txt('Побачення, стосунки чи одна ніч: додай першу людину. Після кількох записів зможеш порівнювати.', muted: true),
@@ -37,7 +37,7 @@ class PeopleTab extends StatelessWidget {
         const Expanded(child: H1('Люди')),
         RoundIcon(icon: Icons.table_chart_outlined, label: 'Усі записи таблицею', onTap: () => go(context, const TableScreen())),
         const SizedBox(width: 8),
-        RoundIcon(icon: Icons.add, label: 'Додати людину', accent: true, onTap: () => go(context, const PersonEdit())),
+        RoundIcon(icon: Icons.add, label: 'Додати людину', accent: true, onTap: () => go(context, const AddPersonScreen())),
       ]),
       if (shame.isNotEmpty)
         VCard(

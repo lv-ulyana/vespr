@@ -55,6 +55,16 @@ class PinService {
     }
   }
 
+  /// Face ID / відбиток або код самого телефону (для «Забула PIN?»)
+  static Future<bool> deviceUnlock() async {
+    if (kIsWeb) return false;
+    try {
+      return await _auth.authenticate(localizedReason: 'Підтверди, що це ти, щоб задати новий PIN', options: const AuthenticationOptions(stickyAuth: true, biometricOnly: false));
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<bool> biometricUnlock() async {
     try {
       return await _auth.authenticate(

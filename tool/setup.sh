@@ -35,6 +35,12 @@ elif [ -f android/app/build.gradle ] && ! grep -q 'androidx.appcompat' android/a
   printf "\ndependencies {\n    implementation 'androidx.appcompat:appcompat:1.7.0'\n}\n" >> android/app/build.gradle
 fi
 
+echo "› Android: вимикаємо lintVital для плагінів (баг AGP ламає release-збірку file_selector)"
+for f in android/build.gradle.kts android/build.gradle; do
+  [ -f "$f" ] || continue
+  grep -q 'lintVital' "$f" || printf '\nsubprojects {\n    tasks.matching { it.name.contains("lintVital") }.configureEach { enabled = false }\n}\n' >> "$f"
+done
+
 echo "› Android: дозволяємо відкривати календар телефону"
 MF=android/app/src/main/AndroidManifest.xml
 if ! grep -q 'vnd.android.cursor.item/event' "$MF"; then
