@@ -577,7 +577,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     semanticsLabel: 'приховано',
                     style: TextStyle(foreground: Paint()
                       ..color = const Color(0xFFD7D3E0)
-                      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.2)),
+                      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.3)),
                   ),
                 ]),
                 style: rw(13.5, h: 1.35),
@@ -875,7 +875,7 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final r = size.width / 2;
-    final sw = r * .37;
+    final sw = r * .11;
     final center = Offset(r, r);
     final rect = Rect.fromCircle(center: center, radius: r);
     final shader = SweepGradient(
