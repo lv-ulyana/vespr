@@ -1564,7 +1564,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                 ),
               ]),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text.rich(TextSpan(text: f ? 'Хто вона для тебе ' : 'Хто він для тебе ', children: [TextSpan(text: '· можна змінити потім', style: rw(13, color: K.haze))]), style: lbl),
+                Text.rich(TextSpan(text: f ? 'Хто вона для тебе ' : 'Хто він для тебе ', children: [if (prev == null) TextSpan(text: '· можна змінити потім', style: rw(13, color: K.haze))]), style: lbl),
                 const SizedBox(height: 8),
                 Wrap(spacing: 6, runSpacing: 6, children: [
                   for (final r in relLabels) _chip(f && r.$1 == 'ex' ? 'Колишня' : r.$2, rel == r.$1, () => setState(() => rel = r.$1)),
@@ -1622,7 +1622,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
               ]),
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
-                  Text.rich(TextSpan(text: 'Розмір ', children: [TextSpan(text: '· можна пізніше', style: rw(13, color: K.haze))]), style: lbl),
+                  Text.rich(TextSpan(text: 'Розмір ', children: [if (prev == null) TextSpan(text: '· можна пізніше', style: rw(13, color: K.haze))]), style: lbl),
                   const Spacer(),
                   Text(size == null ? '—' : sizeL[size!], style: pr(17, h: 1)),
                 ]),

@@ -106,7 +106,8 @@ String entrySub(Entry e) {
                   : null;
   final where = t.contains('his') ? 'у нього' : t.contains('mine') ? 'у мене' : t.contains('hotel') ? 'готель' : null;
   final parts = [if (place != null) place, if (where != null) where];
-  if (parts.isNotEmpty) return parts.join(' · ');
+  final sub = parts.join(' · ');
+  if (parts.isNotEmpty && sub != entryTitle(e)) return sub;
   if (e.note.isNotEmpty) return e.note;
   return e.hadSex ? 'Був секс' : 'Тільки побачення';
 }
