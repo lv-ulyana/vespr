@@ -19,6 +19,17 @@ import 'onboarding.dart';
 import 'settings.dart';
 import 'wrapped.dart';
 
+/// «сьогодні», «завтра», «у суботу» (до тижня), інакше «14.11»
+String _when(String d) {
+  final t = today();
+  if (d == t) return 'сьогодні';
+  if (d == addDays(t, 1)) return 'завтра';
+  final n = daysBetween(t, d);
+  if (n > 0 && n < 7) return const ['', 'у понеділок', 'у вівторок', 'у середу', 'у четвер', 'у пʼятницю', 'у суботу', 'у неділю'][parseIso(d).weekday];
+  final p = parseIso(d);
+  return '${p.day.toString().padLeft(2, '0')}.${p.month.toString().padLeft(2, '0')}';
+}
+
 String _greet() {
   final h = DateTime.now().hour;
   return h < 5 ? 'Доброї ночі' : h < 12 ? 'Доброго ранку' : h < 18 ? 'Привіт' : 'Добрий вечір';
@@ -351,9 +362,10 @@ class HomeTab extends StatelessWidget {
                       Text('До зустрічі', style: rw(12, color: K.acc, w: FontWeight.w600)),
                       const SizedBox(height: 4),
                       Text(
-                        '${s.personName(next.first.personId)}, ${next.first.date == today() ? 'сьогодні' : next.first.date == addDays(today(), 1) ? 'завтра' : human(next.first.date)} ${next.first.time}',
+                        '${s.personName(next.first.personId)}, ${_when(next.first.date)} ${next.first.time}',
                         style: pr(22, h: 1.1),
-                        maxLines: 2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ]),
                   ),
