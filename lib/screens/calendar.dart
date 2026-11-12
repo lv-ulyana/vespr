@@ -40,6 +40,11 @@ String _dayWord(String isoDate) {
   if (isoDate == t) return 'сьогодні';
   if (isoDate == addDays(t, 1)) return 'завтра';
   final d = parseIso(isoDate);
+  final diff = daysBetween(t, isoDate);
+  if (diff > 1 && diff < 7) {
+    const acc = ['понеділок', 'вівторок', 'середу', 'четвер', 'пʼятницю', 'суботу', 'неділю'];
+    return '${d.weekday == 2 ? 'у' : 'в'} ${acc[d.weekday - 1]}';
+  }
   return '${d.day} ${monthsGen[d.month - 1]}';
 }
 
@@ -430,7 +435,7 @@ class _MeetingFormState extends State<MeetingForm> {
             duration: const Duration(milliseconds: 350),
             curve: easeD,
             height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(color: on ? K.star : K.w(.03), borderRadius: BorderRadius.circular(999), border: Border.all(color: on ? K.star : K.w(.1))),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Text(label, style: rw(14, color: on ? K.bg : K.soft2, w: FontWeight.w500)),
@@ -484,7 +489,7 @@ class _MeetingFormState extends State<MeetingForm> {
                       child: Press(
                         onTap: () => setState(() => personId = p.id),
                         child: SizedBox(
-                          width: 64,
+                          width: 72,
                           child: Column(children: [
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 350),
@@ -517,7 +522,7 @@ class _MeetingFormState extends State<MeetingForm> {
                       ]),
                     ),
                   ),
-                ], 14, horizontal: true)),
+                ], 10, horizontal: true)),
               ),
               const SizedBox(height: 20),
               Text('День', style: lbl),
