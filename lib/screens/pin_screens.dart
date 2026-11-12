@@ -28,9 +28,8 @@ class DKeypad extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: RadialGradient(center: Alignment.topCenter, radius: 1.0, colors: [K.w(.08), K.w(.025)], stops: const [0, .7]),
-            border: Border.all(color: K.w(.06)),
-            boxShadow: [BoxShadow(color: K.w(.1), offset: const Offset(0, 1), blurRadius: 0, spreadRadius: -.5, blurStyle: BlurStyle.inner)],
+            gradient: RadialGradient(center: Alignment.topCenter, radius: 1.12, colors: [K.w(.08), K.w(.025)], stops: const [0, .7]),
+            border: Border.all(color: K.w(.07)),
           ),
           child: Text(d, style: pr(30, ls: 0)),
         ),

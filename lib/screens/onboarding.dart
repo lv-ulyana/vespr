@@ -970,7 +970,8 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
 
   String? get iso => parseUA('${d.text.padLeft(2, '0')}.${m.text.padLeft(2, '0')}.${y.text}');
 
-  Widget _num(String label, TextEditingController c, FocusNode f, int len, FocusNode? next) => Expanded(
+  /// Поле дати: зайві цифри переносяться в наступне поле (можна вводити «14092001» підряд)
+  Widget _num(String label, TextEditingController c, FocusNode f, int len, (TextEditingController, FocusNode, int)? next) => Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _Lbl(label),
           const SizedBox(height: 8),
@@ -982,10 +983,20 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
             align: TextAlign.center,
             style: pr(22),
             keyboard: TextInputType.number,
-            formatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(len)],
+            formatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (v) {
+              if (v.length > len) {
+                c.text = v.substring(0, len);
+                if (next != null) {
+                  final rest = v.substring(len);
+                  final t = rest.length > next.$3 ? rest.substring(0, next.$3) : rest;
+                  next.$1.value = TextEditingValue(text: t, selection: TextSelection.collapsed(offset: t.length));
+                  next.$2.requestFocus();
+                }
+              } else if (v.length == len) {
+                next?.$2.requestFocus();
+              }
               setState(() {});
-              if (v.length == len) next?.requestFocus();
             },
           ),
         ]),
@@ -1022,9 +1033,9 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
               ),
               const SizedBox(height: 22),
               Row(children: [
-                _num('День', d, fd, 2, fm),
+                _num('День', d, fd, 2, (m, fm, 2)),
                 const SizedBox(width: 10),
-                _num('Місяць', m, fm, 2, fy),
+                _num('Місяць', m, fm, 2, (y, fy, 4)),
                 const SizedBox(width: 10),
                 _num('Рік', y, fy, 4, null),
               ]),
@@ -1352,9 +1363,8 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
           curve: easeD,
           height: 36,
           padding: const EdgeInsets.symmetric(horizontal: 14),
-          alignment: Alignment.center,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), color: on ? K.star : K.w(.03), border: Border.all(color: on ? K.star : K.w(.1))),
-          child: Text(label, style: rw(13, color: on ? K.bg : K.soft2, w: FontWeight.w500)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [Text(label, style: rw(13, color: on ? K.bg : K.soft2, w: FontWeight.w500))]),
         ),
       );
 
@@ -1385,10 +1395,10 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       builder: (context, h) => Stack(children: [
         Positioned.fill(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 58, 20, 100),
+            padding: const EdgeInsets.fromLTRB(20, 58, 20, 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
               widget.onboarding
-                  ? StepHeader(3, right: Press(onTap: () => finishOnboarding(context), child: SizedBox(height: 44, child: Align(alignment: Alignment.centerRight, child: Text('Пізніше', style: rw(13, color: K.muted, w: FontWeight.w500))))))
+                  ? StepHeader(3, right: Press(onTap: () => finishOnboarding(context), child: SizedBox(height: 44, child: Center(child: Text('Пізніше', style: rw(13, color: K.muted, w: FontWeight.w500))))))
                   : const SizedBox(height: 44, child: Align(alignment: Alignment.centerLeft, child: BackBtn())),
               Text(widget.onboarding ? 'Додай першу людину' : 'Нова людина', style: pr(34, h: 1.1)),
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -1551,10 +1561,11 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                     ]),
                   ),
                 ),
+              const SizedBox(height: 4),
+              Cta('Додати', onTap: ok ? _save : null),
             ], 16)),
           ),
         ),
-        Positioned(left: 20, right: 20, bottom: 22, child: Cta('Додати', onTap: ok ? _save : null)),
       ]),
     );
   }

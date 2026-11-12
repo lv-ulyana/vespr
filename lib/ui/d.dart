@@ -239,7 +239,7 @@ class StepBars extends StatelessWidget {
       );
 }
 
-/// Шапка з кнопкою назад, кроками і чимось справа (44 завширшки)
+/// Шапка з кнопкою назад, кроками по центру і чимось справа
 class StepHeader extends StatelessWidget {
   final int step;
   final Widget? right;
@@ -248,10 +248,10 @@ class StepHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox(
         height: 44,
-        child: Row(children: [
-          BackBtn(onTap: onBack),
-          Expanded(child: Center(child: StepBars(step))),
-          SizedBox(width: 44, child: right),
+        child: Stack(alignment: Alignment.center, children: [
+          Center(child: StepBars(step)),
+          Align(alignment: Alignment.centerLeft, child: BackBtn(onTap: onBack)),
+          if (right != null) Align(alignment: Alignment.centerRight, child: right),
         ]),
       );
 }
@@ -375,6 +375,13 @@ class _RiseState extends State<Rise> with SingleTickerProviderStateMixin {
     Future.delayed(Duration(milliseconds: (widget.delay * 1000).round()), () {
       if (mounted) c.forward();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // «Зменшити рух» у системі — показуємо одразу, без анімації
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) c.value = 1;
   }
 
   @override
