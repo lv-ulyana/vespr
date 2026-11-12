@@ -296,10 +296,8 @@ class _EntryFormState extends State<EntryForm> {
           padding: const EdgeInsets.fromLTRB(26, 0, 6, 0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            color: onTap == null ? K.w(.06) : null,
-            gradient: onTap == null ? null : const RadialGradient(center: Alignment.topLeft, radius: 4, colors: [Color(0xFFF6A890), K.acc], stops: [0, .6]),
-            boxShadow: onTap == null ? null : [BoxShadow(color: K.a(.7), blurRadius: 30, offset: const Offset(0, 14), spreadRadius: -14)],
-          ),
+            gradient: onBase(onTap == null ? null : const RadialGradient(center: Alignment.topLeft, radius: 4, colors: [Color(0xFFF6A890), K.acc], stops: [0, .6]), onTap == null ? K.w(.06) : null),
+            boxShadow: onTap == null ? null : [BoxShadow(color: K.a(.7), blurRadius: 30, offset: const Offset(0, 14), spreadRadius: -14)]),
           child: Row(children: [
             Expanded(child: Text(onTap == null && hint != null ? hint : text, style: rw(16, color: onTap == null ? K.haze : K.bg, w: FontWeight.w700))),
             Container(
@@ -400,9 +398,7 @@ class _EntryFormState extends State<EntryForm> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: c.withValues(alpha: .2)),
-        gradient: RadialGradient(center: Alignment.topLeft, radius: 1.4, colors: [c.withValues(alpha: .14), c.withValues(alpha: 0)], stops: const [0, .6]),
-        color: K.w(.02),
-      ),
+        gradient: onBase(RadialGradient(center: Alignment.topLeft, radius: 1.4, colors: [c.withValues(alpha: .14), c.withValues(alpha: 0)], stops: const [0, .6]), K.w(.02))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Container(
@@ -663,9 +659,7 @@ Widget xOpt({required Widget child, required bool on, required VoidCallback onTa
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: on ? K.a(.55) : K.w(.07)),
-          gradient: on ? RadialGradient(center: Alignment.topLeft, radius: 1.6, colors: [K.a(.14), K.a(0)], stops: const [0, .6]) : null,
-          color: on ? null : K.w(.025),
-        ),
+          gradient: onBase(on ? RadialGradient(center: Alignment.topLeft, radius: 1.6, colors: [K.a(.14), K.a(0)], stops: const [0, .6]) : null, on ? null : K.w(.025))),
         child: Row(children: [
           if (lead != null) ...[lead, const SizedBox(width: 12)],
           Expanded(child: child),
@@ -969,10 +963,8 @@ class _EntryViewState extends State<EntryView> {
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color: K.card2,
-                    gradient: RadialGradient(center: Alignment.centerLeft, radius: 1.6, colors: [K.a(.24), const Color(0x0025222F)], stops: const [0, .65]),
-                    boxShadow: const [BoxShadow(color: Color(0xF209080E), blurRadius: 32, offset: Offset(0, 18), spreadRadius: -20)],
-                  ),
+                    gradient: onBase(RadialGradient(center: Alignment.centerLeft, radius: 1.6, colors: [K.a(.24), const Color(0x0025222F)], stops: const [0, .65]), K.card2),
+                    boxShadow: const [BoxShadow(color: Color(0xF209080E), blurRadius: 32, offset: Offset(0, 18), spreadRadius: -20)]),
                   child: Row(children: [
                     ShaderMask(
                       shaderCallback: (r) => const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFD3C4), K.acc]).createShader(r),

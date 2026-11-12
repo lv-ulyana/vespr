@@ -676,11 +676,9 @@ class _PeopleEmpty extends StatelessWidget {
               left: 194, top: 42, rot: 9, delay: .25,
               deco: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
-                color: const Color(0xFF201B25),
-                gradient: RadialGradient(center: const Alignment(0, -.1), radius: .7, colors: [K.a(.16), K.a(0)]),
+                gradient: onBase(RadialGradient(center: const Alignment(0, -.1), radius: .7, colors: [K.a(.16), K.a(0)]), const Color(0xFF201B25)),
                 border: Border.all(color: K.a(.35)),
-                boxShadow: [BoxShadow(color: K.a(.45), blurRadius: 44, offset: const Offset(0, 24), spreadRadius: -22)],
-              ),
+                boxShadow: [BoxShadow(color: K.a(.45), blurRadius: 44, offset: const Offset(0, 24), spreadRadius: -22)]),
               child: Press(
                 label: 'Додати людину',
                 onTap: () => go(context, const AddPersonScreen()),
@@ -1412,11 +1410,9 @@ class _MatchCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: K.hour,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: K.w(.07)),
-            gradient: RadialGradient(center: Alignment.centerLeft, radius: 1.4, colors: [K.a(.16), K.a(0)], stops: const [0, .6]),
-          ),
+            gradient: onBase(RadialGradient(center: Alignment.centerLeft, radius: 1.4, colors: [K.a(.16), K.a(0)], stops: const [0, .6]), K.hour)),
           child: Stack(clipBehavior: Clip.none, children: [
             // зорі
             Positioned(right: 46, top: 2, child: _dot(.45, K.star)),
@@ -1478,11 +1474,9 @@ class _NoDateCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: K.hour,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: K.w(.07)),
-        gradient: RadialGradient(center: Alignment.centerLeft, radius: 1.4, colors: [K.a(.16), K.a(0)], stops: const [0, .6]),
-      ),
+        gradient: onBase(RadialGradient(center: Alignment.centerLeft, radius: 1.4, colors: [K.a(.16), K.a(0)], stops: const [0, .6]), K.hour)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           const _ArcCard(roman: '?', q: true),
@@ -1840,9 +1834,7 @@ class _HallHero extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(18, 24, 18, 18),
             decoration: BoxDecoration(
-              color: K.hour,
-              gradient: RadialGradient(center: Alignment.topRight, radius: 1.3, colors: [col.withValues(alpha: glory ? .2 : .28), col.withValues(alpha: 0)], stops: const [0, .6]),
-            ),
+              gradient: onBase(RadialGradient(center: Alignment.topRight, radius: 1.3, colors: [col.withValues(alpha: glory ? .2 : .28), col.withValues(alpha: 0)], stops: const [0, .6]), K.hour)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 SizedBox(

@@ -558,10 +558,8 @@ class _RowCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 10, 14, 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              color: K.card2,
               border: Border.all(color: K.a(.18)),
-              gradient: LinearGradient(begin: const Alignment(-1, -.2), end: const Alignment(1, .2), colors: [K.a(.2), const Color(0x002B2836), const Color(0x002B2836)], stops: const [0, .7, 1]),
-            ),
+              gradient: onBase(LinearGradient(begin: const Alignment(-1, -.2), end: const Alignment(1, .2), colors: [K.a(.2), const Color(0x002B2836), const Color(0x002B2836)], stops: const [0, .7, 1]), K.card2)),
             child: Row(children: [
               badge,
               const SizedBox(width: 14),

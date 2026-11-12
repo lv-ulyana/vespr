@@ -1194,11 +1194,9 @@ class _MapEarly extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: K.card2,
                     borderRadius: BorderRadius.circular(24),
                     border: Border(top: BorderSide(color: K.w(.08))),
-                    gradient: RadialGradient(center: Alignment.topLeft, radius: 1.2, colors: [K.a(.14), K.a(0)], stops: const [0, .6]),
-                  ),
+                    gradient: onBase(RadialGradient(center: Alignment.topLeft, radius: 1.2, colors: [K.a(.14), K.a(0)], stops: const [0, .6]), K.card2)),
                   child: Row(children: [
                     _MiniSky(lit: math.min(n, _full)),
                     const SizedBox(width: 14),
@@ -1213,11 +1211,9 @@ class _MapEarly extends StatelessWidget {
                                 height: 6,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(3),
-                                  color: i < n ? null : Colors.transparent,
                                   border: i < n ? null : Border.all(color: K.w(.14)),
-                                  gradient: i < n ? const LinearGradient(colors: [Color(0xFFF6A890), K.acc]) : null,
-                                  boxShadow: i < n ? [BoxShadow(color: K.a(.45), blurRadius: 10)] : null,
-                                ),
+                                  gradient: onBase(i < n ? const LinearGradient(colors: [Color(0xFFF6A890), K.acc]) : null, i < n ? null : Colors.transparent),
+                                  boxShadow: i < n ? [BoxShadow(color: K.a(.45), blurRadius: 10)] : null),
                               ),
                             ),
                         ], 4, horizontal: true)),
@@ -1336,12 +1332,10 @@ class _Obs extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
         decoration: BoxDecoration(
-          color: K.card2,
           borderRadius: BorderRadius.circular(24),
           border: Border(top: BorderSide(color: up ? const Color(0x59F4A189) : K.w(.07))),
-          gradient: RadialGradient(center: Alignment.topRight, radius: 1.3, colors: [(up ? K.acc : K.haze).withValues(alpha: up ? .17 : .13), (up ? K.acc : K.haze).withValues(alpha: 0)], stops: const [0, .62]),
-          boxShadow: const [BoxShadow(color: Color(0xE609080E), blurRadius: 28, offset: Offset(0, 16), spreadRadius: -18)],
-        ),
+          gradient: onBase(RadialGradient(center: Alignment.topRight, radius: 1.3, colors: [(up ? K.acc : K.haze).withValues(alpha: up ? .17 : .13), (up ? K.acc : K.haze).withValues(alpha: 0)], stops: const [0, .62]), K.card2),
+          boxShadow: const [BoxShadow(color: Color(0xE609080E), blurRadius: 28, offset: Offset(0, 16), spreadRadius: -18)]),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Ico(up ? _icStarFill : _icStarLine, size: 12, color: up ? K.acc : K.haze), const SizedBox(width: 8), Text(k, style: rw(12, color: K.muted2, w: FontWeight.w500, ls: .12))]),
           const SizedBox(height: 10),
@@ -1431,11 +1425,9 @@ class _MyArcanaScreenState extends State<MyArcanaScreen> {
     Widget box({required String title, required String text, String? icon, bool plus = false, bool minus = false}) => Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
           decoration: BoxDecoration(
-            color: K.card2,
             borderRadius: BorderRadius.circular(22),
             border: Border(top: BorderSide(color: K.w(.08))),
-            gradient: minus ? null : RadialGradient(center: Alignment.topRight, radius: 1.2, colors: [K.a(plus ? .2 : .14), K.a(0)], stops: const [0, .65]),
-          ),
+            gradient: onBase(minus ? null : RadialGradient(center: Alignment.topRight, radius: 1.2, colors: [K.a(plus ? .2 : .14), K.a(0)], stops: const [0, .65]), K.card2)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               if (plus || minus)

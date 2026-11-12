@@ -697,3 +697,14 @@ class Blob extends StatelessWidget {
     );
   }
 }
+
+/// CSS малює градієнт поверх кольору фону, а Flutter — замість нього.
+/// Тут кожен колір градієнта накладається на базовий колір, щоб краї не «провалювались» у темне.
+Gradient? onBase(Gradient? g, Color? base) {
+  if (base == null) return g;
+  if (g == null) return LinearGradient(colors: [base, base]);
+  List<Color> mix(List<Color> cs) => [for (final c in cs) Color.alphaBlend(c, base)];
+  if (g is RadialGradient) return RadialGradient(center: g.center, radius: g.radius, colors: mix(g.colors), stops: g.stops, focal: g.focal, focalRadius: g.focalRadius, tileMode: g.tileMode);
+  if (g is LinearGradient) return LinearGradient(begin: g.begin, end: g.end, colors: mix(g.colors), stops: g.stops, tileMode: g.tileMode);
+  return g;
+}
