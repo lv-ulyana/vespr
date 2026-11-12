@@ -701,16 +701,17 @@ Widget _primaryBtn(String t, VoidCallback? onTap, {bool danger = false}) => Pres
     );
 
 /// Календар-місяць для вибору дати (майбутні дні недоступні)
-class _MonthGrid extends StatefulWidget {
+class MonthGrid extends StatefulWidget {
   final String value;
   final String? current;
   final ValueChanged<String> onPick;
-  const _MonthGrid({required this.value, required this.onPick, this.current});
+  final bool future; // true — можна тільки сьогодні й далі (планування)
+  const MonthGrid({super.key, required this.value, required this.onPick, this.current, this.future = false});
   @override
-  State<_MonthGrid> createState() => _MonthGridState();
+  State<MonthGrid> createState() => MonthGridState();
 }
 
-class _MonthGridState extends State<_MonthGrid> {
+class MonthGridState extends State<MonthGrid> {
   late DateTime month = DateTime(parseIso(widget.value).year, parseIso(widget.value).month);
   @override
   Widget build(BuildContext context) {
@@ -718,7 +719,7 @@ class _MonthGridState extends State<_MonthGrid> {
     final lead = first.weekday - 1;
     final days = DateTime(month.year, month.month + 1, 0).day;
     final t = today();
-    final canNext = DateTime(month.year, month.month + 1).isBefore(DateTime.now().add(const Duration(days: 1)));
+    final canNext = widget.future || DateTime(month.year, month.month + 1).isBefore(DateTime.now().add(const Duration(days: 1)));
     return Column(children: [
       Row(children: [
         Text('${cap(monthsNom[month.month - 1])} ${month.year}', style: rw(13, color: K.muted)),
@@ -744,7 +745,7 @@ class _MonthGridState extends State<_MonthGrid> {
           for (var d = 1; d <= days; d++)
             () {
               final iso = '${month.year}-${month.month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
-              final fut = iso.compareTo(t) > 0;
+              final fut = widget.future ? iso.compareTo(t) < 0 : iso.compareTo(t) > 0;
               final sel = iso == widget.value;
               final cur = iso == widget.current && !sel;
               return Press(
@@ -800,7 +801,7 @@ class _WhoWhenSheetState extends State<_WhoWhenSheet> {
           child: SizedBox(height: 44, child: Row(mainAxisSize: MainAxisSize.min, children: [const Ico('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>', size: 14, color: K.accSoft), const SizedBox(width: 8), Text('Нова людина', style: rw(13, color: K.accSoft, w: FontWeight.w500))])),
         ),
       ),
-      _MonthGrid(value: date, onPick: (d) => setState(() => date = d)),
+      MonthGrid(value: date, onPick: (d) => setState(() => date = d)),
       _primaryBtn('Готово', pid.isEmpty ? null : () => Navigator.pop(context, (pid, date))),
       _ghostBtn(context, 'Скасувати'),
     ]);
@@ -1129,7 +1130,7 @@ class _DateSheetState extends State<_DateSheet> {
     final wd = const ['', 'понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота', 'неділя'][p.weekday];
     return Sheet(children: [
       Text('Змінити дату', style: pr(26, h: 1.15)),
-      _MonthGrid(value: d, current: widget.entry.date, onPick: (x) => setState(() => d = x)),
+      MonthGrid(value: d, current: widget.entry.date, onPick: (x) => setState(() => d = x)),
       Text(d == widget.entry.date ? 'Зараз $wd, ${p.day} ${monthsGen[p.month - 1]}. Майбутні дні недоступні, для них є «Нова зустріч».' : 'Нова дата: $wd, ${p.day} ${monthsGen[p.month - 1]}.', style: rw(13, color: K.muted, h: 1.5)),
       _primaryBtn('Зберегти дату', () => Navigator.pop(context, d)),
       _ghostBtn(context, 'Скасувати'),

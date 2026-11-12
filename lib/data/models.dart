@@ -189,10 +189,11 @@ class Meeting {
   String? place; // bar | restaurant | cafe | park | cinema | his | mine | other
   bool remind;
   String? extId; // id події в календарі, звідки імпортовано (щоб не дублювати)
+  String? placeText; // своє місце: концерт, дача…
 
-  Meeting({required this.id, required this.personId, required this.date, required this.time, this.place, this.remind = true, this.extId});
+  Meeting({required this.id, required this.personId, required this.date, required this.time, this.place, this.remind = true, this.extId, this.placeText});
 
-  Map<String, dynamic> toJson() => {'id': id, 'personId': personId, 'date': date, 'time': time, 'place': place, 'remind': remind, if (extId != null) 'extId': extId};
+  Map<String, dynamic> toJson() => {'id': id, 'personId': personId, 'date': date, 'time': time, 'place': place, 'remind': remind, if (extId != null) 'extId': extId, if (placeText != null) 'placeText': placeText};
 
   factory Meeting.fromJson(Map<String, dynamic> j) => Meeting(
         id: _str(j['id']) ?? '',
@@ -202,6 +203,7 @@ class Meeting {
         place: _str(j['place']),
         remind: j['remind'] != false,
         extId: _str(j['extId']),
+        placeText: _str(j['placeText']),
       );
 }
 
