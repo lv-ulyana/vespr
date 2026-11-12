@@ -10,6 +10,7 @@ import '../ui/kit.dart';
 import '../ui/theme.dart';
 import 'entry.dart';
 import 'export_screen.dart';
+import 'onboarding.dart' show AddPersonScreen;
 import 'people.dart';
 
 /// Календар: записи (крапка) і заплановані зустрічі (кільце)
@@ -144,7 +145,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       Row(children: [
         Expanded(child: Btn('Запланувати', kind: BtnKind.ghost, onTap: () => go(context, MeetingForm(date: sel.compareTo(t) >= 0 ? sel : t)))),
         const SizedBox(width: 8),
-        Expanded(child: Btn('Записати', onTap: sel.compareTo(t) > 0 ? null : () => go(context, s.people.isEmpty ? const PersonEdit() : EntryForm(date: sel)))),
+        Expanded(child: Btn('Записати', onTap: sel.compareTo(t) > 0 ? null : () => go(context, s.people.isEmpty ? const AddPersonScreen() : EntryForm(date: sel)))),
       ]),
       NavRow(title: 'Додати зустрічі в календар телефону', icon: Icons.event_available_rounded, onTap: () => go(context, const ExportScreen(calendar: true))),
     ]);

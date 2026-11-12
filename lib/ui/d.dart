@@ -23,6 +23,7 @@ class K {
   static const accSoft = Color(0xFFF4A189);
   static const green = Color(0xFF9FCBA9);
   static const red = Color(0xFFF2827A);
+  static const dimC = Color(0xFF5E5874);
   static Color w(double a) => star.withValues(alpha: a); // rgba(241,238,242,a)
   static Color a(double a) => acc.withValues(alpha: a); // rgba(240,138,108,a)
 }
