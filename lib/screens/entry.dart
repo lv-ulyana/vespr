@@ -10,7 +10,7 @@ import '../logic/triggers.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
 import 'onboarding.dart' show AddPersonScreen;
-import 'settings.dart' show PaywallScreen, QuestionsScreen;
+import 'settings.dart' show PaywallKind, PaywallScreen, QuestionsScreen;
 
 /// Тон оцінки (для старих місць, що його питають)
 Color toneOf(int v) => v >= 4 ? K.green : v <= 2 ? K.red : K.acc;
@@ -280,7 +280,7 @@ class _EntryFormState extends State<EntryForm> {
           ),
           const SizedBox(height: 12),
           if (limit)
-            _cta('Записувати без ліміту', () => goReplace(context, const PaywallScreen()))
+            _cta('Записувати без ліміту', () => goReplace(context, const PaywallScreen(kind: PaywallKind.limit)))
           else
             _cta(prev == null ? 'Зберегти запис' : 'Зберегти зміни', ok ? () => _save(s) : null, hint: overall == 0 ? 'Постав «Як загалом?»' : null),
         ]),

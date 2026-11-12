@@ -8,8 +8,8 @@ import '../logic/import_csv.dart';
 import '../logic/import_ics.dart';
 import '../services/files.dart';
 import '../services/phone_calendar.dart';
-import '../ui/kit.dart';
-import '../ui/theme.dart';
+import '../ui/board.dart';
+import '../ui/d.dart';
 
 /// Імпорт: записи з таблиці (CSV) або зустрічі з календаря (телефон чи файл .ics).
 /// Ліміт безкоштовної версії на імпорт не діє: це її старі дані. Дизайн: дошки «14.2» і «14.3».
@@ -53,12 +53,12 @@ class _ImportScreenState extends State<ImportScreen> {
       if (f == null) return;
       final lower = f.name.toLowerCase();
       if (lower.endsWith('.xlsx') || lower.endsWith('.xls') || lower.endsWith('.numbers')) {
-        if (mounted) toast(context, 'Це файл Excel. Збережи його як CSV: Файл → Зберегти як → CSV. У Google Таблицях: Файл → Завантажити → CSV.');
+        if (mounted) dToast(context, 'Це файл Excel. Збережи його як CSV: Файл → Зберегти як → CSV. У Google Таблицях: Файл → Завантажити → CSV.');
         return;
       }
       final t = parseCsv(decodeTextFile(f.bytes));
       if (t.header.isEmpty) {
-        if (mounted) toast(context, 'Файл порожній або це не таблиця');
+        if (mounted) dToast(context, 'Файл порожній або це не таблиця');
         return;
       }
       setState(() {
@@ -67,7 +67,7 @@ class _ImportScreenState extends State<ImportScreen> {
         mapping = autoMap(t.header);
       });
     } catch (e) {
-      if (mounted) toast(context, 'Не вдалося прочитати файл: $e');
+      if (mounted) dToast(context, 'Не вдалося прочитати файл: $e');
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -76,24 +76,21 @@ class _ImportScreenState extends State<ImportScreen> {
   Future<void> _pickField(int col) async {
     final current = mapping[col];
     final options = <String?>[...pickableFields, if (current != null && !pickableFields.contains(current)) current, null];
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: C.surface,
-      showDragHandle: true,
-      builder: (ctx) => SafeArea(
-        child: ListView(shrinkWrap: true, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Text('Стовпець «${table!.header[col]}» — це…', style: T.body(15, C.text, FontWeight.w600)),
+    final picked = await showSheet<String>(
+      context,
+      (ctx) => Sheet(children: [
+        sheetTitle('Що в стовпці?'),
+        sheetText('«${table!.header[col]}»'),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 420),
+          child: SingleChildScrollView(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
+              for (final f in options) XOpt(title: fieldLabel(f), on: f == current, onTap: () => Navigator.pop(ctx, f ?? '-')),
+            ], 8)),
           ),
-          for (final f in options)
-            ListTile(
-              title: Text(fieldLabel(f), style: T.body(15, f == current ? C.accent : C.text, FontWeight.w500)),
-              trailing: f == current ? const Icon(Icons.check_rounded, color: C.accent) : null,
-              onTap: () => Navigator.pop(ctx, f ?? '-'),
-            ),
-        ]),
-      ),
+        ),
+        sheetCancel(ctx),
+      ]),
     );
     if (picked == null) return;
     setState(() {
@@ -111,7 +108,7 @@ class _ImportScreenState extends State<ImportScreen> {
     setState(() => busy = true);
     await s.importBatch(people: plan.newPeople, entries: plan.entries);
     if (!mounted) return;
-    toast(context, 'Додали ${plan.entries.length} ${plural(plan.entries.length, 'запис', 'записи', 'записів')}');
+    dToast(context, 'Додали ${plan.entries.length} ${plural(plan.entries.length, 'запис', 'записи', 'записів')}');
     Navigator.of(context).maybePop();
   }
 
@@ -121,78 +118,79 @@ class _ImportScreenState extends State<ImportScreen> {
     final plan = t == null || missing.isNotEmpty ? null : planCsvImport(t, mapping, s.db, newId: uid);
     return [
       const _Step(1, 'Файл'),
-      VCard(
-        onTap: busy ? null : _pickCsv,
-        child: Row(children: [
-          Container(
+      Grp([
+        GRow(
+          title: t == null ? 'Обрати файл .csv' : (fileName ?? 'таблиця.csv'),
+          sub: t == null ? 'З Excel, Google Таблиць, Numbers або експорту Vespr' : '${t.rows.length} ${plural(t.rows.length, 'рядок', 'рядки', 'рядків')} · роздільник ${sepLabel(t.sep)}',
+          onTap: busy ? null : _pickCsv,
+          trailing: DChip(t == null ? 'Обрати' : 'Інший', height: 32, onTap: busy ? null : _pickCsv),
+          lead: Container(
             width: 36, height: 36,
-            decoration: BoxDecoration(color: C.green.withValues(alpha: .16), borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.table_chart_outlined, size: 18, color: C.green),
+            decoration: BoxDecoration(color: K.green.withValues(alpha: .16), borderRadius: BorderRadius.circular(10)),
+            alignment: Alignment.center,
+            child: Ico(BS.table, size: 17, color: K.green),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: t == null
-                ? const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Txt('Обрати файл .csv'),
-                    Txt('З Excel, Google Таблиць, Numbers або експорту Vespr', small: true, muted: true),
-                  ])
-                : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Txt(fileName ?? 'таблиця.csv', lines: 1),
-                    Txt('${t.rows.length} ${plural(t.rows.length, 'рядок', 'рядки', 'рядків')} · роздільник ${sepLabel(t.sep)}', small: true, muted: true),
-                  ]),
-          ),
-          Text(t == null ? 'Обрати' : 'Інший', style: T.body(13, C.accent, FontWeight.w600)),
-        ]),
-      ),
+        ),
+      ]),
       if (t == null)
-        const _Note(Icons.info_outline_rounded,
-            'Excel: Файл → Зберегти як → CSV. Google Таблиці: Файл → Завантажити → CSV. Потрібні хоча б три стовпці: дата, людина, оцінка 1–5.'),
+        NoteBox('Excel: Файл → Зберегти як → CSV. Google Таблиці: Файл → Завантажити → CSV. Потрібні хоча б три стовпці: дата, людина, оцінка 1–5.'),
       if (t != null) ...[
         const _Step(2, 'Стовпці'),
-        VCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          child: Column(children: [
-            for (var i = 0; i < t.header.length; i++)
-              InkWell(
-                onTap: () => _pickField(i),
+        Grp(inset: 0, [
+          for (var i = 0; i < t.header.length; i++)
+            InkWell(
+              onTap: () => _pickField(i),
+              highlightColor: K.w(.03),
+              splashColor: Colors.transparent,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 52),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   child: Row(children: [
-                    Icon(mapping[i] != null ? Icons.check_rounded : Icons.remove_rounded, size: 16, color: mapping[i] != null ? C.green : C.dim),
+                    SizedBox(width: 14, child: Text(mapping[i] != null ? '✓' : '—', style: rw(14, color: mapping[i] != null ? K.green : K.accSoft))),
                     const SizedBox(width: 10),
-                    Expanded(child: Txt(t.header[i].isEmpty ? 'Стовпець ${i + 1}' : t.header[i], lines: 1, color: mapping[i] != null ? C.text : C.muted)),
+                    Expanded(child: Text(t.header[i].isEmpty ? 'Стовпець ${i + 1}' : t.header[i], maxLines: 1, overflow: TextOverflow.ellipsis, style: rw(14, color: mapping[i] != null ? K.star : K.muted))),
                     const SizedBox(width: 8),
                     Container(
+                      height: 32,
                       constraints: const BoxConstraints(maxWidth: 170),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(color: const Color(0x0DF1EEF2), borderRadius: BorderRadius.circular(999), border: Border.all(color: C.line2)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(color: K.w(.05), borderRadius: BorderRadius.circular(999), border: Border.all(color: K.w(.1))),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Flexible(child: Text(fieldLabel(mapping[i]), overflow: TextOverflow.ellipsis, style: T.body(12, mapping[i] != null ? C.text : C.muted, FontWeight.w500))),
-                        const Icon(Icons.expand_more_rounded, size: 16, color: C.haze),
+                        Flexible(child: Text(fieldLabel(mapping[i]), overflow: TextOverflow.ellipsis, style: rw(12, color: mapping[i] != null ? K.soft2 : K.muted))),
+                        const SizedBox(width: 6),
+                        Ico(BS.caret, size: 10, color: K.soft2),
                       ]),
                     ),
                   ]),
                 ),
               ),
-          ]),
+            ),
+        ]),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            missing.isNotEmpty ? 'Обери стовпець для: ${missing.map(fieldLabel).join(', ')}' : "Обов'язкові тільки дата, людина і оцінка 1–5. Таблицю з експорту Vespr впізнаємо повністю: питання, прапорці, теги.",
+            style: rw(12, color: missing.isNotEmpty ? K.accSoft : K.haze, h: 1.5),
+          ),
         ),
-        if (missing.isNotEmpty)
-          Txt('Обери стовпець для: ${missing.map(fieldLabel).join(', ')}', small: true, color: C.accentSoft)
-        else
-          const Txt("Таблицю з експорту Vespr впізнаємо повністю: питання, прапорці, теги, факти.", small: true, muted: true),
       ],
       if (plan != null) ...[
         const _Step(3, 'Що буде'),
-        Row(children: [
-          _SumTile('${plan.entries.length}', plural(plan.entries.length, 'запис додамо', 'записи додамо', 'записів додамо')),
-          const SizedBox(width: 8),
-          _SumTile('${plan.newPeople.length}', plan.newPeople.isEmpty ? 'нових людей' : 'нові: ${plan.newPeople.map((p) => p.name).take(3).join(', ')}${plan.newPeople.length > 3 ? '…' : ''}'),
-          const SizedBox(width: 8),
-          _SumTile('${plan.duplicates}', 'пропустимо: вже є'),
-        ]),
-        if (plan.skipped.isNotEmpty)
-          _Note(Icons.error_outline_rounded,
-              'Не візьмемо ${plan.skipped.length} ${plural(plan.skipped.length, 'рядок', 'рядки', 'рядків')}: ${plan.skipped.take(3).map((r) => 'рядок ${r.line} — ${r.reason}').join('; ')}${plan.skipped.length > 3 ? '…' : ''}'),
+        IntrinsicHeight(
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _SumTile('${plan.entries.length}', plural(plan.entries.length, 'запис додамо', 'записи додамо', 'записів додамо')),
+            const SizedBox(width: 8),
+            _SumTile('${plan.newPeople.length}', plan.newPeople.isEmpty ? 'нових людей' : '${plural(plan.newPeople.length, 'нова людина', 'нові людини', 'нових людей')}: ${plan.newPeople.map((p) => p.name).take(3).join(', ')}${plan.newPeople.length > 3 ? '…' : ''}'),
+            const SizedBox(width: 8),
+            _SumTile('${plan.duplicates}', 'пропустимо: такий запис уже є'),
+          ]),
+        ),
+        NoteBox([
+          if (plan.skipped.isNotEmpty)
+            '${plan.skipped.take(3).map((r) => 'Рядок ${r.line}: ${r.reason}').join('; ')}${plan.skipped.length > 3 ? '…' : ''} — пропустимо.',
+          'Ліміт безкоштовної версії на імпорт не діє.',
+        ].join(' ')),
       ],
     ];
   }
@@ -269,39 +267,23 @@ class _ImportScreenState extends State<ImportScreen> {
 
   Future<void> _pickPerson(EventChoice c, AppStore s) async {
     final people = [...s.people.where((p) => !p.isPast), ...s.people.where((p) => p.isPast)];
-    final picked = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: C.surface,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * .7),
-          child: ListView(shrinkWrap: true, children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text('«${c.event.title.isEmpty ? 'Без назви' : c.event.title}» — це…', style: T.body(15, C.text, FontWeight.w600)),
-            ),
-            for (final p in people)
-              ListTile(
-                title: Text(p.name, style: T.body(15, p.id == c.personId ? C.accent : C.text, FontWeight.w500)),
-                subtitle: p.isPast ? Text('минулі', style: T.body(12, C.muted)) : null,
-                onTap: () => Navigator.pop(ctx, p.id),
-              ),
-            for (final e in newPeople.entries)
-              ListTile(
-                title: Text(e.value, style: T.body(15, e.key == c.personId ? C.accent : C.text, FontWeight.w500)),
-                subtitle: Text('нова', style: T.body(12, C.muted)),
-                onTap: () => Navigator.pop(ctx, e.key),
-              ),
-            ListTile(
-              leading: const Icon(Icons.person_add_alt_1_outlined, color: C.accent),
-              title: Text('Нова людина…', style: T.body(15, C.accent, FontWeight.w600)),
-              onTap: () => Navigator.pop(ctx, '+'),
-            ),
-          ]),
+    final picked = await showSheet<String>(
+      context,
+      (ctx) => Sheet(children: [
+        sheetTitle('Хто це?'),
+        sheetText('«${c.event.title.isEmpty ? 'Без назви' : c.event.title}»'),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 400),
+          child: SingleChildScrollView(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
+              for (final p in people) XOpt(title: p.name, sub: p.isPast ? 'минулі' : null, on: p.id == c.personId, onTap: () => Navigator.pop(ctx, p.id)),
+              for (final e in newPeople.entries) XOpt(title: e.value, sub: 'нова', on: e.key == c.personId, onTap: () => Navigator.pop(ctx, e.key)),
+              XOpt(title: 'Нова людина…', color: K.accSoft, radio: false, onTap: () => Navigator.pop(ctx, '+')),
+            ], 8)),
+          ),
         ),
-      ),
+        sheetCancel(ctx),
+      ]),
     );
     if (picked == null || !mounted) return;
     var id = picked;
@@ -319,17 +301,14 @@ class _ImportScreenState extends State<ImportScreen> {
 
   Future<String?> _askName() {
     final ctl = TextEditingController();
-    return showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: C.surface,
-        title: Text("Як його звати?", style: T.serif(22)),
-        content: TextField(controller: ctl, autofocus: true, style: T.body(16), textCapitalization: TextCapitalization.words, decoration: const InputDecoration(hintText: "Ім'я або прізвисько")),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Скасувати', style: T.body(14, C.muted))),
-          TextButton(onPressed: () => Navigator.pop(ctx, ctl.text.trim()), child: Text('Додати', style: T.body(14, C.accent, FontWeight.w600))),
-        ],
-      ),
+    return showSheet<String>(
+      context,
+      (ctx) => Sheet(children: [
+        sheetTitle('Як його звати?'),
+        DInput(controller: ctl, label: "Ім'я", hint: "Ім'я або прізвисько", style: rw(16), caps: TextCapitalization.words, onSubmitted: (v) => Navigator.pop(ctx, v.trim())),
+        Padding(padding: const EdgeInsets.only(top: 4), child: Cta('Додати', onTap: () => Navigator.pop(ctx, ctl.text.trim()))),
+        sheetCancel(ctx),
+      ]),
     );
   }
 
@@ -347,7 +326,7 @@ class _ImportScreenState extends State<ImportScreen> {
     await s.importBatch(people: created.values.toList(), meetings: ms);
     if (!mounted) return;
     final past = chosen.where((c) => c.past).length;
-    toast(context, 'Додали ${ms.length} ${plural(ms.length, 'зустріч', 'зустрічі', 'зустрічей')}${past > 0 ? '. Минулі чекають оцінки на головній' : ''}');
+    dToast(context, 'Додали ${ms.length} ${plural(ms.length, 'зустріч', 'зустрічі', 'зустрічей')}${past > 0 ? '. Минулі чекають оцінки на головній' : ''}');
     Navigator.of(context).maybePop();
   }
 
@@ -356,46 +335,50 @@ class _ImportScreenState extends State<ImportScreen> {
     final visible = list == null ? <EventChoice>[] : list.where((c) => !onlyKnown || c.personId != null || c.on).toList();
     return [
       if (kIsWeb)
-        const _Note(Icons.info_outline_rounded, 'У веб-версії календар телефону недоступний. Експортуй календар у файл .ics (Google Календар: Налаштування → Імпорт і експорт) і обери його тут.'),
+        NoteBox('У веб-версії календар телефону недоступний. Експортуй календар у файл .ics (Google Календар: Налаштування → Імпорт і експорт) і обери його тут.'),
       if (!kIsWeb)
-      Row(children: [
-        _Source(on: src == _Src.phone, icon: Icons.smartphone_rounded, title: 'Календар телефону', sub: 'Google або Apple, без файлів', onTap: () => setState(() {
-              src = _Src.phone;
-              choices = null;
-            })),
-        const SizedBox(width: 8),
-        _Source(on: src == _Src.file, icon: Icons.insert_drive_file_outlined, title: 'Файл .ics', sub: 'Експорт з Outlook чи іншого календаря', onTap: () => setState(() {
-              src = _Src.file;
-              choices = fileEvents.isEmpty ? null : buildChoices(_inSpan(fileEvents), s.db);
-            })),
-      ]),
-      Chips([for (final r in _Range.values) ChipX(_rangeLabels[r]!, on: range == r, onTap: () => _changeRange(r, s))]),
+        optPair(
+          OptCard(on: src == _Src.phone, svg: BS.phone, title: 'Календар телефону', sub: 'Google або Apple, без файлів', onTap: () => setState(() {
+                src = _Src.phone;
+                choices = null;
+              })),
+          OptCard(on: src == _Src.file, svg: BS.file, title: 'Файл .ics', sub: 'Експорт з Outlook чи іншого календаря', onTap: () => setState(() {
+                src = _Src.file;
+                choices = fileEvents.isEmpty ? null : buildChoices(_inSpan(fileEvents), s.db);
+              })),
+        ),
+      chipsWrap([for (final r in _Range.values) DChip(_rangeLabels[r]!, on: range == r, onTap: () => _changeRange(r, s))]),
       if (list == null)
-        Btn(
+        GhostBtn(
           busy ? 'Зачекай…' : (src == _Src.phone ? 'Показати події' : 'Обрати файл .ics'),
-          kind: BtnKind.ghost,
-          icon: src == _Src.phone ? Icons.event_note_outlined : Icons.folder_open_outlined,
+          svg: src == _Src.phone ? BS.cal : BS.file,
           onTap: busy ? null : () => src == _Src.phone ? _loadPhone(s) : _pickIcs(s),
         ),
-      if (calError != null) Txt(calError!, small: true, color: C.accentSoft),
-      if (src == _Src.file && icsName != null && list != null) Txt('$icsName · ${fileEvents.length} подій у файлі', small: true, muted: true),
-      if (list != null && list.isEmpty) const Txt('За цей період подій нема.', muted: true),
+      if (calError != null) Text(calError!, style: rw(12, color: K.accSoft, h: 1.5)),
+      if (src == _Src.file && icsName != null && list != null) Text('$icsName · ${fileEvents.length} подій у файлі', style: rw(12, color: K.haze)),
+      if (list != null && list.isEmpty) Text('За цей період подій нема.', style: rw(14, color: K.muted)),
       if (list != null && list.isNotEmpty && list.any((c) => c.personId == null))
-        Chips([
-          ChipX('Де впізнали людину', on: onlyKnown, onTap: () => setState(() => onlyKnown = true)),
-          ChipX('Усі події · ${list.length}', on: !onlyKnown, onTap: () => setState(() => onlyKnown = false)),
+        chipsWrap([
+          DChip('Де впізнали людину', on: onlyKnown, onTap: () => setState(() => onlyKnown = true)),
+          DChip('Усі події · ${list.length}', on: !onlyKnown, onTap: () => setState(() => onlyKnown = false)),
         ]),
-      for (final c in visible.take(80))
-        _EventPick(
-          c: c,
-          who: c.personId == null ? null : (newPeople[c.personId] ?? s.personName(c.personId!)),
-          onToggle: c.already ? null : () => setState(() => c.on = !c.on),
-          onWho: () => _pickPerson(c, s),
-        ),
-      if (visible.length > 80) Txt('Показали перші 80. Звузь період, щоб побачити решту.', small: true, muted: true),
+      if (visible.isNotEmpty)
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
+          for (final c in visible.take(80))
+            _EventPick(
+              c: c,
+              who: c.personId == null ? null : (newPeople[c.personId] ?? s.personName(c.personId!)),
+              onToggle: c.already ? null : () => setState(() => c.on = !c.on),
+              onWho: () => _pickPerson(c, s),
+            ),
+        ], 8)),
+      if (visible.length > 80) Text('Показали перші 80. Звузь період, щоб побачити решту.', style: rw(12, color: K.haze)),
       if (list != null && list.isNotEmpty)
-        const Txt('Людину вгадуємо за ім\'ям у назві події. «Хто це?» — тапни й обери. Майбутні стануть запланованими зустрічами, минулі — зустрічами, які лишилось оцінити.', small: true, muted: true),
-      const _Note(Icons.lock_outline_rounded, 'Читаємо тільки події, які ти обереш. У самому календарі нічого не змінюємо.'),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text('Людину вгадуємо за назвою події. «Хто це?» — тапни й обери або додай нову. Майбутні стануть запланованими зустрічами, минулі — зустрічами, які лишилось оцінити.', style: rw(12, color: K.haze, h: 1.5)),
+        ),
+      NoteBox('Читаємо тільки події, які ти обереш. У самому календарі нічого не змінюємо.', svg: BS.lock),
     ];
   }
 
@@ -408,24 +391,28 @@ class _ImportScreenState extends State<ImportScreen> {
       final plan = t == null || missingRequired(mapping).isNotEmpty ? null : planCsvImport(t, mapping, s.db, newId: uid);
       if (t != null) {
         final n = plan?.entries.length ?? 0;
-        cta = Btn(busy ? 'Зачекай…' : 'Імпортувати $n ${plural(n, 'запис', 'записи', 'записів')}', onTap: busy || plan == null || n == 0 ? null : () => _importCsv(s, plan));
+        cta = Cta(busy ? 'Зачекай…' : 'Імпортувати $n ${plural(n, 'запис', 'записи', 'записів')}', onTap: busy || plan == null || n == 0 ? null : () => _importCsv(s, plan));
       }
     } else if (choices != null) {
       final chosen = choices!.where((c) => c.on && !c.already).toList();
       final noWho = chosen.any((c) => c.personId == null);
-      cta = Btn(
+      cta = Cta(
         busy ? 'Зачекай…' : (noWho ? 'Обери, хто це, у позначених' : 'Додати ${chosen.length} ${plural(chosen.length, 'зустріч', 'зустрічі', 'зустрічей')}'),
         onTap: busy || chosen.isEmpty || noWho ? null : () => _importCal(s, chosen),
       );
     }
 
-    return Screen(
-      footer: cta == null ? null : [cta],
+    return DScroll(
+      padding: const EdgeInsets.fromLTRB(20, 58, 20, 24),
+      bottom: cta,
       children: [
-        const Header(title: 'Імпорт'),
-        const H1('Перенести', accent: 'старі записи'),
-        const Txt('З таблиці, яку вела сама, або з календаря.', muted: true),
-        Seg<bool>(options: const [SegOpt(false, 'Таблиця'), SegOpt(true, 'Календар')], value: cal, onChange: (v) => setState(() => cal = v)),
+        const BoardHeader('Імпорт'),
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          titleAcc(const [('Перенести\n', false), ('старі записи', true)], 34),
+          const SizedBox(height: 8),
+          Text('З таблиці, яку вела сама, або з календаря.', style: rw(14, color: K.muted, h: 1.5)),
+        ]),
+        Tabs(items: const [('Таблиця', null), ('Календар', null)], index: cal ? 1 : 0, onChanged: (i) => setState(() => cal = i == 1)),
         ...(cal ? _calendarTab(s) : _tableTab(s)),
       ],
     );
@@ -437,19 +424,16 @@ class _Step extends StatelessWidget {
   final String text;
   const _Step(this.n, this.text);
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 6),
-        child: Row(children: [
-          Container(
-            width: 22, height: 22,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(color: C.accent, shape: BoxShape.circle),
-            child: Text('$n', style: T.body(11, C.bg, FontWeight.w700)),
-          ),
-          const SizedBox(width: 10),
-          Text(text, style: T.body(12, C.muted, FontWeight.w600)),
-        ]),
-      );
+  Widget build(BuildContext context) => Row(children: [
+        Container(
+          width: 22, height: 22,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(color: K.acc, shape: BoxShape.circle),
+          child: Text('$n', style: rw(11, color: K.bg, w: FontWeight.w600)),
+        ),
+        const SizedBox(width: 10),
+        Text(text, style: rw(12, color: K.muted, w: FontWeight.w600)),
+      ]);
 }
 
 class _SumTile extends StatelessWidget {
@@ -459,37 +443,10 @@ class _SumTile extends StatelessWidget {
   Widget build(BuildContext context) => Expanded(
         child: Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: C.card, borderRadius: BorderRadius.circular(18), border: Border.all(color: C.line)),
+          decoration: BoxDecoration(color: K.card2, borderRadius: BorderRadius.circular(18), border: Border.all(color: K.w(.06))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(big, style: T.serif(26)),
-            Text(sub, style: T.body(11, C.muted), maxLines: 2, overflow: TextOverflow.ellipsis),
-          ]),
-        ),
-      );
-}
-
-class _Source extends StatelessWidget {
-  final bool on;
-  final IconData icon;
-  final String title, sub;
-  final VoidCallback onTap;
-  const _Source({required this.on, required this.icon, required this.title, required this.sub, required this.onTap});
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: VCard(
-          color: on ? C.accentBg : const Color(0x06F1EEF2),
-          border: on ? C.accent : C.line,
-          padding: const EdgeInsets.all(14),
-          onTap: onTap,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              width: 32, height: 32,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: C.accent.withValues(alpha: .12)),
-              child: Icon(icon, size: 16, color: C.accent),
-            ),
-            const SizedBox(height: 8),
-            Text(title, style: T.body(14, C.text, FontWeight.w600)),
-            Txt(sub, small: true, muted: true),
+            Text(big, style: pr(26, h: 1.2)),
+            Text(sub, style: rw(11, color: K.muted, h: 1.3), maxLines: 3, overflow: TextOverflow.ellipsis),
           ]),
         ),
       );
@@ -505,64 +462,61 @@ class _EventPick extends StatelessWidget {
   Widget build(BuildContext context) {
     final e = c.event;
     final when = '${cap(human(e.date))}${e.allDay ? '' : ' · ${e.time}'}${c.past ? ' · було' : ''}${c.already ? ' · вже додано' : ''}';
+    final on = c.on;
     return Semantics(
-      checked: c.on,
-      child: VCard(
+      checked: on,
+      child: Press(
         onTap: onToggle,
-        color: c.on ? C.accentBg : C.card,
-        border: c.on ? const Color(0x99F08A6C) : C.line,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 22, height: 22,
-            decoration: BoxDecoration(
-              color: c.on ? C.accent : Colors.transparent,
-              borderRadius: BorderRadius.circular(7),
-              border: Border.all(color: c.on ? C.accent : const Color(0x4DF1EEF2), width: 1.5),
-            ),
-            child: c.on ? const Icon(Icons.check_rounded, size: 15, color: C.bg) : null,
+        scale: .98,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 350),
+          curve: easeD,
+          constraints: const BoxConstraints(minHeight: 64),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: on ? onBase(RadialGradient(center: Alignment.topLeft, radius: 1.4, colors: [K.a(.12), K.a(0)], stops: const [0, .6]), K.card2) : onBase(null, K.card2),
+            border: Border.all(color: on ? K.a(.6) : K.w(.06)),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(e.title.isEmpty ? 'Без назви' : e.title, style: T.body(14, c.already ? C.muted : C.text, FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
-              Txt(when, small: true, muted: true),
-            ]),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: c.already ? null : onWho,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 32, maxWidth: 120),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              alignment: Alignment.center,
+          child: Row(children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 22, height: 22,
               decoration: BoxDecoration(
-                color: who != null ? C.accent.withValues(alpha: .14) : null,
-                borderRadius: BorderRadius.circular(999),
-                border: who == null ? Border.all(color: const Color(0x33F1EEF2)) : null,
+                color: on ? K.acc : Colors.transparent,
+                borderRadius: BorderRadius.circular(7),
+                border: Border.all(color: on ? K.acc : K.w(.3), width: 1.5),
               ),
-              child: Text(who ?? 'Хто це?', maxLines: 1, overflow: TextOverflow.ellipsis, style: T.body(12, who != null ? C.accentSoft : C.muted, FontWeight.w600)),
+              alignment: Alignment.center,
+              child: on ? Ico(Svgs.tick, size: 13, color: K.bg) : null,
             ),
-          ),
-        ]),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(e.title.isEmpty ? 'Без назви' : e.title, style: rw(14, color: c.already ? K.muted : K.star, w: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: 2),
+                Text(when, style: rw(12, color: K.muted)),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: c.already ? null : onWho,
+              child: Container(
+                height: 30,
+                constraints: const BoxConstraints(maxWidth: 120),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: who != null ? K.a(.14) : null,
+                  borderRadius: BorderRadius.circular(999),
+                  border: who == null ? Border.all(color: K.w(.2)) : null,
+                ),
+                child: Text(who ?? 'Хто це?', maxLines: 1, overflow: TextOverflow.ellipsis, style: rw(12, color: who != null ? K.accSoft : K.soft2, w: FontWeight.w600)),
+              ),
+            ),
+          ]),
+        ),
       ),
     );
   }
-}
-
-class _Note extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _Note(this.icon, this.text);
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: const Color(0x06F1EEF2), borderRadius: BorderRadius.circular(18), border: Border.all(color: C.line)),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 16, color: C.accent),
-          const SizedBox(width: 10),
-          Expanded(child: Txt(text, small: true, muted: true)),
-        ]),
-      );
 }

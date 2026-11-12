@@ -4,8 +4,9 @@ import '../data/catalog.dart';
 import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/dates.dart';
-import '../ui/kit.dart';
-import '../ui/theme.dart';
+import '../ui/board.dart';
+import '../ui/d.dart';
+import '../ui/kit.dart' show go;
 import 'entry.dart';
 import 'export_screen.dart';
 import 'import_screen.dart';
@@ -50,27 +51,29 @@ class _TableScreenState extends State<TableScreen> {
     rows.sort(cmp);
     final mean = rows.isEmpty ? 0.0 : rows.map((e) => e.overall).reduce((a, b) => a + b) / rows.length;
 
-    return Screen(
-      footer: [
-        Row(children: [
-          Expanded(child: Btn('Імпорт', kind: BtnKind.ghost, icon: Icons.file_upload_outlined, onTap: () => go(context, const ImportScreen()))),
-          const SizedBox(width: 8),
-          Expanded(child: Btn('Експорт', icon: Icons.file_download_outlined, onTap: () => go(context, const ExportScreen()))),
-        ]),
-      ],
+    return DScroll(
+      padding: const EdgeInsets.fromLTRB(20, 58, 20, 24),
+      bottom: Row(children: [
+        Expanded(child: GhostBtn('Імпорт', onTap: () => go(context, const ImportScreen()))),
+        const SizedBox(width: 8),
+        Expanded(child: CtaIco('Експорт', height: 48, size: 15, onTap: () => go(context, const ExportScreen()))),
+      ]),
       children: [
-        const Header(title: 'Таблиця'),
-        const H1('Усі записи', accent: 'одним списком'),
-        const Txt('Тапни на стовпець, щоб відсортувати. Тапни на рядок, щоб відкрити запис.', muted: true),
+        BoardHeader('Таблиця', right: IconBtn(svg: BS.download, label: 'Експорт', onTap: () => go(context, const ExportScreen()))),
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          titleAcc(const [('Усі записи\n', false), ('одним списком', true)], 34),
+          const SizedBox(height: 8),
+          Text('Тапни на стовпець, щоб відсортувати. Тапни на рядок, щоб відкрити запис.', style: rw(14, color: K.muted, h: 1.5)),
+        ]),
         if (withEntries.length > 1)
-          Chips([
-            ChipX('Усі', on: who == null, onTap: () => setState(() => who = null)),
-            for (final p in withEntries) ChipX(p.name, on: who == p.id, onTap: () => setState(() => who = p.id)),
+          chipsWrap([
+            DChip('Усі', on: who == null, onTap: () => setState(() => who = null)),
+            for (final p in withEntries) DChip(p.name, on: who == p.id, onTap: () => setState(() => who = p.id)),
           ]),
         if (rows.isEmpty)
-          VCard(
+          Press(
             onTap: () => go(context, const ImportScreen()),
-            child: const Txt('Записів поки нема. Вела раніше в таблиці чи календарі? Перенеси їх сюди ›', muted: true),
+            child: NoteBox('Записів поки нема. Вела раніше в таблиці чи календарі? Перенеси їх сюди ›', svg: BS.upload),
           )
         else
           _Grid(
@@ -82,7 +85,10 @@ class _TableScreenState extends State<TableScreen> {
             onOpen: (e) => go(context, EntryView(entryId: e.id)),
           ),
         if (rows.isNotEmpty)
-          Txt('${rows.length} ${plural(rows.length, 'запис', 'записи', 'записів')} · середня ${fmt(mean)}', small: true, muted: true),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text('${rows.length} ${plural(rows.length, 'запис', 'записи', 'записів')} · середня ${fmt(mean)}', style: rw(12, color: K.haze)),
+          ),
       ],
     );
   }
@@ -99,7 +105,7 @@ class _Grid extends StatelessWidget {
 
   Widget _head(String t, {_Sort? by, bool right = false}) {
     final on = by != null && by == sort;
-    final label = Text('$t${on ? (desc ? ' ↓' : ' ↑') : ''}', style: T.body(11, on ? C.text : C.muted, FontWeight.w600));
+    final label = Text('$t${on ? (desc ? ' ↓' : ' ↑') : ''}', style: rw(11, color: on ? K.star : K.muted, w: FontWeight.w600, ls: .44));
     final cell = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Align(alignment: right ? Alignment.centerRight : Alignment.centerLeft, child: label),
@@ -114,7 +120,7 @@ class _Grid extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
           child: Align(
             alignment: num ? Alignment.centerRight : Alignment.centerLeft,
-            child: Text(t, style: num ? T.serif(16) : T.body(muted ? 12 : 13, muted ? C.muted : C.text, FontWeight.w500)),
+            child: Text(t, style: num ? pr(16, h: 1.1) : rw(muted ? 12 : 13, color: muted ? K.muted : K.star, w: FontWeight.w500)),
           ),
         ),
       );
@@ -123,16 +129,16 @@ class _Grid extends StatelessWidget {
     int count(FlagKind k) => e.flags.where((f) => flagById(f)?.kind == k).length;
     final g = count(FlagKind.g), r = count(FlagKind.r) + count(FlagKind.c);
     Widget pill(int n, Color c) => Container(
-          constraints: const BoxConstraints(minWidth: 20),
+          constraints: const BoxConstraints(minWidth: 18),
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(color: c.withValues(alpha: .16), borderRadius: BorderRadius.circular(999)),
-          child: Text('$n', textAlign: TextAlign.center, style: T.body(11, c, FontWeight.w600)),
+          child: Text('$n', textAlign: TextAlign.center, style: rw(11, color: c, w: FontWeight.w600)),
         );
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [pill(g, C.green), const SizedBox(width: 4), pill(r, C.red)]),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [pill(g, K.green), const SizedBox(width: 4), pill(r, K.red)]),
       ),
     );
   }
@@ -144,39 +150,37 @@ class _Grid extends StatelessWidget {
       return t.isEmpty ? '—' : (t.length > 3 ? '${t.take(3).join(', ')}…' : t.join(', '));
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        color: C.card,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Table(
-            defaultColumnWidth: const IntrinsicColumnWidth(),
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            border: const TableBorder(horizontalInside: BorderSide(color: C.line)),
-            children: [
-              TableRow(
-                decoration: const BoxDecoration(color: C.surface),
-                children: [
-                  _head('ДАТА', by: _Sort.date),
-                  _head('ЛЮДИНА'),
-                  _head('ЗАГАЛОМ', by: _Sort.overall, right: true),
-                  _head('СЕКС', right: true),
-                  _head('ПРАПОРЦІ'),
-                  _head('ЩО БУЛО'),
-                ],
-              ),
-              for (final e in rows)
-                TableRow(children: [
-                  _cell(toUA(e.date), muted: true, onTap: () => onOpen(e)),
-                  _cell(names[e.personId] ?? '—', onTap: () => onOpen(e)),
-                  _cell('${e.overall}', num: true, onTap: () => onOpen(e)),
-                  _cell(e.hadSex ? '${e.ratings['sx_overall'] ?? e.overall}' : '—', num: true, onTap: () => onOpen(e)),
-                  _pills(e, () => onOpen(e)),
-                  _cell(tagsOf(e), muted: true, onTap: () => onOpen(e)),
-                ]),
-            ],
-          ),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(color: K.card2, borderRadius: BorderRadius.circular(20), border: Border.all(color: K.w(.06))),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          border: TableBorder(horizontalInside: BorderSide(color: K.w(.06))),
+          children: [
+            TableRow(
+              decoration: const BoxDecoration(color: K.hour),
+              children: [
+                _head('Дата', by: _Sort.date),
+                _head('Людина'),
+                _head('Загалом', by: _Sort.overall, right: true),
+                _head('Секс', right: true),
+                _head('Прапорці'),
+                _head('Що було'),
+              ],
+            ),
+            for (final e in rows)
+              TableRow(children: [
+                _cell(toUA(e.date), muted: true, onTap: () => onOpen(e)),
+                _cell(names[e.personId] ?? '—', onTap: () => onOpen(e)),
+                _cell('${e.overall}', num: true, onTap: () => onOpen(e)),
+                _cell(e.hadSex ? '${e.ratings['sx_overall'] ?? e.overall}' : '—', num: true, onTap: () => onOpen(e)),
+                _pills(e, () => onOpen(e)),
+                _cell(tagsOf(e), muted: true, onTap: () => onOpen(e)),
+              ]),
+          ],
         ),
       ),
     );

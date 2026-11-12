@@ -448,7 +448,7 @@ class HomeTab extends StatelessWidget {
       // --- записати ---
       const SizedBox(height: 20),
       Press(
-        onTap: () => limitHit ? go(context, const PaywallScreen()) : go(context, s.people.isEmpty ? const AddPersonScreen() : const EntryForm()),
+        onTap: () => limitHit ? go(context, const PaywallScreen(kind: PaywallKind.limit)) : go(context, s.people.isEmpty ? const AddPersonScreen() : const EntryForm()),
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

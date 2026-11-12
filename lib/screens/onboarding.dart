@@ -15,7 +15,7 @@ import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
 import 'entry.dart' show PAvatar, seedOf;
 import 'pin_screens.dart';
-import 'settings.dart' show PaywallScreen;
+import 'settings.dart' show PaywallKind, PaywallScreen;
 
 /// Завершення онбордингу: позначаємо і повертаємось на корінь (там уже головна)
 Future<void> finishOnboarding(BuildContext context) async {
@@ -1653,7 +1653,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                 ]),
               if (a != null && prev == null)
                 Press(
-                  onTap: () => go(context, const PaywallScreen()),
+                  onTap: () => go(context, PaywallScreen(kind: PaywallKind.match, name: nick.text)),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
