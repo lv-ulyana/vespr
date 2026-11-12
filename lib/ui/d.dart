@@ -1,6 +1,8 @@
 // Примітиви, перенесені з дизайн-дошок «Vespr — дизайн апки» один в один:
 // ті самі кольори, радіуси, розміри шрифтів і SVG-іконки.
 // Екрани малюються в системі координат макета (ширина 390) і масштабуються під екран.
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -417,7 +419,8 @@ class DInput extends StatefulWidget {
   final TextInputAction? action;
   final ValueChanged<String>? onSubmitted;
   final TextCapitalization caps;
-  const DInput({super.key, required this.controller, this.height = 56, this.radius = 18, required this.style, this.align = TextAlign.left, this.keyboard, this.formatters, this.onChanged, this.focus, this.hint, this.label, this.action, this.onSubmitted, this.caps = TextCapitalization.none});
+  final int lines;
+  const DInput({super.key, required this.controller, this.height = 56, this.radius = 18, required this.style, this.align = TextAlign.left, this.keyboard, this.formatters, this.onChanged, this.focus, this.hint, this.label, this.action, this.onSubmitted, this.caps = TextCapitalization.none, this.lines = 1});
   @override
   State<DInput> createState() => _DInputState();
 }
@@ -436,6 +439,7 @@ class _DInputState extends State<DInput> {
         focus: f,
         height: widget.height,
         radius: widget.radius,
+        top: widget.lines > 1,
         child: Semantics(
           label: widget.label,
           child: TextField(
@@ -448,6 +452,8 @@ class _DInputState extends State<DInput> {
             textInputAction: widget.action,
             onSubmitted: widget.onSubmitted,
             textCapitalization: widget.caps,
+            maxLines: widget.lines,
+            minLines: widget.lines > 1 ? widget.lines : null,
             cursorColor: K.acc,
             style: widget.style,
             decoration: InputDecoration(
@@ -455,7 +461,7 @@ class _DInputState extends State<DInput> {
               border: InputBorder.none,
               hintText: widget.hint,
               hintStyle: rw(14, color: K.haze, w: FontWeight.w500),
-              contentPadding: EdgeInsets.symmetric(horizontal: widget.align == TextAlign.left ? 16 : 0),
+              contentPadding: widget.lines > 1 ? const EdgeInsets.fromLTRB(16, 16, 16, 16) : EdgeInsets.symmetric(horizontal: widget.align == TextAlign.left ? 16 : 0),
             ),
           ),
         ),
@@ -466,7 +472,8 @@ class _FocusBox extends StatefulWidget {
   final FocusNode focus;
   final Widget child;
   final double height, radius;
-  const _FocusBox({required this.focus, required this.child, required this.height, required this.radius});
+  final bool top;
+  const _FocusBox({required this.focus, required this.child, required this.height, required this.radius, this.top = false});
   @override
   State<_FocusBox> createState() => _FocusBoxState();
 }
@@ -493,7 +500,7 @@ class _FocusBoxState extends State<_FocusBox> {
       duration: const Duration(milliseconds: 350),
       curve: easeD,
       height: widget.height,
-      alignment: Alignment.center,
+      alignment: widget.top ? Alignment.topLeft : Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.radius),
         color: f ? K.a(.05) : K.w(.03),
@@ -568,4 +575,125 @@ void dToast(BuildContext context, String text) {
   );
   o.insert(e);
   Future.delayed(const Duration(milliseconds: 2600), e.remove);
+}
+
+/// Тост з кнопкою «Повернути» і смужкою 5 с (.done у PersonActions)
+void undoToast(BuildContext context, String text, Future<void> Function() undo, {OverlayState? overlay, String action = 'Повернути', double bottom = 24, bool bar = true}) {
+  final o = overlay ?? Overlay.of(context);
+  late OverlayEntry oe;
+  var gone = false;
+  void close() {
+    if (gone) return;
+    gone = true;
+    oe.remove();
+  }
+
+  oe = OverlayEntry(
+    builder: (_) => Positioned(
+      left: 16, right: 16, bottom: bottom,
+      child: Rise(
+        dy: 30,
+        child: Material(
+          color: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              color: K.star,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  child: Row(children: [
+                    Expanded(child: Text(text, style: rw(14, color: K.bg, w: FontWeight.w600))),
+                    Press(
+                      onTap: () async {
+                        close();
+                        await undo();
+                      },
+                      child: Container(height: 34, padding: const EdgeInsets.symmetric(horizontal: 14), alignment: Alignment.center, decoration: BoxDecoration(color: K.bg, borderRadius: BorderRadius.circular(999)), child: Text(action, style: rw(13, w: FontWeight.w700))),
+                    ),
+                  ]),
+                ),
+                if (bar) TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 1, end: 0),
+                  duration: const Duration(seconds: 5),
+                  onEnd: close,
+                  builder: (_, v, __) => Align(alignment: Alignment.centerLeft, child: FractionallySizedBox(widthFactor: v, child: Container(height: 3, color: K.acc))),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  o.insert(oe);
+}
+
+// ---------- «Фото» людини ----------
+/// Розмиті градієнтні «фото» людей з макета (поки нема справжніх фото).
+/// Кожен шар = CSS radial-gradient(circle at x y, колір, transparent stop).
+class BlobLayer {
+  final double x, y, stop;
+  final Color c;
+  const BlobLayer(this.x, this.y, this.c, this.stop);
+}
+
+class BlobPal {
+  final Color base;
+  final List<BlobLayer> layers;
+  const BlobPal(this.base, this.layers);
+}
+
+const blobPals = <BlobPal>[
+  // Архітектор
+  BlobPal(Color(0xFFC9796E), [BlobLayer(.7, .75, Color(0xFF7A6E8F), .6), BlobLayer(.3, .3, Color(0xFFF3B49C), .55)]),
+  // Марк
+  BlobPal(Color(0xFF6E6382), [BlobLayer(.25, .8, Color(0xFF3E3950), .6), BlobLayer(.6, .3, Color(0xFFB9B4CB), .5)]),
+  // Д.
+  BlobPal(Color(0xFF5E5674), [BlobLayer(.8, .2, Color(0xFFF08A6C), .45), BlobLayer(.4, .6, Color(0xFFE8D9D6), .5)]),
+  // Бариста
+  BlobPal(Color(0xFF6B6577), [BlobLayer(.75, .75, Color(0xFF3E3950), .6), BlobLayer(.35, .35, Color(0xFFD8CFC4), .5)]),
+  // Олег
+  BlobPal(Color(0xFF4E4760), [BlobLayer(.6, .4, Color(0xFFC9B8D6), .5)]),
+];
+
+class _BlobPainter extends CustomPainter {
+  final BlobPal p;
+  _BlobPainter(this.p);
+  @override
+  void paint(Canvas canvas, Size s) {
+    final r = Offset.zero & s;
+    canvas.drawRect(r, Paint()..color = p.base);
+    for (final l in p.layers) {
+      final c = Offset(s.width * l.x, s.height * l.y);
+      final dx = (l.x > .5 ? l.x : 1 - l.x) * s.width, dy = (l.y > .5 ? l.y : 1 - l.y) * s.height;
+      final rad = Offset(dx, dy).distance; // farthest-corner
+      canvas.drawRect(r, Paint()..shader = RadialGradient(colors: [l.c, l.c.withValues(alpha: 0)], stops: [0, l.stop]).createShader(Rect.fromCircle(center: c, radius: rad)));
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BlobPainter o) => o.p != p;
+}
+
+/// Розмите «фото»: прямокутник/коло з радіусом [radius], розмиття як backdrop-filter:blur(8px)
+class Blob extends StatelessWidget {
+  final int seed;
+  final double w, h, radius, blur;
+  final bool circle, grey;
+  const Blob({super.key, required this.seed, required this.w, required this.h, this.radius = 20, this.blur = 4, this.circle = false, this.grey = false});
+  @override
+  Widget build(BuildContext context) {
+    Widget x = CustomPaint(size: Size(w, h), painter: _BlobPainter(blobPals[seed.abs() % blobPals.length]));
+    if (blur > 0) x = ImageFiltered(imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur, tileMode: TileMode.mirror), child: x);
+    if (grey) {
+      x = ColorFiltered(colorFilter: const ColorFilter.matrix(<double>[
+        .5346, .4058, .0596, 0, 0, .1846, .7558, .0596, 0, 0, .1846, .4058, .4096, 0, 0, 0, 0, 0, 1, 0, // grayscale(.65)
+      ]), child: ColorFiltered(colorFilter: const ColorFilter.matrix(<double>[.85, 0, 0, 0, 0, 0, .85, 0, 0, 0, 0, 0, .85, 0, 0, 0, 0, 0, 1, 0]), child: x));
+    }
+    return SizedBox(
+      width: w, height: h,
+      child: circle ? ClipOval(child: x) : ClipRRect(borderRadius: BorderRadius.circular(radius), child: x),
+    );
+  }
 }

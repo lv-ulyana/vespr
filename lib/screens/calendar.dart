@@ -11,7 +11,7 @@ import '../ui/theme.dart';
 import 'entry.dart';
 import 'export_screen.dart';
 import 'onboarding.dart' show AddPersonScreen;
-import 'people.dart';
+import 'people.dart' show PersonEdit;
 
 /// Календар: записи (крапка) і заплановані зустрічі (кільце)
 class CalendarScreen extends StatefulWidget {

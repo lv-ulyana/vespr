@@ -13,6 +13,7 @@ import '../logic/astro.dart';
 import '../logic/dates.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
+import 'entry.dart' show PAvatar, seedOf;
 import 'pin_screens.dart';
 import 'settings.dart' show PaywallScreen;
 
@@ -1326,14 +1327,40 @@ class SetupScreen extends StatelessWidget {
 // =====================================================================
 class AddPersonScreen extends StatefulWidget {
   final bool onboarding;
-  const AddPersonScreen({super.key, this.onboarding = false});
+  final String? personId; // є → режим «Редагувати» (дошка PersonEdit)
+  const AddPersonScreen({super.key, this.onboarding = false, this.personId});
   @override
   State<AddPersonScreen> createState() => _AddPersonScreenState();
 }
 
 class _AddPersonScreenState extends State<AddPersonScreen> {
-  final nick = TextEditingController(), d = TextEditingController(), m = TextEditingController();
+  final nick = TextEditingController(), d = TextEditingController(), m = TextEditingController(), notes = TextEditingController();
   final fd = FocusNode(), fm = FocusNode();
+  Person? prev;
+
+  @override
+  void initState() {
+    super.initState();
+    final id = widget.personId;
+    prev = id == null ? null : Store.read(context).person(id);
+    final p = prev;
+    if (p != null) {
+      nick.text = p.name;
+      gender = p.gender;
+      rel = p.rel;
+      notes.text = p.notes;
+      size = p.size;
+      signOnly = p.signOnly;
+      final b = p.birth;
+      if (b != null && b.length == 10) {
+        d.text = b.substring(8, 10);
+        m.text = b.substring(5, 7);
+      } else {
+        unknown = true;
+        signsOpen = p.signOnly != null;
+      }
+    }
+  }
   String gender = 'm', rel = 'date';
   bool unknown = false, signsOpen = false;
   int? signOnly;
@@ -1344,7 +1371,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
 
   @override
   void dispose() {
-    for (final c in [nick, d, m]) {
+    for (final c in [nick, d, m, notes]) {
       c.dispose();
     }
     fd.dispose();
@@ -1362,6 +1389,23 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
 
   Future<void> _save() async {
     final s = Store.read(context);
+    final old = prev;
+    if (old != null) {
+      var b = unknown ? null : birth;
+      // рік був відомий і день з місяцем не змінились — рік не губимо
+      if (b != null && old.birth != null && old.birth!.substring(5) == b.substring(5)) b = old.birth;
+      await s.updatePerson(old.id, (p) {
+        p.name = nick.text.trim();
+        p.gender = gender;
+        p.rel = rel;
+        p.birth = b;
+        p.signOnly = unknown ? signOnly : null;
+        p.size = size;
+        p.notes = notes.text.trim();
+      });
+      if (mounted) Navigator.pop(context);
+      return;
+    }
     if (widget.onboarding == false && !s.profile.premium && s.people.where((p) => !p.isPast).length >= freePeople) {
       go(context, const PaywallScreen());
       return;
@@ -1439,14 +1483,37 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 58, 20, 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
-              widget.onboarding
+              prev != null
+                  ? SizedBox(height: 44, child: Stack(alignment: Alignment.center, children: [Text('Картка людини', style: rw(13, color: K.muted, w: FontWeight.w500)), const Align(alignment: Alignment.centerLeft, child: BackBtn())]))
+                  : widget.onboarding
                   ? StepHeader(3, right: Press(onTap: () => finishOnboarding(context), child: SizedBox(height: 44, child: Row(mainAxisSize: MainAxisSize.min, children: [Text('Пізніше', style: rw(13, color: K.muted, w: FontWeight.w500))]))))
                   : const SizedBox(height: 44, child: Align(alignment: Alignment.centerLeft, child: BackBtn())),
-              Text(widget.onboarding ? 'Додай першу людину' : 'Нова людина', style: pr(34, h: 1.1)),
+              Text(prev != null ? 'Редагувати' : widget.onboarding ? 'Додай першу людину' : 'Нова людина', style: pr(34, h: 1.1)),
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(f ? 'Як її назвеш' : 'Як його назвеш', style: lbl),
+                Text(prev != null ? "Ім'я" : f ? 'Як її назвеш' : 'Як його назвеш', style: lbl),
                 const SizedBox(height: 8),
                 Row(children: [
+                  if (prev != null)
+                    Press(
+                      label: 'Змінити фото',
+                      onTap: () => dToast(context, 'Фото людей додамо в наступній версії'),
+                      child: SizedBox(
+                        width: 56, height: 56,
+                        child: Stack(clipBehavior: Clip.none, children: [
+                          PAvatar(size: 56, seed: seedOf(prev!.id)),
+                          Positioned(
+                            right: -2, bottom: -2,
+                            child: Container(
+                              width: 20, height: 20,
+                              decoration: BoxDecoration(shape: BoxShape.circle, color: K.acc, border: Border.all(color: K.bg, width: 3)),
+                              alignment: Alignment.center,
+                              child: Ico(_icPen, size: 9, color: K.bg),
+                            ),
+                          ),
+                        ]),
+                      ),
+                    )
+                  else
                   Press(
                     label: 'Додати фото',
                     onTap: () => dToast(context, 'Фото людей додамо в наступній версії'),
@@ -1580,7 +1647,13 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ]),
                 ),
               ]),
-              if (a != null)
+              if (prev != null)
+                Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Text(f ? 'Нотатки про неї' : 'Нотатки про нього', style: lbl),
+                  const SizedBox(height: 8),
+                  DInput(controller: notes, label: 'Нотатки', hint: "Познайомились на виставці. Не їсть м'ясо", style: rw(15, h: 1.45), height: 96, lines: 3, caps: TextCapitalization.sentences),
+                ]),
+              if (a != null && prev == null)
                 Press(
                   onTap: () => go(context, const PaywallScreen()),
                   child: Container(
@@ -1604,7 +1677,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ),
                 ),
               const SizedBox(height: 4),
-              Cta('Додати', onTap: ok ? _save : null),
+              Cta(prev != null ? 'Зберегти' : 'Додати', onTap: ok ? _save : null),
             ], 16)),
           ),
         ),
@@ -1674,3 +1747,5 @@ class _SizeSlider extends StatelessWidget {
         );
       });
 }
+
+const _icPen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';

@@ -76,19 +76,11 @@ class PAvatar extends StatelessWidget {
   final int seed;
   const PAvatar({super.key, this.size = 22, this.seed = 0});
   @override
-  Widget build(BuildContext context) {
-    const g = [
-      [K.acc, K.haze],
-      [Color(0xFFB9B4CB), Color(0xFF6E6382)],
-      [Color(0xFFE8D9D6), Color(0xFF5E5674)],
-      [Color(0xFFF3B49C), Color(0xFFC9796E)],
-    ];
-    final c = g[seed.abs() % g.length];
-    return Container(width: size, height: size, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(begin: const Alignment(-.6, -1), end: const Alignment(.6, 1), colors: c)));
-  }
+  Widget build(BuildContext context) => Blob(seed: seed, w: size, h: size, circle: true, blur: size / 12);
 }
 
-int seedOf(String id) => id.codeUnits.fold(0, (a, b) => a + b);
+/// Яке «фото» в людини: демо-люди мають свої з макета, решта — за id
+int seedOf(String id) => const {'p_arch': 0, 'p_mark': 1, 'p_d': 2}[id] ?? id.codeUnits.fold<int>(0, (a, b) => a + b);
 
 // =====================================================================
 // Форма запису: «Як пройшло?»
@@ -907,56 +899,7 @@ class _EntryViewState extends State<EntryView> {
     }
   }
 
-  void _undoToast(String text, Future<void> Function() undo, {OverlayState? overlay}) {
-    final o = overlay ?? Overlay.of(context);
-    late OverlayEntry oe;
-    var gone = false;
-    void close() {
-      if (gone) return;
-      gone = true;
-      oe.remove();
-    }
-
-    oe = OverlayEntry(
-      builder: (_) => Positioned(
-        left: 16, right: 16, bottom: 24,
-        child: Rise(
-          dy: 30,
-          child: Material(
-            color: Colors.transparent,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                color: K.star,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                    child: Row(children: [
-                      Expanded(child: Text(text, style: rw(14, color: K.bg, w: FontWeight.w600))),
-                      Press(
-                        onTap: () async {
-                          close();
-                          await undo();
-                        },
-                        child: Container(height: 34, padding: const EdgeInsets.symmetric(horizontal: 14), alignment: Alignment.center, decoration: BoxDecoration(color: K.bg, borderRadius: BorderRadius.circular(999)), child: Text('Повернути', style: rw(13, w: FontWeight.w700))),
-                      ),
-                    ]),
-                  ),
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 1, end: 0),
-                    duration: const Duration(seconds: 5),
-                    onEnd: close,
-                    builder: (_, v, __) => Align(alignment: Alignment.centerLeft, child: FractionallySizedBox(widthFactor: v, child: Container(height: 3, color: K.acc))),
-                  ),
-                ]),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    o.insert(oe);
-  }
+  void _undoToast(String text, Future<void> Function() undo, {OverlayState? overlay}) => undoToast(context, text, undo, overlay: overlay);
 
   @override
   Widget build(BuildContext context) {
