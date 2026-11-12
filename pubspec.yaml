@@ -35,6 +35,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/img/
+    - assets/img/ach/
   fonts:
     - family: Zodiac
       fonts:

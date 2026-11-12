@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import '../data/catalog.dart';
 import '../data/models.dart';
 import '../data/store.dart';
+import '../logic/achievements.dart' show weekKey;
 import '../logic/astro.dart';
 import '../logic/dates.dart';
 import '../logic/stats.dart';
@@ -599,6 +600,7 @@ class _PastCard extends StatelessWidget {
           onTap: () async {
             final st0 = (p.pastReason, p.pastAt);
             await s.updatePerson(p.id, (x) { x.status = 'now'; x.pastReason = null; x.pastAt = null; });
+            await s.updateProfile((pr) => pr.counters['boomerang'] = (pr.counters['boomerang'] ?? 0) + 1);
             if (!context.mounted) return;
             undoToast(context, '${p.name} знову в «Зараз»', () => s.updatePerson(p.id, (x) { x.status = 'past'; x.pastReason = st0.$1; x.pastAt = st0.$2; }), action: 'Скасувати', bottom: 106);
           },
@@ -815,6 +817,7 @@ Future<void> personActions(BuildContext context, Person p, {bool fromCard = true
     case 'back':
       final st0 = (p.pastReason, p.pastAt);
       await s.updatePerson(p.id, (x) { x.status = 'now'; x.pastReason = null; x.pastAt = null; });
+      await s.updateProfile((pr) => pr.counters['boomerang'] = (pr.counters['boomerang'] ?? 0) + 1);
       if (context.mounted) undoToast(context, '${p.name} знову в «Зараз»', () => s.updatePerson(p.id, (x) { x.status = 'past'; x.pastReason = st0.$1; x.pastAt = st0.$2; }), action: 'Скасувати');
     case 'delete':
       await personDelete(context, p, popAfter: !fromCard);
@@ -956,6 +959,18 @@ class _PersonViewState extends State<PersonView> {
   bool reveal = false; // «Показати фото» — прибирає розмиття
   final dd = TextEditingController(), mm = TextEditingController();
   final fm = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // «Ревізія»: перегляди картки колишнього чи минулої людини за тиждень
+    final s = Store.read(context);
+    final p = s.person(widget.personId);
+    if (p != null && (p.isPast || p.rel == 'ex')) {
+      final k = 'rev:${weekKey(DateTime.now())}';
+      WidgetsBinding.instance.addPostFrameCallback((_) => s.updateProfile((pr) => pr.counters[k] = (pr.counters[k] ?? 0) + 1));
+    }
+  }
 
   @override
   void dispose() {

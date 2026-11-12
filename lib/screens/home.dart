@@ -12,6 +12,7 @@ import '../logic/export.dart';
 import '../logic/stats.dart';
 import '../logic/texts.dart';
 import '../ui/d.dart';
+import 'awards.dart' show awardsSummary;
 import '../ui/kit.dart' show go;
 import 'calendar.dart';
 import 'entry.dart';
@@ -256,6 +257,7 @@ class HomeTab extends StatelessWidget {
     final month = monthKey(today());
     final monthEntries = s.entries.where((e) => monthKey(e.date) == month).toList();
     final limitHit = !p.premium && monthEntries.length >= freeEntriesPerMonth;
+    final aw = awardsSummary(s);
 
     String insight;
     var patterns = 0;
@@ -488,15 +490,20 @@ class HomeTab extends StatelessWidget {
                   Row(children: [
                     Container(
                       decoration: const BoxDecoration(shape: BoxShape.circle, boxShadow: [BoxShadow(color: K.acc, spreadRadius: 2)]),
-                      child: ClipOval(child: Image.asset('assets/img/award_gold.webp', width: 48, height: 48, fit: BoxFit.cover)),
+                      child: ClipOval(child: Image.asset(aw.img ?? 'assets/img/ach/unknown.webp', width: 48, height: 48, fit: BoxFit.cover)),
                     ),
                     const SizedBox(width: 10),
-                    Expanded(child: Text('Скоро тут', style: pr(17, color: K.bg, h: 1.2))),
+                    Expanded(child: Text(aw.name ?? 'Перша вже близько', style: pr(17, color: K.bg, h: 1.2), maxLines: 2, overflow: TextOverflow.ellipsis)),
                   ]),
                   Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Container(height: 4, decoration: BoxDecoration(color: const Color(0x1A17161F), borderRadius: BorderRadius.circular(2))),
+                    Container(
+                      height: 4,
+                      decoration: BoxDecoration(color: const Color(0x1A17161F), borderRadius: BorderRadius.circular(2)),
+                      alignment: Alignment.centerLeft,
+                      child: FractionallySizedBox(widthFactor: aw.frac, child: Container(decoration: BoxDecoration(color: K.acc, borderRadius: BorderRadius.circular(2)))),
+                    ),
                     const SizedBox(height: 7),
-                    Text('0 з 33 відкрито', style: rw(11, color: K.haze, w: FontWeight.w600)),
+                    Text('${aw.open} з ${aw.all} відкрито', style: rw(11, color: K.haze, w: FontWeight.w600)),
                   ]),
                 ]),
               ),

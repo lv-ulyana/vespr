@@ -17,6 +17,7 @@ import '../logic/stats.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'people.dart' show flagShort;
+import 'awards.dart' show nearestAwardLine;
 import 'settings.dart' show PaywallScreen;
 
 const _freeFactors = 2;
@@ -107,7 +108,8 @@ Widget _h2(String t) => Text(t, style: pr(24, h: 1.15));
 
 // =====================================================================
 class MapTab extends StatefulWidget {
-  const MapTab({super.key});
+  final ValueChanged<int>? onTab;
+  const MapTab({super.key, this.onTab});
   @override
   State<MapTab> createState() => _MapTabState();
 }
@@ -293,6 +295,32 @@ class _MapTabState extends State<MapTab> {
             if (f.isNotEmpty) Rise(delay: .3, child: _Ticket(f: f, neg: neg, entries: es)),
             // 6. закономірності
             ..._patterns(es),
+            if (nearestAwardLine(s) case final line?)
+              Rise(
+                delay: .3,
+                child: Press(
+                  onTap: () => widget.onTab?.call(3),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      gradient: const LinearGradient(begin: Alignment(-.6, -1), end: Alignment(.6, 1), colors: [K.acc, Color(0xFFD27E70), Color(0xFF6E6382)], stops: [0, .45, 1]),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Майже нагорода', style: rw(12, color: const Color(0xB317161F), w: FontWeight.w700)),
+                      const SizedBox(height: 12),
+                      Text(line, style: pr(24, color: K.bg, h: 1.25)),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(color: K.bg, borderRadius: BorderRadius.circular(999)),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [Text('Усі нагороди', style: rw(13, w: FontWeight.w700)), const SizedBox(width: 8), Ico(Svgs.arrowR, size: 14)]),
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text("Закономірність з'являється, коли є щонайменше 3 записи з цим фактором", textAlign: TextAlign.center, style: rw(12, color: K.muted2, h: 1.5)),
@@ -1407,7 +1435,6 @@ class _MyArcanaScreenState extends State<MyArcanaScreen> {
             borderRadius: BorderRadius.circular(22),
             border: Border(top: BorderSide(color: K.w(.08))),
             gradient: minus ? null : RadialGradient(center: Alignment.topRight, radius: 1.2, colors: [K.a(plus ? .2 : .14), K.a(0)], stops: const [0, .65]),
-            boxShadow: const [BoxShadow(color: Color(0xF209080E), blurRadius: 28, offset: Offset(0, 16), spreadRadius: -20)],
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [

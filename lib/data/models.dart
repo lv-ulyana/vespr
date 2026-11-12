@@ -24,6 +24,7 @@ class Profile {
   String appIcon; // dark | light
   List<String> sexQs;
   List<String> ptQs;
+  Map<String, int> counters; // лічильники подій для нагород (повернення з минулих, перегляди…)
 
   Profile({
     this.name = '',
@@ -36,8 +37,10 @@ class Profile {
     this.appIcon = 'dark',
     List<String>? sexQs,
     List<String>? ptQs,
+    Map<String, int>? counters,
   })  : sexQs = sexQs ?? <String>[],
-        ptQs = ptQs ?? <String>[];
+        ptQs = ptQs ?? <String>[],
+        counters = counters ?? <String, int>{};
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -50,6 +53,7 @@ class Profile {
         'appIcon': appIcon,
         'sexQs': sexQs,
         'ptQs': ptQs,
+        'counters': counters,
       };
 
   factory Profile.fromJson(Map<String, dynamic> j) => Profile(
@@ -63,6 +67,7 @@ class Profile {
         appIcon: _str(j['appIcon']) ?? 'dark',
         sexQs: _strList(j['sexQs']),
         ptQs: _strList(j['ptQs']),
+        counters: _intMap(j['counters']),
       );
 }
 

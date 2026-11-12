@@ -3,6 +3,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 
 import '../ui/d.dart';
+import 'awards.dart';
 import 'home.dart';
 import 'map.dart';
 import 'people.dart';
@@ -32,8 +33,8 @@ class _ShellState extends State<Shell> {
           child: IndexedStack(index: tab, children: [
             HomeTab(onTab: (i) => setState(() => tab = i)),
             const PeopleTab(),
-            const MapTab(),
-            const _AwardsSoon(),
+            MapTab(onTab: (i) => setState(() => tab = i)),
+            const AwardsTab(),
           ]),
         ),
         Positioned(
@@ -79,18 +80,4 @@ class _ShellState extends State<Shell> {
       ]),
     );
   }
-}
-
-/// Нагороди ще не перенесені — чесна заглушка
-class _AwardsSoon extends StatelessWidget {
-  const _AwardsSoon();
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 58, 24, 120),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Нагороди', style: pr(34, h: 1.1)),
-          const SizedBox(height: 10),
-          Text('33 нагороди за записи, людей і звички. Переносимо з дизайну, скоро будуть тут.', style: rw(14, color: K.muted, h: 1.5)),
-        ]),
-      );
 }
