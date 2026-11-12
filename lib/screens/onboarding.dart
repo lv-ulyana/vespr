@@ -934,6 +934,28 @@ class _Lbl extends StatelessWidget {
   Widget build(BuildContext context) => Text(t, style: rw(12, color: K.muted));
 }
 
+/// Блимаючий курсор у клітинці дати
+class _Caret extends StatefulWidget {
+  const _Caret();
+  @override
+  State<_Caret> createState() => _CaretState();
+}
+
+class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
+  late final c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000))..repeat();
+  @override
+  void dispose() {
+    c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: c,
+        builder: (_, __) => Opacity(opacity: c.value < .5 ? 1 : 0, child: Container(margin: const EdgeInsets.only(left: 2), width: 2, height: 24, color: K.acc)),
+      );
+}
+
 class AboutYou extends StatefulWidget {
   const AboutYou({super.key});
   @override
@@ -941,8 +963,8 @@ class AboutYou extends StatefulWidget {
 }
 
 class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin {
-  late final TextEditingController name, d, m, y;
-  final fd = FocusNode(), fm = FocusNode(), fy = FocusNode();
+  late final TextEditingController name, dt; // dt — 8 цифр ДДММРРРР в одному прихованому полі
+  final fdt = FocusNode();
   late final spin = AnimationController(vsync: this, duration: const Duration(seconds: 40))..repeat();
 
   @override
@@ -951,56 +973,82 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
     final p = Store.read(context).profile;
     final b = p.birth?.split('-');
     name = TextEditingController(text: p.name);
-    d = TextEditingController(text: b?[2] ?? '');
-    m = TextEditingController(text: b?[1] ?? '');
-    y = TextEditingController(text: b?[0] ?? '');
+    dt = TextEditingController(text: b == null ? '' : '${b[2]}${b[1]}${b[0]}');
+    fdt.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    for (final c in [name, d, m, y]) {
-      c.dispose();
-    }
-    for (final f in [fd, fm, fy]) {
-      f.dispose();
-    }
+    name.dispose();
+    dt.dispose();
+    fdt.dispose();
     spin.dispose();
     super.dispose();
   }
 
-  String? get iso => parseUA('${d.text.padLeft(2, '0')}.${m.text.padLeft(2, '0')}.${y.text}');
+  String get _dg => dt.text;
+  String get dd => _dg.length > 2 ? _dg.substring(0, 2) : _dg;
+  String get mm => _dg.length > 4 ? _dg.substring(2, 4) : (_dg.length > 2 ? _dg.substring(2) : '');
+  String get yy => _dg.length > 4 ? _dg.substring(4) : '';
+  String? get iso => _dg.length == 8 ? parseUA('$dd.$mm.$yy') : null;
 
-  /// Поле дати: зайві цифри переносяться в наступне поле (можна вводити «14092001» підряд)
-  Widget _num(String label, TextEditingController c, FocusNode f, int len, (TextEditingController, FocusNode, int)? next) => Expanded(
+  /// Три клітинки дати, а вводимо в одне приховане поле: «14092001» підряд, курсор сам іде далі
+  Widget _box(String label, String v, bool active) => Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _Lbl(label),
           const SizedBox(height: 8),
-          DInput(
-            controller: c,
-            focus: f,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 350),
+            curve: easeD,
             height: 60,
-            label: label,
-            align: TextAlign.center,
-            style: pr(22),
-            keyboard: TextInputType.number,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: (v) {
-              if (v.length > len) {
-                c.text = v.substring(0, len);
-                if (next != null) {
-                  final rest = v.substring(len);
-                  final t = rest.length > next.$3 ? rest.substring(0, next.$3) : rest;
-                  next.$1.value = TextEditingValue(text: t, selection: TextSelection.collapsed(offset: t.length));
-                  next.$2.requestFocus();
-                }
-              } else if (v.length == len) {
-                next?.$2.requestFocus();
-              }
-              setState(() {});
-            },
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              color: active ? K.a(.05) : K.w(.03),
+              border: Border.all(color: active ? K.a(.7) : K.w(.1)),
+            ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(v, style: pr(22)),
+              if (active) const _Caret(),
+            ]),
           ),
         ]),
       );
+
+  Widget _dateRow() {
+    final f = fdt.hasFocus, n = _dg.length;
+    return Stack(children: [
+      Row(children: [
+        _box('День', dd, f && n < 2),
+        const SizedBox(width: 10),
+        _box('Місяць', mm, f && n >= 2 && n < 4),
+        const SizedBox(width: 10),
+        _box('Рік', yy, f && n >= 4),
+      ]),
+      Positioned.fill(
+        top: 20,
+        child: Opacity(
+          opacity: 0,
+          child: Semantics(
+            label: 'Дата народження, день місяць рік',
+            child: TextField(
+              controller: dt,
+              focusNode: fdt,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(8)],
+              showCursor: false,
+              enableInteractiveSelection: false,
+              style: const TextStyle(fontSize: 1, color: Colors.transparent),
+              decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+              onChanged: (_) => setState(() {}),
+              expands: true,
+              maxLines: null,
+            ),
+          ),
+        ),
+      ),
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1009,7 +1057,7 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
     final i = iso;
     final a = i == null ? null : astroOf(i);
     final ok = name.text.trim().isNotEmpty && i != null;
-    final dateTyped = d.text.isNotEmpty && m.text.isNotEmpty && y.text.length == 4;
+    final dateTyped = _dg.length == 8;
     return DFrame(
       builder: (context, h) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 58, 24, 24),
@@ -1028,17 +1076,11 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
               DInput(
                 controller: name, height: 60, label: 'Як тебе звати', hint: "Ім'я або як тебе називати",
                 style: rw(16), caps: TextCapitalization.words,
-                action: TextInputAction.next, onSubmitted: (_) => fd.requestFocus(),
+                action: TextInputAction.next, onSubmitted: (_) => fdt.requestFocus(),
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 22),
-              Row(children: [
-                _num('День', d, fd, 2, (m, fm, 2)),
-                const SizedBox(width: 10),
-                _num('Місяць', m, fm, 2, (y, fy, 4)),
-                const SizedBox(width: 10),
-                _num('Рік', y, fy, 4, null),
-              ]),
+              _dateRow(),
               if (dateTyped && i == null) ...[const SizedBox(height: 8), Text('Перевір дату', style: rw(12, color: K.red))],
               const SizedBox(height: 22),
               AnimatedSwitcher(
