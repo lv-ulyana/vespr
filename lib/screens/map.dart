@@ -1562,7 +1562,8 @@ class _TarotCard extends StatelessWidget {
                 Positioned.fill(child: Container(margin: const EdgeInsets.all(12), decoration: BoxDecoration(borderRadius: BorderRadius.circular(7), border: Border.all(color: K.a(.14))))),
                 for (final al in const [Alignment.topLeft, Alignment.topRight, Alignment.bottomLeft, Alignment.bottomRight])
                   Align(alignment: al, child: Padding(padding: const EdgeInsets.all(16), child: Ico(_icStarFill, size: 7, color: K.acc.withValues(alpha: .8)))),
-                Padding(
+                Positioned.fill(
+                  child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 22, 10, 20),
                   child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     Text(top, style: rw(11, color: K.muted, w: FontWeight.w600, ls: 1.5)),
@@ -1576,6 +1577,7 @@ class _TarotCard extends StatelessWidget {
                     ]),
                     Text(name, textAlign: TextAlign.center, style: pr(20)),
                   ]),
+                  ),
                 ),
               ]),
             ),
