@@ -4,7 +4,7 @@ import 'dart:ui' show Rect;
 
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:cryptography/cryptography.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -74,25 +74,16 @@ Future<String> exportBackup(DB db, String password) async {
   return name;
 }
 
-/// Обраний файл: назва + байти. Фільтр «будь-який», бо на частині Android-телефонів фільтр за .csv/.ics ховає потрібні файли.
+/// Обраний файл: назва + байти. Без фільтра за типом, бо на частині телефонів фільтр за .csv/.ics ховає потрібні файли.
 Future<({String name, List<int> bytes})?> pickFileBytes() async {
-  final r = await FilePicker.pickFiles(type: FileType.any, withData: true);
-  final f = r?.files.single;
+  final f = await openFile();
   if (f == null) return null;
-  final bytes = f.bytes ?? (f.path == null ? null : await File(f.path!).readAsBytes());
-  if (bytes == null) return null;
-  return (name: f.name, bytes: bytes);
+  return (name: f.name, bytes: await f.readAsBytes());
 }
 
 Future<String?> pickBackupText() async {
-  if (kIsWeb) {
-    final f = await pickFileBytes();
-    return f == null ? null : utf8.decode(f.bytes, allowMalformed: true);
-  }
-  final r = await FilePicker.pickFiles(type: FileType.any);
-  final path = r?.files.single.path;
-  if (path == null) return null;
-  return File(path).readAsString();
+  final f = await pickFileBytes();
+  return f == null ? null : utf8.decode(f.bytes, allowMalformed: true);
 }
 
 class BackupError implements Exception {
