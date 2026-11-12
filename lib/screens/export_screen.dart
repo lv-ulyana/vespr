@@ -312,7 +312,9 @@ class _EventRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: rw(14, w: FontWeight.w600)),
+              title.startsWith('✦')
+                  ? Row(children: [const Ico(Svgs.star4, size: 11, color: K.star), const SizedBox(width: 5), Text(title.substring(1).trim(), style: rw(14, w: FontWeight.w600))])
+                  : Text(title, style: rw(14, w: FontWeight.w600)),
               const SizedBox(height: 3),
               Text(sub, style: rw(12, color: K.muted)),
             ]),

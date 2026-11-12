@@ -53,11 +53,6 @@ class _TableScreenState extends State<TableScreen> {
 
     return DScroll(
       padding: const EdgeInsets.fromLTRB(20, 58, 20, 24),
-      bottom: Row(children: [
-        Expanded(child: GhostBtn('Імпорт', onTap: () => go(context, const ImportScreen()))),
-        const SizedBox(width: 8),
-        Expanded(child: CtaIco('Експорт', height: 48, size: 15, onTap: () => go(context, const ExportScreen()))),
-      ]),
       children: [
         BoardHeader('Таблиця', right: IconBtn(svg: BS.download, label: 'Експорт', onTap: () => go(context, const ExportScreen()))),
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -89,6 +84,11 @@ class _TableScreenState extends State<TableScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text('${rows.length} ${plural(rows.length, 'запис', 'записи', 'записів')} · середня ${fmt(mean)}', style: rw(12, color: K.haze)),
           ),
+        Row(children: [
+          Expanded(child: GhostBtn('Імпорт', onTap: () => go(context, const ImportScreen()))),
+          const SizedBox(width: 8),
+          Expanded(child: CtaIco('Експорт', height: 48, size: 15, onTap: () => go(context, const ExportScreen()))),
+        ]),
       ],
     );
   }

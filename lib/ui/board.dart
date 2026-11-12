@@ -293,7 +293,8 @@ class DChip extends StatelessWidget {
         button: true,
         child: Press(
           onTap: onTap,
-          child: AnimatedContainer(
+          child: IntrinsicWidth(
+            child: AnimatedContainer(
             duration: const Duration(milliseconds: 350),
             curve: easeD,
             height: height,
@@ -305,6 +306,7 @@ class DChip extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(label, style: rw(13, color: on ? K.star : K.soft2, w: FontWeight.w500)),
+          ),
           ),
         ),
       );
