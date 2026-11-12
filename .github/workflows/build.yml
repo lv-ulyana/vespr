@@ -41,6 +41,7 @@ jobs:
       - run: flutter create . --platforms=web --project-name vespr
       - run: python3 tool/web_tweaks.py
       - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      - run: python3 tool/web_cachebust.py
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
