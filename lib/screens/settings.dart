@@ -12,6 +12,7 @@ import '../ui/kit.dart';
 import '../ui/theme.dart';
 import 'export_screen.dart';
 import 'import_screen.dart';
+import 'map.dart' show MyArcanaScreen;
 import 'onboarding.dart';
 import 'pin_screens.dart';
 import 'table_screen.dart';
@@ -46,6 +47,7 @@ class SettingsScreen extends StatelessWidget {
       ]),
       const Label('Записи'),
       group([
+        NavRow(title: 'Мій аркан', value: p.birth == null ? 'Додай дату' : '', icon: Icons.auto_awesome_outlined, onTap: () => go(context, const MyArcanaScreen())),
         NavRow(title: 'Мої питання', value: '${p.sexQs.length} + ${p.ptQs.length}', icon: Icons.tune_rounded, onTap: () => go(context, const QuestionsScreen())),
         NavRow(title: 'Експорт', value: 'Таблиця, календар', icon: Icons.ios_share_rounded, onTap: () => go(context, const ExportScreen())),
         NavRow(title: 'Імпорт', value: 'З таблиці чи календаря', icon: Icons.file_upload_outlined, onTap: () => go(context, const ImportScreen())),
