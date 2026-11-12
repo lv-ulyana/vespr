@@ -76,7 +76,7 @@ Future<String> exportBackup(DB db, String password) async {
 
 /// Обраний файл: назва + байти. Фільтр «будь-який», бо на частині Android-телефонів фільтр за .csv/.ics ховає потрібні файли.
 Future<({String name, List<int> bytes})?> pickFileBytes() async {
-  final r = await FilePicker.platform.pickFiles(type: FileType.any, withData: true);
+  final r = await FilePicker.pickFiles(type: FileType.any, withData: true);
   final f = r?.files.single;
   if (f == null) return null;
   final bytes = f.bytes ?? (f.path == null ? null : await File(f.path!).readAsBytes());
@@ -89,7 +89,7 @@ Future<String?> pickBackupText() async {
     final f = await pickFileBytes();
     return f == null ? null : utf8.decode(f.bytes, allowMalformed: true);
   }
-  final r = await FilePicker.platform.pickFiles(type: FileType.any);
+  final r = await FilePicker.pickFiles(type: FileType.any);
   final path = r?.files.single.path;
   if (path == null) return null;
   return File(path).readAsString();
