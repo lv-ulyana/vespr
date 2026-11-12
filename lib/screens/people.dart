@@ -44,7 +44,7 @@ const _glyphs = {
   'Овен': '♈', 'Телець': '♉', 'Близнюки': '♊', 'Рак': '♋', 'Лев': '♌', 'Діва': '♍',
   'Терези': '♎', 'Скорпіон': '♏', 'Стрілець': '♐', 'Козеріг': '♑', 'Водолій': '♒', 'Риби': '♓',
 };
-String glyphOf(String sign) => '${_glyphs[sign] ?? '✦'}︎';
+String glyphOf(String sign) => _glyphs[sign] ?? '✦';
 const _symFonts = ['Apple Symbols', 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Noto Sans Symbols'];
 
 const monthsShort = ['січ', 'лют', 'бер', 'квіт', 'трав', 'черв', 'лип', 'серп', 'вер', 'жовт', 'лист', 'груд'];
@@ -165,7 +165,7 @@ class _Glyph extends StatelessWidget {
   Widget build(BuildContext context) => Text(
         glyphOf(sign),
         semanticsLabel: sign,
-        style: TextStyle(fontSize: size, height: 1, color: color, fontFamilyFallback: _symFonts, decoration: TextDecoration.none),
+        style: TextStyle(fontFamily: 'Zodiac', fontSize: size, height: 1, color: color, fontFamilyFallback: _symFonts, decoration: TextDecoration.none),
       );
 }
 
@@ -934,10 +934,11 @@ Future<void> personDelete(BuildContext context, Person p, {bool popAfter = false
   if (yes == 'past') return personToPast(context, p);
   if (yes != 'delete') return;
   final overlay = appNav.currentState?.overlay ?? Overlay.of(context);
+  final nav = Navigator.of(context);
+  if (popAfter) nav.pop(); // спершу закриваємо картку, потім видаляємо
   await s.deletePerson(p.id);
-  if (!context.mounted) return;
-  if (popAfter) Navigator.of(context).pop();
-  undoToast(context, '${p.name}: видалено', () => s.importBatch(people: [p], entries: es, meetings: ms), overlay: overlay);
+  if (!overlay.mounted) return;
+  undoToast(overlay.context, '${p.name}: видалено', () => s.importBatch(people: [p], entries: es, meetings: ms), overlay: overlay);
 }
 
 // =====================================================================

@@ -36,6 +36,9 @@ flutter:
   assets:
     - assets/img/
   fonts:
+    - family: Zodiac
+      fonts:
+        - asset: assets/fonts/NotoZodiac.ttf
     - family: Prata
       fonts:
         - asset: assets/fonts/Prata_400Regular.ttf
