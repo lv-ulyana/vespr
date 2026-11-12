@@ -1440,7 +1440,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
             padding: const EdgeInsets.fromLTRB(20, 58, 20, 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
               widget.onboarding
-                  ? StepHeader(3, right: Press(onTap: () => finishOnboarding(context), child: SizedBox(height: 44, child: Center(child: Text('Пізніше', style: rw(13, color: K.muted, w: FontWeight.w500))))))
+                  ? StepHeader(3, right: Press(onTap: () => finishOnboarding(context), child: SizedBox(height: 44, child: Row(mainAxisSize: MainAxisSize.min, children: [Text('Пізніше', style: rw(13, color: K.muted, w: FontWeight.w500))]))))
                   : const SizedBox(height: 44, child: Align(alignment: Alignment.centerLeft, child: BackBtn())),
               Text(widget.onboarding ? 'Додай першу людину' : 'Нова людина', style: pr(34, h: 1.1)),
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
