@@ -22,6 +22,12 @@ Future<void> main() async {
     final q = Uri.base.queryParameters;
     if (q['reset'] == '1') await store.wipe();
     if (q['demo'] == '1' && !store.profile.onboarded) await store.replaceAll(demoDb());
+    // ?demo=early — тільки 3 записи, щоб побачити «перші спостереження»
+    if (q['demo'] == 'early' && !store.profile.onboarded) {
+      final d = demoDb();
+      d.entries.removeRange(3, d.entries.length);
+      await store.replaceAll(d);
+    }
   }
   runApp(Store(store: store, child: const VesprApp()));
 }

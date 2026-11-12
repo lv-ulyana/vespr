@@ -16,6 +16,7 @@ import '../logic/dates.dart';
 import '../logic/stats.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
+import 'people.dart' show flagShort;
 import 'settings.dart' show PaywallScreen;
 
 const _freeFactors = 2;
@@ -59,7 +60,7 @@ const _nice = <String, (String, String)>{
   'o_me': ('Твій оргазм', 'твій оргазм'),
   'o_fake': ('Симулювала', 'симуляція'),
 };
-String niceLabel(Effect e) => _nice[e.id]?.$1 ?? e.label;
+String niceLabel(Effect e) => _nice[e.id]?.$1 ?? (e.kind == 'flag' ? flagShort(e.id) : e.label);
 String niceNoun(Effect e) => _nice[e.id]?.$2 ?? e.label.toLowerCase();
 
 /// Записи, у яких є цей фактор
@@ -153,7 +154,13 @@ class _MapTabState extends State<MapTab> {
     if (sel >= nodes.length) sel = 0;
     final factors = [...pos.take(4), ...neg.take(2)];
     final shown = premium ? factors : factors.take(_freeFactors).toList();
-    final f = formula(eff);
+    // формула: найсильніші позитивні теги з різних груп (від «Схоже»)
+    final f = <Effect>[];
+    for (final e in pos.where((x) => x.kind == 'tag')) {
+      if (f.any((x) => x.group == e.group)) continue;
+      f.add(e);
+      if (f.length == 3) break;
+    }
 
     return Stack(children: [
       const Positioned(left: -80, top: -40, child: EGlow(w: 550, h: 620, colors: [Color(0x29F08A6C), Color(0x0F8C86A3), Color(0x0017161F)], stops: [0, .45, .7])),
@@ -952,7 +959,7 @@ class _RadarCard extends StatelessWidget {
         _h2('Твої питання в середньому'),
         const SizedBox(height: 6),
         Text('По всіх людях. Найслабше в тебе: ${items[weak].$1.toLowerCase()}', style: _cap()),
-        const SizedBox(height: 8),
+        const SizedBox(height: 28),
         Center(
           child: TweenAnimationBuilder<double>(
             tween: Tween(begin: .2, end: 1),
