@@ -97,7 +97,16 @@ void main() {
     final issues = <Issue>[];
     final errors = <String>[];
     final old = FlutterError.onError;
-    FlutterError.onError = (d) => errors.add(d.exceptionAsString().split('\n').first);
+    FlutterError.onError = (d) {
+      var m = d.exceptionAsString().split('\n').first;
+      // звідки помилка: перші рядки стеку з нашого коду
+      final own = (d.stack?.toString() ?? '').split('\n').where((l) => l.contains('package:vespr/')).take(3).map((l) => l.replaceAll(RegExp(r'^#\d+\s+'), '')).join(' ← ');
+      if (own.isNotEmpty) m = '$m [$own]';
+      final all = d.toString().split('\n');
+      final w = all.indexWhere((l) => l.contains('relevant error-causing widget'));
+      if (w >= 0 && w + 1 < all.length) m = '$m {${all[w + 1].trim()}${w + 2 < all.length ? ' ${all[w + 2].trim()}' : ''}}';
+      errors.add(m);
+    };
     try {
       // 390×844 — макет; 375×667 — низький екран (iPhone SE), там найчастіше налазить
       for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty']), (Size(375, 667), ['full'])]) {

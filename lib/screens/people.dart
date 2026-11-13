@@ -1781,7 +1781,7 @@ class _ShameScreenState extends State<ShameScreen> {
                       Text('Найчастіше', style: rw(15, w: FontWeight.w600)),
                       for (var i = 0; i < math.min(4, often.length); i++)
                         Row(children: [
-                          SizedBox(width: 150, child: Text(flagById(often[i].key)?.label ?? often[i].key, style: rw(13), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          SizedBox(width: 156, child: Text(flagById(often[i].key)?.label ?? often[i].key, style: rw(13, h: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis)),
                           const SizedBox(width: 10),
                           Expanded(child: _Bar(v: often[i].value / often.first.value, color: col.withValues(alpha: 1 - i * .15), h: 6, track: K.w(.06), delay: .3 + i * .08)),
                           const SizedBox(width: 10),

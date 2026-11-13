@@ -480,7 +480,7 @@ class _MeetingFormState extends State<MeetingForm> {
               Text('Людина', style: lbl),
               const SizedBox(height: 10),
               SizedBox(
-                height: 86,
+                height: 94,
                 child: ListView(scrollDirection: Axis.horizontal, clipBehavior: Clip.none, children: gapped([
                   for (final p in people)
                     Semantics(

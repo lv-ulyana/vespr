@@ -53,27 +53,58 @@ bool _visible(RenderObject r) {
   return true;
 }
 
+class _Para {
+  final List<Rect> lines; // «чорнильні» рядки: без порожнього міжрядкового простору
+  final Rect rect;
+  final String t;
+  final RenderViewportBase? vp; // вертикальна прокрутка
+  final double rest; // скільки ще можна прокрутити вниз
+  _Para(this.lines, this.rect, this.t, this.vp, this.rest);
+}
+
 /// Тексти, що обрізані, вилазять за край екрана або налазять один на одного
 List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
   final out = <Issue>[];
-  final paras = <(Rect, String)>[];
+  final paras = <_Para>[];
   void walk(RenderObject r) {
     if (r is RenderParagraph && r.hasSize && r.attached && _visible(r)) {
-      final t = r.text.toPlainText().trim();
+      final full = r.text.toPlainText();
+      final t = full.trim();
       if (t.isNotEmpty) {
+        final m = r.getTransformTo(null);
         // справжні межі гліфів з урахуванням повороту/масштабу
-        final boxes = r.getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: r.text.toPlainText().length));
+        final boxes = r.getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: full.length));
         final local = boxes.isEmpty ? Offset.zero & r.size : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b));
-        final rect = MatrixUtils.transformRect(r.getTransformTo(null), local);
+        final rect = MatrixUtils.transformRect(m, local);
+        // рядок — без інтерліньяжу: верх 18% і низ 12% бокса це повітря
+        final lines = [
+          for (final b in boxes)
+            if (b.toRect().height > 0)
+              MatrixUtils.transformRect(m, Rect.fromLTRB(b.left, b.top + (b.bottom - b.top) * .18, b.right, b.bottom - (b.bottom - b.top) * .12)),
+        ];
         // повністю поза екраном збоку (сусідні сторінки PageView) — не видно
         if (rect.right < 0 || rect.left > width) {
           r.visitChildren(walk);
           return;
         }
-        paras.add((rect, t));
+        RenderViewportBase? vp;
+        var hScroll = false;
+        for (RenderObject? p = r.parent; p != null; p = p.parent) {
+          if (p is RenderViewportBase) {
+            if (p.axis == Axis.horizontal) {
+              hScroll = true;
+            } else {
+              vp ??= p;
+            }
+          }
+        }
+        var rest = 0.0;
+        final off = vp?.offset;
+        if (off is ScrollPosition && off.hasContentDimensions) rest = off.maxScrollExtent - off.pixels;
+        paras.add(_Para(lines.isEmpty ? [rect] : lines, rect, t, vp, rest));
         if (r.didExceedMaxLines) out.add(Issue('$tag: обрізано «$t»'));
-        // біжучі стрічки свідомо ширші за екран
-        if (t.length < 60 && (rect.right > width + 1 || rect.left < -1)) {
+        // біжучі стрічки й горизонтальні стрічки чипів свідомо ширші за екран
+        if (!hScroll && t.length < 60 && (rect.right > width + 1 || rect.left < -1)) {
           out.add(Issue('$tag: за краєм екрана «$t» ${rect.left.toStringAsFixed(0)}..${rect.right.toStringAsFixed(0)}'));
         }
       }
@@ -81,19 +112,36 @@ List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
     r.visitChildren(walk);
   }
 
+  bool hit(List<Rect> a, List<Rect> b) {
+    for (final x in a) {
+      for (final y in b) {
+        final i = x.intersect(y);
+        if (i.width <= 3 || i.height <= 3) continue;
+        final minH = x.height < y.height ? x.height : y.height;
+        if (i.height < minH * .3) continue;
+        final small = [x.width * x.height, y.width * y.height].reduce((p, q) => p < q ? p : q);
+        if (i.width * i.height > small * .2) return true;
+      }
+    }
+    return false;
+  }
+
+  List<Rect> up(_Para p) => [for (final l in p.lines) l.shift(Offset(0, -p.rest))];
+
   walk(root);
   for (var i = 0; i < paras.length; i++) {
     for (var j = i + 1; j < paras.length; j++) {
       final a = paras[i], b = paras[j];
       // біжучі стрічки (довгий повторюваний текст під кутом) не рахуємо
-      if (a.$2.length >= 60 || b.$2.length >= 60) continue;
-      final x = a.$1.intersect(b.$1);
-      if (x.width <= 3 || x.height <= 3) continue;
-      final minH = a.$1.height < b.$1.height ? a.$1.height : b.$1.height;
-      // рядки один під одним з тісним інтерліньяжем перекриваються трохи — це не налізання
-      if (x.height < minH * .35) continue;
-      final small = [a.$1.width * a.$1.height, b.$1.width * b.$1.height].reduce((p, q) => p < q ? p : q);
-      if (x.width * x.height > small * .25) out.add(Issue('$tag: налазять «${a.$2}» і «${b.$2}»'));
+      if (a.t.length >= 60 || b.t.length >= 60) continue;
+      if (!hit(a.lines, b.lines)) continue;
+      // текст у прокрутці під закріпленою панеллю: ок, якщо прокруткою його можна вивести
+      if (a.vp != b.vp) {
+        final la = a.vp == null ? a.lines : up(a);
+        final lb = b.vp == null ? b.lines : up(b);
+        if (!hit(la, lb)) continue;
+      }
+      out.add(Issue('$tag: налазять «${a.t}» і «${b.t}»'));
     }
   }
   return out;
