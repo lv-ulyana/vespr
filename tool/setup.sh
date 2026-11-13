@@ -53,7 +53,7 @@ if ! grep -q 'android.permission.READ_CALENDAR' "$MF"; then
   perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.READ_CALENDAR" />\n    <uses-permission android:name="android.permission.WRITE_CALENDAR" />#' "$MF"
 fi
 
-echo "› iOS: тексти дозволів (Face ID, календар)"
+echo "› iOS: тексти дозволів (Face ID, календар, фото)"
 PL=ios/Runner/Info.plist
 add() { /usr/libexec/PlistBuddy -c "Add :$1 string '$2'" "$PL" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :$1 '$2'" "$PL"; }
 if [ -x /usr/libexec/PlistBuddy ]; then
@@ -61,6 +61,7 @@ if [ -x /usr/libexec/PlistBuddy ]; then
   add NSCalendarsUsageDescription "Щоб додати зустрічі в календар і перенести з нього ті, які ти обереш."
   add NSCalendarsWriteOnlyAccessUsageDescription "Щоб додати заплановані зустрічі у твій календар."
   add NSCalendarsFullAccessUsageDescription "Щоб перенести у Vespr події з календаря, які ти обереш. Сам календар не змінюємо."
+  add NSPhotoLibraryUsageDescription "Щоб додати фото людини. Воно лишається тільки на цьому телефоні."
   add NSContactsUsageDescription "Календар може запитати контакти для запрошень. Vespr їх не читає."
   add CFBundleDisplayName "Vespr"
 else

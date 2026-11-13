@@ -25,7 +25,8 @@ import 'table_screen.dart';
 import 'wrapped.dart' show WrappedArchiveScreen;
 
 /// Перемикачі без окремого поля в профілі живуть у counters під ключем opt:… (1 — увімкнено).
-bool profOpt(Profile p, String k) => (p.counters['opt:$k'] ?? 1) == 1;
+/// Усі за замовчуванням увімкнені, крім «Розмивати фото».
+bool profOpt(Profile p, String k) => (p.counters['opt:$k'] ?? (k == 'blur' ? 0 : 1)) == 1;
 
 String _monthCount(AppStore s) {
   final m = today().substring(0, 7);

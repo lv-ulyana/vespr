@@ -177,8 +177,8 @@ class _MatchScreenState extends State<MatchScreen> {
             right: 0, top: 0,
             child: Rise(dy: 0, child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [const BoxShadow(color: Color(0xFF1E1B25), spreadRadius: 3), BoxShadow(color: K.soft.withValues(alpha: .5), spreadRadius: 4)]),
-              // справжнє фото ніколи не йде на картинку, якою діляться — тільки пляма
-              child: PAvatar(size: 80, pid: p.id, anon: capturing),
+              // на картинку йде так само, як на екрані: розмите, якщо в налаштуваннях «Розмивати фото»
+              child: PAvatar(size: 80, pid: p.id),
             )),
           ),
           Positioned(

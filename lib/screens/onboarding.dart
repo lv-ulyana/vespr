@@ -289,7 +289,7 @@ class _GText extends StatelessWidget {
     'Після трьох записів Vespr покаже закономірності, яких ти не помічала.',
     'Секс окремо, характер окремо. Видно, хто в чому сильніший і з ким тобі краще.',
     'Знак і аркан для тебе і для нього. А поруч те, що кажуть твої оцінки.',
-    'Записи не йдуть на наші сервери. Вхід за PIN-кодом, фото людей розмиті.',
+    'Записи не йдуть на наші сервери. Вхід за PIN-кодом, фото людей можна розмити.',
   ];
 
   @override
@@ -901,7 +901,7 @@ class _GPrivate extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Row(children: gapped([
-                      for (final t in ['Тільки на телефоні', 'Лише псевдоніми', 'Розмиті фото'])
+                      for (final t in ['Тільки на телефоні', 'Лише псевдоніми', 'Розмиття фото'])
                         Expanded(
                           child: Container(
                             height: 52,
@@ -1458,7 +1458,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
     }
     final act = await showSheet<String>(context, (ctx) => Sheet(children: [
           Text('Фото', style: pr(24, h: 1.1)),
-          Text('Зберігається тільки на цьому телефоні. В апці показується розмитим, поки в налаштуваннях увімкнено «Розмивати фото».', style: rw(13, color: K.muted, h: 1.45)),
+          Text('Зберігається тільки на цьому телефоні. Розмити фото в апці можна в налаштуваннях: «Розмивати фото».', style: rw(13, color: K.muted, h: 1.45)),
           const SizedBox(height: 4),
           Cta('Вибрати інше', onTap: () => Navigator.pop(ctx, 'pick')),
           Press(
