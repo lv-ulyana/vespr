@@ -86,7 +86,6 @@ DB _variant(String v, DateTime now) {
 void main() {
   testWidgets('Апка: верстка всіх екранів', skip: Platform.environment['LAYOUT'] != '1', (tester) async {
     await tester.runAsync(loadFonts);
-    tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.view.reset);
@@ -100,7 +99,11 @@ void main() {
     final old = FlutterError.onError;
     FlutterError.onError = (d) => errors.add(d.exceptionAsString().split('\n').first);
     try {
-      for (final v in const ['full', 'early', 'empty']) {
+      // 390×844 — макет; 375×667 — низький екран (iPhone SE), там найчастіше налазить
+      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty']), (Size(375, 667), ['full'])]) {
+      tester.view.physicalSize = sz;
+      final px = sz.height < 700 ? 'se_' : '';
+      for (final v in vs) {
         SharedPreferences.setMockInitialValues({});
         final store = AppStore();
         await tester.runAsync(() async {
@@ -111,12 +114,13 @@ void main() {
           // екрани, що не залежать від даних, перевіряємо один раз
           const dataFree = {'welcome', 'guide', 'about_you', 'setup', 'privacy', 'terms', 'pin_new', 'pin_lock', 'paywall', 'paywall_limit', 'paywall_match', 'subscription', 'delete_all', 'backup_export', 'backup_import', 'import', 'import_calendar', 'questions'};
           if (v != 'full' && dataFree.contains(name)) continue;
+          final tagV = '$px$v';
           final key = GlobalKey();
           errors.clear();
           await tester.pumpWidget(Store(
             store: store,
             child: MaterialApp(
-              key: ValueKey('$v/$name'),
+              key: ValueKey('$px$v/$name'),
               debugShowCheckedModeBanner: false,
               theme: vesprTheme(),
               locale: const Locale('uk'),
@@ -143,7 +147,7 @@ void main() {
               issues.add(Issue('$tag: $e'));
             }
             errors.clear();
-            issues.addAll(scanText(key.currentContext!.findRenderObject()!, tag));
+            issues.addAll(scanText(key.currentContext!.findRenderObject()!, tag, width: sz.width));
             if (shots) {
               await tester.runAsync(() async {
                 final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
@@ -161,12 +165,13 @@ void main() {
               pv.controller!.jumpToPage(i);
               await tester.pump(const Duration(seconds: 2));
               await tester.pump(const Duration(seconds: 2));
-              await check('$v/guide$i');
+              await check('$tagV/guide$i');
             }
           } else {
-            await check('$v/$name');
+            await check('$tagV/$name');
           }
         }
+      }
       }
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 30));

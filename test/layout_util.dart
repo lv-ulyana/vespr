@@ -85,7 +85,8 @@ List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
   for (var i = 0; i < paras.length; i++) {
     for (var j = i + 1; j < paras.length; j++) {
       final a = paras[i], b = paras[j];
-      if (a.$2.length >= 60 && b.$2.length >= 60) continue;
+      // біжучі стрічки (довгий повторюваний текст під кутом) не рахуємо
+      if (a.$2.length >= 60 || b.$2.length >= 60) continue;
       final x = a.$1.intersect(b.$1);
       if (x.width <= 3 || x.height <= 3) continue;
       final minH = a.$1.height < b.$1.height ? a.$1.height : b.$1.height;

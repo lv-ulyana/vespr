@@ -192,7 +192,25 @@ class _GuideScreenState extends State<GuideScreen> with SingleTickerProviderStat
               page = i;
               fill.forward(from: 0);
             }),
-            children: const [_GVoice(), _GRate(), _GMap(), _GCompare(), _GStars(), _GPrivate()],
+            // ілюстрації намальовані під 844 по висоті; на нижчих екранах зменшуємо їх від верху,
+            // щоб не налазили на текст, прибитий до низу
+            children: [
+              for (final p in const [_GVoice(), _GRate(), _GMap(), _GCompare(), _GStars(), _GPrivate()])
+                h >= 844
+                    ? p
+                    : ClipRect(
+                        child: OverflowBox(
+                          alignment: Alignment.topCenter,
+                          minHeight: 844,
+                          maxHeight: 844,
+                          child: Transform.scale(
+                            scale: ((h - 290) / (844 - 290)).clamp(.55, 1.0),
+                            alignment: Alignment.topCenter,
+                            child: SizedBox(height: 844, child: p),
+                          ),
+                        ),
+                      ),
+            ],
           ),
           // верх: «1 з 6», сегменти, «Пропустити»
           Positioned(
