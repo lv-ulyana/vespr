@@ -464,7 +464,7 @@ class HomeTab extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Записати', style: rw(17, w: FontWeight.w500)),
                 const SizedBox(height: 3),
-                Text(limitHit ? '$freeEntriesPerMonth з $freeEntriesPerMonth записів цього місяця' : 'Після зустрічі, поки свіже', style: rw(12, color: K.muted)),
+                Text(limitHit ? '$freeEntriesPerMonth з $freeEntriesPerMonth записів цього місяця' : 'Голосом, до або після зустрічі', style: rw(12, color: K.muted)),
               ]),
             ),
             Container(width: 38, height: 38, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: K.w(.12))), alignment: Alignment.center, child: Ico(Svgs.arrowR, size: 14, color: K.soft2)),
