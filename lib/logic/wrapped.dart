@@ -660,8 +660,9 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
     ..addAll(picked)
     ..addAll(fixedEnd);
   // головний факт місяця — слайд з найвищим балом; з нього речення для стрічки фіналу
-  final topSlide = picked.isEmpty ? null : (picked.toList()..sort((a, b) => score[b]!.compareTo(score[a]!))).first;
-  final mainFact = topSlide == null || topSlide.k == WK.notice ? '' : '${topSlide.title1} ${topSlide.t2(true).replaceAll('|', ' ')}'.trim();
+  // приватні слайди («Варто помітити», оргазми) в стрічку фіналу не йдуть — вона потрапляє в сторіз
+  final topSlide = (picked.where((x) => !x.private).toList()..sort((a, b) => score[b]!.compareTo(score[a]!))).firstOrNull;
+  final mainFact = topSlide == null ? '' : '${topSlide.title1} ${topSlide.t2(true).replaceAll('|', ' ')}'.trim();
 
   // 17. Місяць загорнуто: топ-моменти з уже зібраних слайдів + твої числа
   out.add(WSlide(WK.closed, nom, 'загорнуто.',
