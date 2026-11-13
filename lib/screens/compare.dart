@@ -317,7 +317,6 @@ class _CompareScreenState extends State<CompareScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(23),
                   color: K.card2,
-                  boxShadow: const [BoxShadow(color: Color(0xF209080E), blurRadius: 28, offset: Offset(0, 16), spreadRadius: -20)],
                 ),
                 foregroundDecoration: lead ? BoxDecoration(borderRadius: BorderRadius.circular(23), gradient: RadialGradient(center: Alignment.topLeft, radius: 1.1, colors: [K.a(.13), K.a(0)], stops: const [0, .6])) : null,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
