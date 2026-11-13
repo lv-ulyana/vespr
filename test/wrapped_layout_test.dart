@@ -105,6 +105,16 @@ void main() {
             issues.add(Issue('$name: $e'));
           }
           issues.addAll(scanText(key.currentContext!.findRenderObject()!, name));
+          // у переглядачі з 772 по низу кнопки «Без імен / Поділитися / ×» — текст туди не має залазити
+          void low(RenderObject r) {
+            if (r is RenderParagraph && r.hasSize) {
+              final t = r.text.toPlainText().trim();
+              final rect = MatrixUtils.transformRect(r.getTransformTo(key.currentContext!.findRenderObject()), Offset.zero & r.size);
+              if (t.isNotEmpty && t.length < 60 && rect.bottom > 770 && rect.top < 844 && rect.right > 0 && rect.left < 390) issues.add(Issue('$name: під кнопками «$t» ${rect.top.toStringAsFixed(0)}..${rect.bottom.toStringAsFixed(0)}'));
+            }
+            r.visitChildren(low);
+          }
+          low(key.currentContext!.findRenderObject()!);
           if (shots) {
             await tester.runAsync(() async {
               final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
