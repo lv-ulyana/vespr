@@ -13,7 +13,7 @@ import '../logic/stats.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
-import 'entry.dart' show PAvatar, seedOf;
+import 'entry.dart' show PAvatar;
 import 'match.dart' show openMatch;
 import 'settings.dart' show PaywallScreen;
 
@@ -132,7 +132,7 @@ class _CompareScreenState extends State<CompareScreen> {
                   border: Border.all(color: i > -1 ? K.a(.55) : K.w(.07)),
                 ),
                 child: Row(children: [
-                  PAvatar(size: 40, seed: seedOf(p.id)),
+                  PAvatar(size: 40, pid: p.id),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -218,7 +218,7 @@ class _CompareScreenState extends State<CompareScreen> {
             Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(shape: BoxShape.circle, color: K.bg, boxShadow: [BoxShadow(color: left ? K.acc : K.haze, spreadRadius: 2)]),
-              child: PAvatar(size: 52, seed: seedOf(p.id)),
+              child: PAvatar(size: 52, pid: p.id),
             ),
             const SizedBox(height: 6),
             Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: rw(14, w: FontWeight.w700)),
@@ -325,7 +325,7 @@ class _CompareScreenState extends State<CompareScreen> {
                     child: Row(children: [
                       Container(
                         decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [const BoxShadow(color: K.card2, spreadRadius: 2), BoxShadow(color: lead ? K.a(.6) : K.soft.withValues(alpha: .5), spreadRadius: 3)]),
-                        child: PAvatar(size: 40, seed: seedOf(p.id)),
+                        child: PAvatar(size: 40, pid: p.id),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

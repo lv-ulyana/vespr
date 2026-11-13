@@ -2,6 +2,7 @@
 // повне демо, «рання» стадія (3 записи) і порожньо. Туторіал — кожна сторінка.
 // Падає, якщо щось переповнюється, текст обрізається, вилазить за екран
 // або тексти налазять один на одного. З SHOTS=1 пише PNG у build/shots.
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -81,6 +82,11 @@ List<(String, Widget)> _screens(DB db) => [
 DB _variant(String v, DateTime now) {
   final d = demoDb(now);
   if (v == 'early') d.entries.removeRange(3, d.entries.length);
+  if (v == 'photo') {
+    // справжні фото у двох людей (беремо будь-які квадратні JPEG з асетів)
+    d.people[0].photo = base64Encode(File('assets/img/places/his_t.jpg').readAsBytesSync());
+    if (d.people.length > 1) d.people[1].photo = base64Encode(File('assets/img/places/mine_t.jpg').readAsBytesSync());
+  }
   if (v == 'empty') {
     d.entries.clear();
     d.people.clear();
@@ -115,7 +121,7 @@ void main() {
     };
     try {
       // 390×844 — макет; 375×667 — низький екран (iPhone SE), там найчастіше налазить
-      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty']), (Size(375, 667), ['full']), (Size(320, 568), ['full'])]) {
+      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty', 'photo']), (Size(375, 667), ['full']), (Size(320, 568), ['full'])]) {
       tester.view.physicalSize = sz;
       final px = sz.height < 600 ? 'xs_' : (sz.height < 700 ? 'se_' : '');
       for (final v in vs) {
@@ -129,6 +135,8 @@ void main() {
           // екрани, що не залежать від даних, перевіряємо один раз
           const dataFree = {'welcome', 'guide', 'about_you', 'setup', 'privacy', 'terms', 'pin_new', 'pin_lock', 'paywall', 'paywall_limit', 'paywall_match', 'subscription', 'delete_all', 'backup_export', 'backup_import', 'import', 'import_calendar', 'questions'};
           if (v != 'full' && dataFree.contains(name)) continue;
+          const withPhoto = {'home', 'people', 'calendar', 'meeting_new', 'person_view', 'person_view2', 'person_edit', 'compare_stars', 'match'};
+          if (v == 'photo' && !withPhoto.contains(name)) continue;
           final tagV = '$px$v';
           final key = GlobalKey();
           errors.clear();

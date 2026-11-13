@@ -1,4 +1,5 @@
 // Онбординг один в один з дошками «1. Онбординг»: Main → 6 гайдів → Birthdate → Setup → PinNew → AddPerson.
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
@@ -13,7 +14,7 @@ import '../logic/astro.dart';
 import '../logic/dates.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
-import 'entry.dart' show PAvatar, seedOf;
+import 'entry.dart' show PAvatar, PPhoto, pickPersonPhoto;
 import 'pin_screens.dart';
 import 'settings.dart' show PaywallKind, PaywallScreen;
 
@@ -1353,6 +1354,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   final nick = TextEditingController(), d = TextEditingController(), m = TextEditingController(), notes = TextEditingController();
   final fd = FocusNode(), fm = FocusNode();
   Person? prev;
+  String? photo; // base64 JPEG, null — без фото
 
   @override
   void initState() {
@@ -1362,6 +1364,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
     final p = prev;
     if (p != null) {
       nick.text = p.name;
+      photo = p.photo;
       gender = p.gender;
       rel = p.rel;
       notes.text = p.notes;
@@ -1418,6 +1421,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
         p.signOnly = unknown ? signOnly : null;
         p.size = size;
         p.notes = notes.text.trim();
+        p.photo = photo;
       });
       if (mounted) Navigator.pop(context);
       return;
@@ -1435,6 +1439,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       signOnly: unknown ? signOnly : null,
       size: size,
       createdAt: DateTime.now().toIso8601String(),
+      photo: photo,
     );
     await s.addPerson(p);
     if (!mounted) return;
@@ -1442,6 +1447,30 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       await finishOnboarding(context);
     } else {
       Navigator.pop(context, p.id);
+    }
+  }
+
+  Future<void> _photoTap() async {
+    if (photo == null) {
+      final x = await pickPersonPhoto(context);
+      if (x != null && mounted) setState(() => photo = x);
+      return;
+    }
+    final act = await showSheet<String>(context, (ctx) => Sheet(children: [
+          Text('Фото', style: pr(24, h: 1.1)),
+          Text('Зберігається тільки на цьому телефоні. В апці показується розмитим, поки в налаштуваннях увімкнено «Розмивати фото».', style: rw(13, color: K.muted, h: 1.45)),
+          const SizedBox(height: 4),
+          Cta('Вибрати інше', onTap: () => Navigator.pop(ctx, 'pick')),
+          Press(
+            onTap: () => Navigator.pop(ctx, 'del'),
+            child: SizedBox(height: 48, child: Center(child: Text('Прибрати фото', style: rw(15, color: K.accSoft, w: FontWeight.w600)))),
+          ),
+        ]));
+    if (!mounted) return;
+    if (act == 'del') setState(() => photo = null);
+    if (act == 'pick') {
+      final x = await pickPersonPhoto(context);
+      if (x != null && mounted) setState(() => photo = x);
     }
   }
 
@@ -1509,14 +1538,16 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                 Text(prev != null ? "Ім'я" : f ? 'Як її назвеш' : 'Як його назвеш', style: lbl),
                 const SizedBox(height: 8),
                 Row(children: [
-                  if (prev != null)
+                  if (prev != null || photo != null)
                     Press(
                       label: 'Змінити фото',
-                      onTap: () => dToast(context, 'Фото людей додамо в наступній версії'),
+                      onTap: _photoTap,
                       child: SizedBox(
                         width: 56, height: 56,
                         child: Stack(clipBehavior: Clip.none, children: [
-                          PAvatar(size: 56, seed: seedOf(prev!.id)),
+                          photo != null
+                              ? PPhoto(bytes: base64Decode(photo!), w: 56, h: 56, circle: true, blur: 56 / 12)
+                              : PAvatar(size: 56, pid: prev!.id),
                           Positioned(
                             right: -2, bottom: -2,
                             child: Container(
@@ -1532,7 +1563,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   else
                   Press(
                     label: 'Додати фото',
-                    onTap: () => dToast(context, 'Фото людей додамо в наступній версії'),
+                    onTap: _photoTap,
                     child: SizedBox(
                       width: 56, height: 56,
                       child: Stack(clipBehavior: Clip.none, children: [

@@ -17,7 +17,7 @@ import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'compare.dart' show openCompare;
 import 'match.dart' show openMatch;
-import 'entry.dart' show EntryForm, EntryView, PAvatar, entryTitle, seedOf;
+import 'entry.dart' show EntryForm, EntryView, PAvatar, PPhoto, blurPhotos, entryTitle, hasPhoto;
 import 'onboarding.dart' show AddPersonScreen;
 
 // ---------- Іконки з дошок ----------
@@ -370,11 +370,11 @@ class _QuickTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final two = people.take(2).toList();
-    Widget av(int seed) => Container(
+    Widget av(String? id, int seed) => Container(
           width: 36, height: 36,
           decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF2C2836)),
           alignment: Alignment.center,
-          child: PAvatar(size: 32, seed: seed),
+          child: PAvatar(size: 32, seed: seed, pid: id),
         );
     return Row(children: [
       _tile(
@@ -385,8 +385,8 @@ class _QuickTiles extends StatelessWidget {
         head: SizedBox(
           width: 70, height: 38,
           child: Stack(clipBehavior: Clip.none, children: [
-            Positioned(left: -2, top: -2, child: av(two.isNotEmpty ? seedOf(two[0].id) : 0)),
-            Positioned(left: 18, top: -2, child: av(two.length > 1 ? seedOf(two[1].id) : 1)),
+            Positioned(left: -2, top: -2, child: av(two.isNotEmpty ? two[0].id : null, 0)),
+            Positioned(left: 18, top: -2, child: av(two.length > 1 ? two[1].id : null, 1)),
             Positioned(
               left: 19, top: 25,
               child: Container(
@@ -508,7 +508,7 @@ class _SwipeCardState extends State<_SwipeCard> {
                   child: Row(children: [
                     Container(
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: K.w(.08))),
-                      child: Blob(seed: seedOf(p.id), w: 92 - 36 * t, h: 92, radius: 20),
+                      child: PPhoto(pid: p.id, w: 92 - 36 * t, h: 92, radius: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -584,7 +584,7 @@ class _PastCard extends StatelessWidget {
           child: Press(
             onTap: () => go(context, PersonView(personId: p.id)),
             child: Row(children: [
-              Blob(seed: seedOf(p.id), w: 64, h: 64, radius: 18, grey: true),
+              PPhoto(pid: p.id, w: 64, h: 64, radius: 18, grey: true),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -778,7 +778,7 @@ Future<void> personActions(BuildContext context, Person p, {bool fromCard = true
                       Container(
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: K.a(.4))),
-                        child: PAvatar(size: 38, seed: seedOf(p.id)),
+                        child: PAvatar(size: 38, pid: p.id),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -997,6 +997,8 @@ class _PersonViewState extends State<PersonView> {
     const sizeT = ['Скромно', 'Стандарт', 'Вражає', 'Гігант'];
     final dot = Container(width: 3, height: 3, margin: const EdgeInsets.symmetric(horizontal: 8), decoration: BoxDecoration(shape: BoxShape.circle, color: K.w(.45)));
     final metaStyle = rw(12, color: K.w(.78), ls: .12);
+    // кнопка перемикає від налаштування: розмиття ввімкнене → «Показати», вимкнене → «Розмити»
+    final sharp = reveal != !blurPhotos(s);
 
     final third = st.orgN > 0
         ? _Stat('Кінчала', '${st.orgMe}', ' з ${st.orgN}')
@@ -1009,7 +1011,7 @@ class _PersonViewState extends State<PersonView> {
             padding: const EdgeInsets.only(bottom: 110),
             child: Stack(children: [
               // фото-героїня
-              SizedBox(height: 356, width: double.infinity, child: _Hero(seed: seedOf(p.id), sharp: reveal, grey: p.isPast)),
+              SizedBox(height: 356, width: double.infinity, child: _Hero(pid: p.id, sharp: sharp, grey: p.isPast)),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 148, 20, 0),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -1158,7 +1160,7 @@ class _PersonViewState extends State<PersonView> {
           child: Row(children: [
             _GlassBtn(svg: Svgs.back, label: 'Назад', onTap: () => Navigator.of(context).maybePop()),
             const Spacer(),
-            _GlassBtn(svg: _icEye, label: reveal ? 'Розмити фото' : 'Показати фото', onTap: () => setState(() => reveal = !reveal)),
+            _GlassBtn(svg: _icEye, label: sharp ? 'Розмити фото' : 'Показати фото', onTap: () => setState(() => reveal = !reveal)),
             const SizedBox(width: 8),
             _GlassBtn(svg: _icMore, label: 'Ще', onTap: () => personActions(context, p, fromCard: false)),
           ]),
@@ -1193,15 +1195,15 @@ class _PersonViewState extends State<PersonView> {
 }
 
 class _Hero extends StatelessWidget {
-  final int seed;
+  final String pid;
   final bool sharp, grey;
-  const _Hero({required this.seed, required this.sharp, required this.grey});
+  const _Hero({required this.pid, required this.sharp, required this.grey});
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, c) {
         Widget x = Stack(children: [
-          Positioned.fill(child: Blob(seed: seed, w: c.maxWidth, h: 356, radius: 0, blur: 0, grey: grey)),
-          // темна «фігура» з макета (.kb)
-          Positioned(
+          Positioned.fill(child: PPhoto(pid: pid, w: c.maxWidth, h: 356, radius: 0, blur: 0, grey: grey, sharp: sharp)),
+          // темна «фігура» з макета (.kb) — тільки поки замість фото пляма
+          if (!hasPhoto(Store.of(context).person(pid))) Positioned(
             left: 120, top: 70,
             child: _KenBurns(
               child: ImageFiltered(
@@ -1826,7 +1828,7 @@ class _HallHero extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(begin: const Alignment(-.4, -1), end: const Alignment(.4, 1), colors: [col, K.w(.08)], stops: const [0, .7])),
-                      child: PAvatar(size: 56, seed: seedOf(r.p.id)),
+                      child: PAvatar(size: 56, pid: r.p.id),
                     ),
                     if (glory)
                       Positioned(left: -12, top: -19, child: Transform.rotate(angle: -24 * math.pi / 180, child: const SizedBox(width: 40, height: 33, child: Ico(_icCrown, size: 40))))
@@ -1901,7 +1903,7 @@ class _RankRow extends StatelessWidget {
           child: Row(children: [
             SizedBox(width: 24, child: Text(rank, textAlign: TextAlign.center, style: pr(18, color: K.muted, h: 1))),
             const SizedBox(width: 12),
-            PAvatar(size: 44, seed: seedOf(r.p.id)),
+            PAvatar(size: 44, pid: r.p.id),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

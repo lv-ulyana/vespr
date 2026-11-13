@@ -86,6 +86,7 @@ class Person {
   String? pastReason;
   String? pastAt;
   final String createdAt;
+  String? photo; // base64 JPEG до 360 px, тільки на телефоні
 
   Person({
     required this.id,
@@ -102,6 +103,7 @@ class Person {
     this.pastReason,
     this.pastAt,
     required this.createdAt,
+    this.photo,
   });
 
   bool get isPast => status == 'past';
@@ -109,7 +111,7 @@ class Person {
   Map<String, dynamic> toJson() => {
         'id': id, 'name': name, 'gender': gender, 'rel': rel, 'birth': birth, 'signOnly': signOnly, 'size': size,
         'met': met, 'want': want, 'notes': notes, 'status': status, 'pastReason': pastReason,
-        'pastAt': pastAt, 'createdAt': createdAt,
+        'pastAt': pastAt, 'createdAt': createdAt, if (photo != null) 'photo': photo,
       };
 
   factory Person.fromJson(Map<String, dynamic> j) => Person(
@@ -127,6 +129,7 @@ class Person {
         pastReason: _str(j['pastReason']),
         pastAt: _str(j['pastAt']),
         createdAt: _str(j['createdAt']) ?? '',
+        photo: _str(j['photo']),
       );
 }
 

@@ -115,6 +115,21 @@ void main() {
             r.visitChildren(low);
           }
           low(key.currentContext!.findRenderObject()!);
+          // «Без імен»: жодне ім'я людини не має потрапити на слайд
+          if (safe) {
+            final names = {for (final p in db.people) p.name, 'Архітектор', 'Марк', 'Д.'};
+            const l = "А-Яа-яІіЇїЄєҐґ'ʼA-Za-z";
+            void nm(RenderObject r) {
+              if (r is RenderParagraph) {
+                final t = r.text.toPlainText();
+                for (final n in names) {
+                  if (RegExp('(?<![$l])${RegExp.escape(n)}(?![$l])').hasMatch(t)) issues.add(Issue('$name: ім\'я «$n» у режимі «Без імен»: «${t.replaceAll('\n', ' ')}»'));
+                }
+              }
+              r.visitChildren(nm);
+            }
+            nm(key.currentContext!.findRenderObject()!);
+          }
           if (shots) {
             await tester.runAsync(() async {
               final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;

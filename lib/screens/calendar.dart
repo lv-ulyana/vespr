@@ -9,7 +9,7 @@ import '../logic/export.dart';
 import '../services/files.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
-import 'entry.dart' show EntryForm, EntryView, MonthGrid, PAvatar, entryTitle, seedOf;
+import 'entry.dart' show EntryForm, EntryView, MonthGrid, PAvatar, entryTitle;
 import 'export_screen.dart';
 import 'onboarding.dart' show AddPersonScreen;
 
@@ -23,17 +23,36 @@ const _icCal = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const _wdFull = ['понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота', 'неділя'];
 const _wdShort = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'нд'];
 
-/// Фото місця для картки «До зустрічі» і плиток у формі
-String placeImage(String? place) => switch (place) {
-      'restaurant' => 'assets/img/dinner.jpg',
-      'cafe' => 'assets/img/place_cafe.jpg',
-      'park' => 'assets/img/place_park.jpg',
-      'cinema' => 'assets/img/place_cinema.jpg',
-      'his' => 'assets/img/place_his.jpg',
-      'mine' => 'assets/img/place_mine.jpg',
-      'other' => 'assets/img/city.jpg',
-      _ => 'assets/img/bar.jpg',
-    };
+/// Фото місця: картка «До зустрічі» (широка) і мініатюра у формі.
+/// y — вертикальне кадрування (object-position з макета PhotoPool: 0% → -1, 50% → 0, 100% → 1).
+class PlacePhoto {
+  final String card, thumb;
+  final double cardY, thumbY;
+  const PlacePhoto(this.card, this.cardY, {String? thumb, this.thumbY = 0}) : thumb = thumb ?? card;
+}
+
+double _pos(int pct) => pct / 50 - 1;
+const _pl = 'assets/img/places/';
+
+/// Пул фото на кожне місце (дошка PhotoPool). Порожні місця ще чекають на фото.
+final placePool = <String, List<PlacePhoto>>{
+  'bar': [PlacePhoto('${_pl}bar1.jpg', _pos(40)), PlacePhoto('${_pl}bar2.jpg', _pos(66), thumbY: _pos(72)), PlacePhoto('${_pl}bar3.jpg', _pos(64), thumbY: _pos(62))],
+  'restaurant': [PlacePhoto('${_pl}restaurant1.jpg', _pos(40)), PlacePhoto('${_pl}restaurant2.jpg', _pos(42)), PlacePhoto('${_pl}restaurant3.jpg', _pos(72))],
+  'cafe': [PlacePhoto('${_pl}cafe1.jpg', _pos(60)), PlacePhoto('${_pl}cafe2.jpg', _pos(64))],
+  'park': [PlacePhoto('${_pl}park1.jpg', _pos(60), thumbY: _pos(62))],
+  'cinema': [PlacePhoto('${_pl}cinema1.jpg', _pos(42))],
+  'his': [PlacePhoto('${_pl}his1.jpg', _pos(64), thumb: '${_pl}his_t.jpg')],
+  'mine': [PlacePhoto('${_pl}mine1.jpg', _pos(53), thumb: '${_pl}mine_t.jpg')],
+  'other': [const PlacePhoto('assets/img/city.jpg', -.2)],
+};
+
+/// Яке фото з пулу: залежить від дня і людини, тож мініатюра у формі = картка в календарі,
+/// а різні зустрічі в той самий бар не виглядають однаково.
+PlacePhoto placePhoto(String? place, {String date = '', String personId = ''}) {
+  final pool = placePool[place] ?? placePool['bar']!;
+  final k = '$date|$personId'.codeUnits.fold<int>(7, (a, b) => (a * 31 + b) & 0x3fffffff);
+  return pool[k % pool.length];
+}
 
 String _dayWord(String isoDate) {
   final t = today();
@@ -260,7 +279,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             border: Border.all(color: K.w(.04)),
                           ),
                           child: Row(children: [
-                            PAvatar(size: 40, seed: seedOf(e.personId)),
+                            PAvatar(size: 40, pid: e.personId),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -327,7 +346,10 @@ class _UpCard extends StatelessWidget {
           child: SizedBox(
             height: 112,
             child: Stack(fit: StackFit.expand, children: [
-              Image.asset(placeImage(m.place), fit: BoxFit.cover, alignment: const Alignment(0, -.2)),
+              Builder(builder: (_) {
+                final ph = placePhoto(m.place, date: m.date, personId: m.personId);
+                return Image.asset(ph.card, fit: BoxFit.cover, alignment: Alignment(0, ph.cardY));
+              }),
               const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xE017161F), Color(0x3317161F)], stops: [0, .72]))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -496,7 +518,7 @@ class _MeetingFormState extends State<MeetingForm> {
                               curve: easeD,
                               padding: EdgeInsets.all(personId == p.id ? 4 : 3),
                               decoration: BoxDecoration(shape: BoxShape.circle, color: personId == p.id ? K.acc : K.w(.1)),
-                              child: Container(padding: const EdgeInsets.all(2), decoration: const BoxDecoration(shape: BoxShape.circle, color: K.bg), child: PAvatar(size: personId == p.id ? 54 : 56, seed: seedOf(p.id))),
+                              child: Container(padding: const EdgeInsets.all(2), decoration: const BoxDecoration(shape: BoxShape.circle, color: K.bg), child: PAvatar(size: personId == p.id ? 54 : 56, pid: p.id)),
                             ),
                             const SizedBox(height: 6),
                             Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: rw(12, color: personId == p.id ? K.star : K.soft2, w: FontWeight.w500)),
@@ -571,7 +593,10 @@ class _MeetingFormState extends State<MeetingForm> {
                                     borderRadius: BorderRadius.circular(18),
                                     child: ColorFiltered(
                                       colorFilter: const ColorFilter.matrix(<double>[.75, .08, .01, 0, 0, .03, .8, .01, 0, 0, .03, .08, .71, 0, 0, 0, 0, 0, 1, 0]),
-                                      child: Image.asset(placeImage(id), fit: BoxFit.cover),
+                                      child: Builder(builder: (_) {
+                                        final ph = placePhoto(id, date: date, personId: personId);
+                                        return Image.asset(ph.thumb, fit: BoxFit.cover, alignment: Alignment(0, ph.thumbY));
+                                      }),
                                     ),
                                   ),
                                 ),

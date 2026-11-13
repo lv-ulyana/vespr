@@ -8,9 +8,12 @@ import '../logic/dates.dart';
 import '../logic/stats.dart';
 import '../logic/triggers.dart';
 import '../ui/d.dart';
+import '../ui/photo.dart';
 import '../ui/kit.dart' show go, goReplace;
 import 'onboarding.dart' show AddPersonScreen;
 import 'settings.dart' show PaywallKind, PaywallScreen, QuestionsScreen;
+
+export '../ui/photo.dart' show PAvatar, PPhoto, seedOf, photoBytes, blurPhotos, pickPersonPhoto, hasPhoto;
 
 /// Тон оцінки (для старих місць, що його питають)
 Color toneOf(int v) => v >= 4 ? K.green : v <= 2 ? K.red : K.acc;
@@ -69,18 +72,6 @@ String _heroFor(Entry e) {
   if (t.contains('straight_home')) return 'assets/img/city.jpg';
   return 'assets/img/dinner.jpg';
 }
-
-/// Аватарка людини (градієнт як на дошках)
-class PAvatar extends StatelessWidget {
-  final double size;
-  final int seed;
-  const PAvatar({super.key, this.size = 22, this.seed = 0});
-  @override
-  Widget build(BuildContext context) => Blob(seed: seed, w: size, h: size, circle: true, blur: size / 12);
-}
-
-/// Яке «фото» в людини: демо-люди мають свої з макета, решта — за id
-int seedOf(String id) => const {'p_arch': 0, 'p_mark': 1, 'p_d': 2}[id] ?? id.codeUnits.fold<int>(0, (a, b) => a + b);
 
 // =====================================================================
 // Форма запису: «Як пройшло?»
@@ -225,7 +216,7 @@ class _EntryFormState extends State<EntryForm> {
                       padding: const EdgeInsets.fromLTRB(6, 0, 14, 0),
                       decoration: BoxDecoration(color: K.hour, borderRadius: BorderRadius.circular(999)),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        PAvatar(seed: seedOf(personId)),
+                        PAvatar(pid: personId),
                         const SizedBox(width: 8),
                         Flexible(child: Text(person == null ? 'З ким?' : '${person.name} · ${human(date).replaceAll('листопада', 'лист').replaceAll('жовтня', 'жовт')}', style: rw(12), overflow: TextOverflow.ellipsis)),
                         if (prev == null) ...[const SizedBox(width: 4), const Ico(_chevDown, size: 11)],
@@ -785,7 +776,7 @@ class _WhoWhenSheetState extends State<_WhoWhenSheet> {
         xOpt(
           on: pid == p.id,
           onTap: () => setState(() => pid = p.id),
-          lead: PAvatar(size: 40, seed: seedOf(p.id)),
+          lead: PAvatar(size: 40, pid: p.id),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(p.name, style: rw(15, w: FontWeight.w500)),
             Text('${s.entries.where((e) => e.personId == p.id).length} ${plural(s.entries.where((e) => e.personId == p.id).length, 'зустріч', 'зустрічі', 'зустрічей')}', style: rw(12, color: K.muted)),
@@ -945,7 +936,7 @@ class _EntryViewState extends State<EntryView> {
                         height: 32,
                         padding: const EdgeInsets.fromLTRB(6, 0, 14, 0),
                         decoration: BoxDecoration(color: K.hour, borderRadius: BorderRadius.circular(999)),
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [PAvatar(seed: seedOf(e.personId)), const SizedBox(width: 8), Text('${p?.name ?? '—'} · ${e.hadSex ? 'після' : 'побачення'}', style: rw(12))]),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [PAvatar(pid: e.personId), const SizedBox(width: 8), Text('${p?.name ?? '—'} · ${e.hadSex ? 'після' : 'побачення'}', style: rw(12))]),
                       ),
                     ),
                   ),
@@ -1158,7 +1149,7 @@ class _MoveSheetState extends State<_MoveSheet> {
         xOpt(
           on: to == p.id,
           onTap: () => setState(() => to = p.id),
-          lead: PAvatar(size: 40, seed: seedOf(p.id)),
+          lead: PAvatar(size: 40, pid: p.id),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(p.name, style: rw(15, w: FontWeight.w500)),
             Text('${s.entries.where((e) => e.personId == p.id).length} ${plural(s.entries.where((e) => e.personId == p.id).length, 'зустріч', 'зустрічі', 'зустрічей')}', style: rw(12, color: K.muted)),

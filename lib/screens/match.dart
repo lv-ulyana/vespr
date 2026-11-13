@@ -15,7 +15,7 @@ import '../logic/stats.dart';
 import '../services/files.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
-import 'entry.dart' show PAvatar, seedOf;
+import 'entry.dart' show PAvatar;
 import 'settings.dart' show PaywallScreen, PaywallKind;
 
 const _starPath = 'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z';
@@ -177,7 +177,8 @@ class _MatchScreenState extends State<MatchScreen> {
             right: 0, top: 0,
             child: Rise(dy: 0, child: Container(
               decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [const BoxShadow(color: Color(0xFF1E1B25), spreadRadius: 3), BoxShadow(color: K.soft.withValues(alpha: .5), spreadRadius: 4)]),
-              child: PAvatar(size: 80, seed: seedOf(p.id)),
+              // справжнє фото ніколи не йде на картинку, якою діляться — тільки пляма
+              child: PAvatar(size: 80, pid: p.id, anon: capturing),
             )),
           ),
           Positioned(

@@ -25,6 +25,7 @@ dependencies:
   timezone: ^0.9.4
   web: ^1.1.0
   flutter_svg: ^2.0.10
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -36,6 +37,7 @@ flutter:
   assets:
     - assets/img/
     - assets/img/ach/
+    - assets/img/places/
     - assets/wrapped/
   fonts:
     - family: Zodiac
