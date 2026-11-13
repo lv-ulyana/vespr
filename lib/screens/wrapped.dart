@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../data/store.dart';
 import '../logic/dates.dart';
 import '../logic/wrapped.dart';
+import '../logic/wrapped_layers.dart';
 import '../services/files.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
@@ -81,6 +82,9 @@ class _WrappedScreenState extends State<WrappedScreen> {
     // усі 19 фонів одразу, щоб текст не з'являвся поверх старого слайда
     for (var k = 0; k < 19; k++) {
       precacheImage(AssetImage('assets/wrapped/s${k.toString().padLeft(2, '0')}.webp'), context);
+      for (final l in wLayers[k] ?? const <WL>[]) {
+        precacheImage(AssetImage('assets/wrapped/${l.file}'), context);
+      }
     }
   }
 
