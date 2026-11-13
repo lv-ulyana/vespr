@@ -1,0 +1,7 @@
+
+::group::✅ Passing tests
+✅ /home/runner/work/vespr/vespr/test/wrapped_layout_test.dart: Wrapped: верстка слайдів
+✅ /home/runner/work/vespr/vespr/test/screens_layout_test.dart: Апка: верстка всіх екранів
+::endgroup::
+
+🎉 2 tests passed.
