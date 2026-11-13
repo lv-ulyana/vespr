@@ -293,14 +293,14 @@ class _CompareScreenState extends State<CompareScreen> {
         final x = astroOf(p.birth, p.signOnly);
         if (x == null || me == null) return (null, null, null, null);
         final arc = x.arc == null || me.arc == null ? null : pairArcana(me.arc!, x.arc!);
-        final els = me.el == x.el ? '${_elGen(me.el)} і ${_elGen(x.el)}'.replaceFirst(RegExp(r' і .*'), ' і ${_elGen(x.el)}') : '${_elGen(me.el)} і ${_elGen(x.el)}';
+        final els = me.el == x.el ? '${me.el} і ${x.el.toLowerCase()}' : '${me.el} і ${x.el.toLowerCase()}';
         return (arc, arc == null ? null : easyArc.contains(arc), els, zodiacEase(me.sign, x.sign) == 'Легко');
       }
 
       final pa = pair(a), pb = pair(b);
       int score((int?, bool?, String?, bool?) p) => (p.$2 == true ? 1 : 0) + (p.$4 == true ? 1 : 0);
       final recA = avg(ea.map((e) => e.overall)), recB = avg(eb.map((e) => e.overall));
-      String side(bool? x, bool? y) => x == y ? 'нічия' : (x == true ? a.name : b.name);
+      String side(bool? x, bool? y) => (x == true) == (y == true) ? 'нічия' : (x == true ? a.name : b.name);
       final arcS = side(pa.$2, pb.$2), zS = side(pa.$4, pb.$4);
       final recS = recA == recB ? 'нічия' : (recA > recB ? a.name : b.name);
       verdict = me == null
@@ -426,7 +426,6 @@ class _CompareScreenState extends State<CompareScreen> {
   }
 }
 
-String _elGen(String el) => const {'Вогонь': 'Вогонь', 'Повітря': 'повітря', 'Земля': 'Земля', 'Вода': 'вода'}[el] ?? el;
 
 Widget _ln(String k, String v, bool? easy) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
