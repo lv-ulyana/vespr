@@ -147,7 +147,7 @@ List<Widget> wrappedLayers(int slide) => [
             dur: l.dur,
             loop: l.loop,
             origin: Offset(l.ox - l.x, l.oy - l.y),
-            child: Image.asset('assets/wrapped/${l.file}', fit: BoxFit.fill, gaplessPlayback: true),
+            child: Image.asset(wAsset(l.file), fit: BoxFit.fill, gaplessPlayback: true),
           ),
         ),
     ];

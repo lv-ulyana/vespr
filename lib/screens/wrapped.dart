@@ -81,9 +81,9 @@ class _WrappedScreenState extends State<WrappedScreen> {
     _cached = true;
     // усі 19 фонів одразу, щоб текст не з'являвся поверх старого слайда
     for (var k = 0; k < 19; k++) {
-      precacheImage(AssetImage('assets/wrapped/s${k.toString().padLeft(2, '0')}.webp'), context);
+      precacheImage(AssetImage(wAsset('s${k.toString().padLeft(2, '0')}.webp')), context);
       for (final l in wLayers[k] ?? const <WL>[]) {
-        precacheImage(AssetImage('assets/wrapped/${l.file}'), context);
+        precacheImage(AssetImage(wAsset(l.file)), context);
       }
     }
   }
@@ -280,7 +280,7 @@ class _Locked extends StatelessWidget {
   const _Locked({required this.s, required this.left});
   @override
   Widget build(BuildContext context) => Stack(children: [
-        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset('assets/wrapped/s${s.k.index.toString().padLeft(2, '0')}.webp', fit: BoxFit.cover))),
+        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset(wAsset('s${s.k.index.toString().padLeft(2, '0')}.webp'), fit: BoxFit.cover))),
         Positioned.fill(child: Container(color: const Color(0xB30E0D1F))),
         Positioned(
           left: 24, right: 24, bottom: 150,
@@ -426,7 +426,7 @@ class _Slide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final img = 'assets/wrapped/s${s.k.index.toString().padLeft(2, '0')}.webp';
+    final img = wAsset('s${s.k.index.toString().padLeft(2, '0')}.webp');
     final logo = dark ? 'assets/img/logo.webp' : 'assets/img/logo_dark.webp';
     final ov = <Widget>[];
     final body = <Widget>[];

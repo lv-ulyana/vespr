@@ -1,6 +1,10 @@
 // Згенеровано з дошки «Wrapped»: анімовані шари кожного слайда (стікери, іскри, каракулі).
 // x, y, w, h — у пікселях макета 390×844; ox, oy — центр обертання.
 
+const wV = '8b81fe05';
+/// Шлях до файла шару з хешем (щоб браузер не тримав старі копії)
+String wAsset(String f) => 'assets/wrapped/${f.replaceFirst('.webp', '.$wV.webp')}';
+
 class WL {
   final String file, anim;
   final double x, y, w, h, ox, oy;
