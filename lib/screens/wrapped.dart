@@ -95,7 +95,7 @@ class WrappedScreen extends StatefulWidget {
 
 class _WrappedScreenState extends State<WrappedScreen> {
   int i = 0;
-  bool safe = true;
+  bool safe = false; // «Без імен» — опція, за замовчуванням вимкнена
   final shot = GlobalKey();
   bool _cached = false;
 
