@@ -338,7 +338,7 @@ class _Slide extends StatelessWidget {
   bool get txtDark => !_darkBg.contains(s.k.index);
   Color get fg => txtDark ? _ink : Colors.white;
 
-  Widget _title({String? line2}) {
+  Widget _title({String? line2, bool fit = false}) {
     final big = txtDark ? 48.0 : 46.0;
     final st = ws(big, FontWeight.w800, fg, h: .93, ls: -big * .05);
     final l2 = line2 ?? s.title2;
@@ -346,7 +346,10 @@ class _Slide extends StatelessWidget {
     final lines = <Widget>[
       Text(s.title1, style: st),
       if (parts.length > 1) Text(parts.first, style: st),
-      if (l2.isNotEmpty) Text(parts.last, style: st.copyWith(color: txtDark ? _ink : _pink)),
+      if (l2.isNotEmpty)
+        fit
+            ? FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(parts.last, maxLines: 1, style: st.copyWith(color: txtDark ? _ink : _pink)))
+            : Text(parts.last, style: st.copyWith(color: txtDark ? _ink : _pink)),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       for (var k = 0; k < lines.length; k++) WAnim('wrUp', delay: 150 + k * 150, dur: 900, child: lines[k]),
@@ -552,11 +555,12 @@ class _Slide extends StatelessWidget {
       case WK.match:
         if (!safe) {
           ov.add(Positioned(
-            left: 156, top: 374,
+            left: 156, top: 374, width: 218,
             child: Transform.rotate(
               angle: -5 * math.pi / 180,
+              alignment: Alignment.centerLeft,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(s.who.first.name, style: pr(30, color: Colors.white, h: 1)),
+                FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(s.who.first.name, maxLines: 1, style: pr(30, color: Colors.white, h: 1))),
                 const SizedBox(height: 2),
                 CustomPaint(size: const Size(170, 14), painter: _Swoosh()),
               ]),
@@ -608,8 +612,8 @@ class _Slide extends StatelessWidget {
           ));
           if (!safe) {
             ov.add(Positioned(
-              left: c.dx - 90, top: c.dy + 48, width: 180,
-              child: Text(s.who[k].name, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: pr(20, color: nameC[s.ints[k]], h: 1)),
+              left: c.dx - 76, top: c.dy + 48, width: 152,
+              child: FittedBox(fit: BoxFit.scaleDown, child: Text(s.who[k].name, textAlign: TextAlign.center, maxLines: 1, style: pr(20, color: nameC[s.ints[k]], h: 1))),
             ));
           }
         }
@@ -627,11 +631,14 @@ class _Slide extends StatelessWidget {
                     child: Text(tag.toUpperCase(), style: mono(10, FontWeight.w600).copyWith(color: win ? _yel : _ink, letterSpacing: 1.4, height: 1)),
                   ),
                   const SizedBox(height: 6),
-                  Text(name.toUpperCase(), maxLines: 1, style: const TextStyle(fontFamily: 'Oswald', fontSize: 30, fontWeight: FontWeight.w600, color: _ink, height: 1, letterSpacing: .3)),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 165),
+                    child: FittedBox(fit: BoxFit.scaleDown, alignment: right ? Alignment.centerRight : Alignment.centerLeft, child: Text(name.toUpperCase(), maxLines: 1, style: const TextStyle(fontFamily: 'Oswald', fontSize: 30, fontWeight: FontWeight.w600, color: _ink, height: 1, letterSpacing: .3))),
+                  ),
                 ],
               );
-          ov.add(Positioned(left: 52, top: 98, child: Transform.rotate(angle: _rot8, child: lab('переможець', s.who[wi].name, true, false))));
-          ov.add(Positioned(right: 26, top: 118, width: 160, child: Transform.rotate(angle: _rot8, alignment: Alignment.centerRight, child: Align(alignment: Alignment.centerRight, child: lab('суперник', s.who[1 - wi].name, false, true)))));
+          ov.add(Positioned(left: 40, top: 98, child: Transform.rotate(angle: _rot8, child: lab('переможець', s.who[wi].name, true, false))));
+          ov.add(Positioned(right: 26, top: 118, width: 168, child: Transform.rotate(angle: _rot8, alignment: Alignment.centerRight, child: Align(alignment: Alignment.centerRight, child: lab('суперник', s.who[1 - wi].name, false, true)))));
         }
         Widget hp(int k, bool left) => Expanded(
               child: Column(crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end, children: [
@@ -718,7 +725,7 @@ class _Slide extends StatelessWidget {
         ]);
       case WK.fame:
         if (!safe) ov.add(_ntag('MVP місяця', 302, 284));
-        body.addAll([_title(line2: safe ? s.title2 : s.who.first.name), _fbl(s.rows), _cap(s.capSafe)]);
+        body.addAll([_title(line2: safe ? s.title2 : s.who.first.name, fit: !safe), _fbl(s.rows), _cap(s.capSafe)]);
       case WK.longest:
       case WK.fastest:
         final fast = s.k == WK.fastest;
@@ -735,7 +742,7 @@ class _Slide extends StatelessWidget {
                     Ico(icons[k.clamp(0, 2)], size: 28, color: fast && k == 2 ? Colors.white : _pink),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('${s.rows[k].who == null ? '' : (safe ? s.rows[k].who!.safe.split(' ').first : s.rows[k].who!.name)}${s.rows[k].label}', overflow: TextOverflow.ellipsis, style: ws(15, FontWeight.w700, _pink, h: 1.2)),
+                      child: Text('${s.rows[k].who == null ? '' : (safe ? s.rows[k].who!.safe.split(' ').first : s.rows[k].who!.name)}${s.rows[k].label}', maxLines: 2, style: ws(15, FontWeight.w700, _pink, h: 1.2)),
                     ),
                     _pill(s.rows[k].value, const Color(0xFF2E2A44), Colors.white, size: 15, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 7)),
                   ]),
@@ -823,9 +830,9 @@ class _Slide extends StatelessWidget {
               decoration: s.n2 <= 8 ? const BoxDecoration(border: Border(left: BorderSide(color: Color(0x47FFFFFF)))) : null,
               height: 20,
               alignment: Alignment.centerLeft,
-              child: Text(s.c, style: mt(12, FontWeight.w300, Colors.white, h: 1)),
+              child: Text(s.c, maxLines: 1, style: mt(12, FontWeight.w300, Colors.white, h: 1)),
             ),
-          ])),
+          ].map((x) => x is Container && x.child is Text ? Flexible(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: x)) : x).toList())),
         ));
         ov.add(Positioned(
           left: 34, top: 808, width: 322,
@@ -968,8 +975,7 @@ class _Slide extends StatelessWidget {
                           const SizedBox(height: 3),
                           Text(
                             [if (moments[k].who != null) safe ? 'він' : moments[k].who!.name, if (moments[k].value.isNotEmpty) moments[k].value].join(' · ').toUpperCase(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                             style: mt(8.6, FontWeight.w400, _ink.withValues(alpha: .75), h: 1.4, ls: 1.2),
                           ),
                         ]),

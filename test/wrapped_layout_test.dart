@@ -60,7 +60,12 @@ List<_Issue> _scan(RenderObject root, String tag) {
       final t = r.text.toPlainText().trim();
       if (t.isNotEmpty) {
         final tl = r.localToGlobal(Offset.zero);
-        final rect = tl & r.size;
+        // справжні межі гліфів, а не всієї коробки тексту
+        final boxes = r.getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: r.text.toPlainText().length));
+        var rect = boxes.isEmpty ? (tl & r.size) : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b)).shift(tl);
+        // текст під поворотом/масштабом: беремо реальну трансформацію
+        final m = r.getTransformTo(null);
+        rect = MatrixUtils.transformRect(m, boxes.isEmpty ? Offset.zero & r.size : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b)));
         paras.add((r, rect, t));
         if (r.didExceedMaxLines) out.add(_Issue('$tag: обрізано «$t»'));
         // біжучі стрічки свідомо ширші за екран
