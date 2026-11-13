@@ -12,6 +12,7 @@ import '../ui/board.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'settings.dart' show PaywallScreen;
+import 'wrapped_anim.dart';
 
 /// Wrapped за дошкою «Wrapped»: 19 сторіз-слайдів 390×844.
 /// Декор (стікери, фото, стрічки, візерунки) — запечені шари assets/wrapped/sNN.webp з макета;
@@ -53,6 +54,11 @@ final _icSave = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 final _icMore = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
 
 const _rot8 = -8 * math.pi / 180;
+
+double _textW(String t, TextStyle st) {
+  final tp = TextPainter(text: TextSpan(text: t, style: st), textDirection: TextDirection.ltr, maxLines: 1)..layout();
+  return tp.width;
+}
 
 class WrappedScreen extends StatefulWidget {
   final String month;
@@ -170,7 +176,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
           key: shot,
           child: SizedBox(
             width: 390, height: 844,
-            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(s: s, w: w, safe: safe, dark: darkChrome),
+            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(key: ValueKey(idx), s: s, w: w, safe: safe, dark: darkChrome),
           ),
         ),
         // прогрес
@@ -302,7 +308,7 @@ class _Slide extends StatelessWidget {
   final WSlide s;
   final Wrapped w;
   final bool safe, dark;
-  const _Slide({required this.s, required this.w, required this.safe, required this.dark});
+  const _Slide({super.key, required this.s, required this.w, required this.safe, required this.dark});
 
   bool get txtDark => !(_th[s.k.index] == 'm1' || _th[s.k.index] == 'q');
   Color get fg => txtDark ? _ink : Colors.white;
@@ -312,10 +318,13 @@ class _Slide extends StatelessWidget {
     final st = ws(big, FontWeight.w800, fg, h: .93, ls: -big * .05);
     final l2 = line2 ?? s.title2;
     final parts = l2.split('|');
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    final lines = <Widget>[
       Text(s.title1, style: st),
       if (parts.length > 1) Text(parts.first, style: st),
       if (l2.isNotEmpty) Text(parts.last, style: st.copyWith(color: txtDark ? _ink : _pink)),
+    ];
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      for (var k = 0; k < lines.length; k++) WAnim('wrUp', delay: 150 + k * 150, dur: 900, child: lines[k]),
     ]);
   }
 
@@ -325,7 +334,12 @@ class _Slide extends StatelessWidget {
 
   Widget _body(List<Widget> xs) => Positioned(
         left: 24, right: 24, bottom: 150,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: gapped(xs.where((x) => x is! SizedBox || x.height != 0).toList(), 12)),
+        child: Builder(builder: (_) {
+          final items = xs.where((x) => x is! SizedBox || x.height != 0).toList();
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: gapped([
+            for (var k = 0; k < items.length; k++) k == 0 ? items[k] : WAnim('wrUp', delay: 350 + k * 100, dur: 900, child: items[k]),
+          ], 12));
+        }),
       );
 
   Widget _pill(String t, Color bg, Color c, {double size = 15, EdgeInsets pad = const EdgeInsets.symmetric(horizontal: 10, vertical: 6)}) => Container(
@@ -358,8 +372,13 @@ class _Slide extends StatelessWidget {
             clipBehavior: Clip.hardEdge,
             child: OverflowBox(
               alignment: Alignment.centerLeft,
-              maxWidth: 2000,
-              child: Text((text * 6).toUpperCase(), maxLines: 1, softWrap: false, style: ws(19, FontWeight.w800, c, h: 1, ls: .76)),
+              maxWidth: 4000,
+              child: WMarquee(
+                width: _textW(text.toUpperCase(), ws(19, FontWeight.w800, c, h: 1, ls: .76)) * 3,
+                seconds: deg > 0 ? 22 : 18,
+                reverse: deg > 0,
+                child: Text((text * 12).toUpperCase(), maxLines: 1, softWrap: false, style: ws(19, FontWeight.w800, c, h: 1, ls: .76)),
+              ),
             ),
           ),
         ),
@@ -369,7 +388,7 @@ class _Slide extends StatelessWidget {
         for (var k = 0; k < 5; k++)
           Padding(
             padding: EdgeInsets.only(right: step - w),
-            child: Transform.rotate(angle: _rot8, child: Ico(k < v.round() ? _heartOn : _heartOff, size: w, color: c)),
+            child: WAnim('wrPop', delay: 500 + k * 80, dur: 500, child: Transform.rotate(angle: _rot8, child: Ico(k < v.round() ? _heartOn : _heartOff, size: w, color: c))),
           ),
       ];
 
@@ -389,10 +408,10 @@ class _Slide extends StatelessWidget {
                   decoration: BoxDecoration(color: const Color(0x1F0E0D1F), borderRadius: BorderRadius.circular(999)),
                   alignment: Alignment.centerLeft,
                   clipBehavior: Clip.antiAlias,
-                  child: FractionallySizedBox(
+                  child: WAnim('wrGrowX', delay: 500 + k * 120, dur: 900, child: FractionallySizedBox(
                     widthFactor: (double.tryParse(rows[k].sub ?? '') ?? 0).clamp(0.0, 1.0),
                     child: Container(decoration: BoxDecoration(color: (colors ?? const [_ink, _hot, _hot])[k.clamp(0, 2)], borderRadius: BorderRadius.circular(999))),
-                  ),
+                  )),
                 ),
               ),
               const SizedBox(width: 10),
@@ -561,7 +580,7 @@ class _Slide extends StatelessWidget {
                   height: 20,
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4), border: Border.all(color: _ink, width: 2.5)),
                   alignment: left ? Alignment.centerLeft : Alignment.centerRight,
-                  child: FractionallySizedBox(widthFactor: ((left ? s.n1 : s.n2) / 100).clamp(0.0, 1.0), child: Container(color: left ? _ink : _red)),
+                  child: WAnim(left ? 'wrGrowX' : 'wrGrowXR', delay: 600, dur: 1000, child: FractionallySizedBox(widthFactor: ((left ? s.n1 : s.n2) / 100).clamp(0.0, 1.0), child: Container(color: left ? _ink : _red))),
                 ),
                 const SizedBox(height: 5),
                 Text('${left ? s.n1 : s.n2}%', style: ws(11, FontWeight.w700, _ink, h: 1)),
@@ -573,7 +592,7 @@ class _Slide extends StatelessWidget {
             height: 55,
             child: Row(children: [
               hp(0, true),
-              Transform.rotate(
+              WAnim('wrPop', delay: 700, dur: 500, child: Transform.rotate(
                 angle: _rot8,
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -581,7 +600,7 @@ class _Slide extends StatelessWidget {
                   decoration: BoxDecoration(color: _red, borderRadius: BorderRadius.circular(8), border: Border.all(color: _ink, width: 2)),
                   child: Text('K.O.', style: ws(18, FontWeight.w800, _yel, h: 1)),
                 ),
-              ),
+              )),
               hp(1, false),
             ]),
           ),
@@ -617,10 +636,10 @@ class _Slide extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 0, 18, 0),
             decoration: BoxDecoration(color: _ink, borderRadius: BorderRadius.circular(999)),
             child: Row(children: [
-              for (final p in f)
+              for (final (n, p) in f.indexed)
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
-                  child: Transform.rotate(
+                  child: WAnim('wrPop', delay: 500 + n * 90, dur: 500, child: Transform.rotate(
                     angle: _rot8,
                     child: Container(
                       width: 42, height: 42,
@@ -628,7 +647,7 @@ class _Slide extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Ico(p ? _icPhone : _icHeart2, size: 22, color: p ? _ink : const Color(0xFFE2246B)),
                     ),
-                  ),
+                  )),
                 ),
               const Spacer(),
               Text('${s.n1} : ${s.n2}', style: ws(26, FontWeight.w800, _yel, ls: -.78)),
@@ -790,9 +809,21 @@ class _Slide extends StatelessWidget {
         body.addAll([_title(), _cap(s.capSafe)]);
     }
 
+    String ovAnim() => switch (s.k) {
+          WK.sex || WK.wishes => 'wrSpinIn',
+          WK.receipt || WK.budget || WK.closed || WK.ticket => 'wrUp',
+          _ => 'wrStc',
+        };
+    final ovA = [
+      for (final (n, x) in ov.indexed)
+        x is Positioned && x.child is! OverflowBox && !(s.k == WK.cover || (s.k == WK.best && n == 0))
+            ? Positioned(left: x.left, top: x.top, right: x.right, bottom: x.bottom, width: x.width, height: x.height, child: WAnim(ovAnim(), delay: 200 + n * 120, dur: 900, child: x.child))
+            : x,
+    ];
     return Stack(clipBehavior: Clip.hardEdge, children: [
       Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _bgOf[_th[s.k.index].substring(1)] ?? _ink) : child)),
-      ...ov,
+      ...wrappedLayers(s.k.index),
+      ...ovA,
       // шапка
       Positioned(
         left: 24, right: 24, top: 70, height: 28,
@@ -983,7 +1014,7 @@ class _Bars extends StatelessWidget {
     Widget bar(double v, String t, Color c) => Column(mainAxisAlignment: MainAxisAlignment.end, children: [
           Text(t, style: ws(12, FontWeight.w800, Colors.white)),
           const SizedBox(height: 4),
-          Container(width: 29, height: h(v), decoration: BoxDecoration(color: c, borderRadius: const BorderRadius.vertical(top: Radius.circular(3)))),
+          WAnim('wrGrow', delay: 600, dur: 800, child: Container(width: 29, height: h(v), decoration: BoxDecoration(color: c, borderRadius: const BorderRadius.vertical(top: Radius.circular(3))))),
         ]);
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 14, 10, 8),
