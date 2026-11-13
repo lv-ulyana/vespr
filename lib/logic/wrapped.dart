@@ -609,7 +609,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   double sexOf(Entry e) => (e.ratings['sx_overall'] ?? e.overall).toDouble();
   String nTimes(int k) => k == 2 ? 'двічі' : _times(k);
   // нова людина: перший запис з нею — цього місяця
-  bool isNew(String id) => !all.any((e) => e.personId == id && e.date.compareTo(es.first.date.substring(0, 8) + '01') < 0);
+  bool isNew(String id) => !all.any((e) => e.personId == id && e.date.compareTo('${es.first.date.substring(0, 8)}01') < 0);
   int countF(List<Entry> xs, String f) => xs.where((e) => e.flags.contains(f)).length;
   List<MapEntry<String, int>> redTop(List<Entry> xs) {
     final c = <String, int>{};
@@ -787,7 +787,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   if (walker != null && walker.value >= 3) {
     noms.add(WRow('Ходячий червоний прапорець', '⚑', sub: ': ${walker.value} червоних за ${ofP(walker.key).length} ${plural(ofP(walker.key).length, 'зустріч', 'зустрічі', 'зустрічей')}', who: wp(walker.key)));
   }
-  void nom(String f, String title, String icon, String Function(int k, String id) sub) {
+  void addNom(String f, String title, String icon, String Function(int k, String id) sub) {
     final hit = es.where((e) => e.flags.contains(f)).toList();
     if (hit.length < 2) return;
     final c = <String, int>{};
@@ -798,10 +798,10 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
     noms.add(WRow(title, icon, sub: sub(hit.length, id), who: c.length == 1 ? wp(id) : null));
   }
 
-  nom('flag_r_late', 'Майстер спорту з запізнень', '⏱', (k, id) => ', ${nTimes(k)}. Годинник, мабуть, декоративний');
-  nom('flag_r_cheap', 'Золотий гаманець', '₴', (k, id) => 'Рахував копійки. Заплатив ${countF(es, 'flag_g_paid')} ${plural(countF(es, 'flag_g_paid'), 'раз', 'рази', 'разів')}');
-  nom('flag_r_self', 'Людина-подкаст', '◉', (k, id) => ', ${nTimes(k)} говорив тільки про себе');
-  nom('flag_r_jab', 'Стендап року', '✦', (k, id) => ', ${nTimes(k)}. Ніхто не сміявся');
+  addNom('flag_r_late', 'Майстер спорту з запізнень', '⏱', (k, id) => ', ${nTimes(k)}. Годинник, мабуть, декоративний');
+  addNom('flag_r_cheap', 'Золотий гаманець', '₴', (k, id) => 'Рахував копійки. Заплатив ${countF(es, 'flag_g_paid')} ${plural(countF(es, 'flag_g_paid'), 'раз', 'рази', 'разів')}');
+  addNom('flag_r_self', 'Людина-подкаст', '◉', (k, id) => ', ${nTimes(k)} говорив тільки про себе');
+  addNom('flag_r_jab', 'Стендап року', '✦', (k, id) => ', ${nTimes(k)}. Ніхто не сміявся');
   final gBest = (gBy.entries.where((x) => x.value.length >= 2).toList()..sort((a, b) => b.value.length.compareTo(a.value.length))).firstOrNull;
   if (noms.length >= 2 || (noms.isNotEmpty && gBest != null)) {
     const short = {'flag_g_walk': 'провів', 'flag_g_paid': 'заплатив', 'flag_g_ontime': 'вчасно', 'flag_g_listen': 'слухав', 'flag_g_asks': 'питав', 'flag_g_gift': 'квіти', 'flag_g_remember': "пам'ятав", 'flag_g_texts': 'написав', 'flag_g_no': 'чув «ні»', 'flag_g_word': 'слово', 'flag_g_kind': 'чемний', 'flag_g_condom': 'захист'};
