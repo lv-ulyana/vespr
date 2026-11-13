@@ -68,11 +68,15 @@ class MatchScreen extends StatefulWidget {
 class _MatchScreenState extends State<MatchScreen> {
   final shot = GlobalKey();
   bool safeShot = true;
+  bool capturing = false; // на час знімка для поширення
 
   Future<void> _share() async {
+    setState(() => capturing = true);
+    await WidgetsBinding.instance.endOfFrame;
     final b = shot.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (b == null) return;
     final img = await b.toImage(pixelRatio: 3);
+    if (mounted) setState(() => capturing = false);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     if (data == null) return;
     await shareBytesFile('vespr-metch.png', data.buffer.asUint8List(), 'image/png');
@@ -161,7 +165,7 @@ class _MatchScreenState extends State<MatchScreen> {
           child: ClipRRect(borderRadius: BorderRadius.circular(24), child: child),
         );
 
-    final himName = safeShot ? (p.gender == 'f' ? 'Вона' : 'Він') : p.name;
+    final himName = capturing && safeShot ? (p.gender == 'f' ? 'Вона' : 'Він') : p.name;
 
     // --- шапка з двома людьми й арканом пари (те, що йде в картинку для поширення)
     final hero = Column(children: [
@@ -247,7 +251,7 @@ class _MatchScreenState extends State<MatchScreen> {
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              SizedBox(width: 20, child: Center(child: Container(decoration: glow ? BoxDecoration(boxShadow: [BoxShadow(color: K.a(.55), blurRadius: 6)]) : null, child: Ico(svg, size: 12, color: ic)))),
+              SizedBox(width: 20, child: Center(child: Ico(svg, size: glow ? 13 : 12, color: ic))),
               const SizedBox(width: 10),
               Text(h, style: rw(12, color: risk ? K.accSoft : K.muted, w: FontWeight.w500, ls: .24)),
             ]),
