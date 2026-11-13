@@ -752,10 +752,12 @@ class _Slide extends StatelessWidget {
           ),
         ]);
       case WK.budget:
+        // у переглядачі з 772 кнопки — блок піднято на 130, під ним затемнення, щоб читався на фото
+        ov.add(const Positioned(left: 0, right: 0, top: 250, bottom: 0, child: IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x0014100E), Color(0x9914100E), Color(0xB314100E)], stops: [0, .35, 1]))))));
         // у макеті цифра і заголовок лишаються під −8° (кінець анімації wrPop) — виглядало як незавершене, тут рівно
-        ov.add(Positioned(left: 34, top: 452, width: 322, child: Text('витратив на тебе за ${w.monthNom}'.toUpperCase(), style: mt(8.4, FontWeight.w400, Colors.white.withValues(alpha: .78), h: 1, ls: 1.09))));
+        ov.add(Positioned(left: 34, top: 322, width: 322, child: Text('витратив на тебе за ${w.monthNom}'.toUpperCase(), style: mt(8.4, FontWeight.w400, Colors.white.withValues(alpha: .78), h: 1, ls: 1.09))));
         ov.add(Positioned(
-          left: 34, top: 458, width: 322,
+          left: 34, top: 328, width: 322,
           child: WAnim('wrPop', delay: 200, dur: 800, child: Transform.rotate(
             angle: 0,
             alignment: Alignment.centerLeft,
@@ -767,7 +769,7 @@ class _Slide extends StatelessWidget {
           )),
         ));
         ov.add(Positioned(
-          left: 34, top: 552, width: 322,
+          left: 34, top: 422, width: 322,
           child: WAnim('wrPop', delay: 300, dur: 800, origin: const Offset(0, 40), child: Transform.rotate(
             angle: 0,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -777,7 +779,7 @@ class _Slide extends StatelessWidget {
           )),
         ));
         ov.add(Positioned(
-          left: 34, top: 650, width: 322,
+          left: 34, top: 520, width: 322,
           child: WAnim('wrUp', delay: 450, dur: 900, child: Container(
             decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0x38FFFFFF)))),
             child: Column(children: [
@@ -817,7 +819,7 @@ class _Slide extends StatelessWidget {
           )),
         ));
         ov.add(Positioned(
-          left: 34, top: 760, width: 322, height: 20,
+          left: 34, top: 630, width: 322, height: 20,
           child: WAnim('wrUp', delay: 600, dur: 900, child: Row(children: [
             if (s.n2 <= 8)
               for (var k = 0; k < s.n2; k++)
@@ -837,7 +839,7 @@ class _Slide extends StatelessWidget {
           ].map((x) => x is Container && x.child is Text ? Flexible(child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: x)) : x).toList())),
         ));
         ov.add(Positioned(
-          left: 34, top: 808, width: 322,
+          left: 34, top: 678, width: 322,
           child: WAnim('wrUp', delay: 700, dur: 900, child: Container(
             padding: const EdgeInsets.only(top: 12),
             decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0x38FFFFFF)))),
