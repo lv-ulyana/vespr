@@ -82,6 +82,9 @@ List<_Issue> _scan(RenderObject root, String tag) {
       if (a.$3.length >= 60 || b.$3.length >= 60) continue;
       final x = a.$2.intersect(b.$2);
       final small = [a.$2.width * a.$2.height, b.$2.width * b.$2.height].reduce((p, q) => p < q ? p : q);
+      // рядки один під одним (заголовок у два рядки, цифра над підписом) — це не налізання
+      final minH = a.$2.height < b.$2.height ? a.$2.height : b.$2.height;
+      if ((a.$2.center.dy - b.$2.center.dy).abs() > minH * .5) continue;
       if (x.width > 3 && x.height > 3 && x.width * x.height > small * .25) out.add(_Issue('$tag: налазять «${a.$3}» і «${b.$3}»'));
     }
   }
