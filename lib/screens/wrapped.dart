@@ -65,6 +65,18 @@ class _WrappedScreenState extends State<WrappedScreen> {
   int i = 0;
   bool safe = true;
   final shot = GlobalKey();
+  bool _cached = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_cached) return;
+    _cached = true;
+    // усі 19 фонів одразу, щоб текст не з'являвся поверх старого слайда
+    for (var k = 0; k < 19; k++) {
+      precacheImage(AssetImage('assets/wrapped/s${k.toString().padLeft(2, '0')}.webp'), context);
+    }
+  }
 
   Future<void> _share(Wrapped w, WSlide s, bool square) async {
     if (s.private) {
@@ -299,9 +311,11 @@ class _Slide extends StatelessWidget {
     final big = txtDark ? 48.0 : 46.0;
     final st = ws(big, FontWeight.w800, fg, h: .93, ls: -big * .05);
     final l2 = line2 ?? s.title2;
+    final parts = l2.split('|');
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(s.title1, style: st),
-      if (l2.isNotEmpty) Text(l2, style: st.copyWith(color: txtDark ? _ink : _pink)),
+      if (parts.length > 1) Text(parts.first, style: st),
+      if (l2.isNotEmpty) Text(parts.last, style: st.copyWith(color: txtDark ? _ink : _pink)),
     ]);
   }
 
@@ -522,7 +536,7 @@ class _Slide extends StatelessWidget {
             ]),
         ]);
       case WK.matrix:
-        const centers = [Offset(282, 200), Offset(110, 200), Offset(282, 355), Offset(110, 355)];
+        const centers = [Offset(300, 242), Offset(144, 254), Offset(290, 330), Offset(130, 335)];
         for (var k = 0; k < s.who.length; k++) {
           var c = centers[s.ints[k]];
           if (k == 1 && s.ints[0] == s.ints[1]) c = c.translate(0, 70);
@@ -737,7 +751,7 @@ class _Slide extends StatelessWidget {
       case WK.glow:
         ov.add(_Calendar(month: s.a, best: s.ints.first, firstWeekday: s.ints.length > 1 ? s.ints[1] : 1));
         for (var k = 0; k < s.rows.length && k < 3; k++) {
-          ov.add(Positioned(left: 24.0 + k * 118, top: 222, width: 106, height: 150, child: _Bars(r: s.rows[k], prev: s.b, cur: s.c)));
+          ov.add(Positioned(left: 24.0 + k * 118, top: 222, width: 106, height: 150, child: _Bars(r: s.rows[k], prev: s.b, cur: s.c, color: k == 1 ? _yel : _pink)));
         }
         body.addAll([_title(), _cap(s.capSafe)]);
       case WK.closed:
@@ -777,7 +791,7 @@ class _Slide extends StatelessWidget {
     }
 
     return Stack(clipBehavior: Clip.hardEdge, children: [
-      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, gaplessPlayback: true)),
+      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _bgOf[_th[s.k.index].substring(1)] ?? _ink) : child)),
       ...ov,
       // шапка
       Positioned(
@@ -956,14 +970,15 @@ class _Calendar extends StatelessWidget {
 class _Bars extends StatelessWidget {
   final WRow r;
   final String prev, cur;
-  const _Bars({required this.r, required this.prev, required this.cur});
+  final Color color;
+  const _Bars({required this.r, required this.prev, required this.cur, required this.color});
   @override
   Widget build(BuildContext context) {
     double num(String x) => double.tryParse(x.replaceAll(',', '.')) ?? 0;
     final a = num(r.sub ?? '0'), b = num(r.value);
     final mx = math.max(math.max(a, b), .1);
     double h(double v) => 10 + 52 * (v / mx);
-    final good = r.kind != 1 ? (r.label == 'Ред-флаги' ? _yel : _yel) : _pink;
+    final good = color;
     final up = b >= a;
     Widget bar(double v, String t, Color c) => Column(mainAxisAlignment: MainAxisAlignment.end, children: [
           Text(t, style: ws(12, FontWeight.w800, Colors.white)),

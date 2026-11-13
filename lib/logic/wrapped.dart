@@ -156,7 +156,7 @@ Wrapped buildWrapped(String month, DB db) {
   int tagN(String t) => es.where((e) => e.tags.contains(t)).length;
 
   // 0. Обкладинка
-  out.add(WSlide(WK.cover, '$nom:', 'звіт про виживання',
+  out.add(WSlide(WK.cover, '$nom:', 'звіт про|виживання',
       capSafe: '$n ${plural(n, 'побачення', 'побачення', 'побачень')}, ${ids.length} ${plural(ids.length, menWord.$1, menWord.$2, menWord.$3)}'
           '${awards.isEmpty ? '.' : awards.length == 1 ? ' і одна нагорода, якою не похвалишся.' : ' і ${awards.length} ${plural(awards.length, 'нагорода', 'нагороди', 'нагород')}.'}'));
 
@@ -170,9 +170,11 @@ Wrapped buildWrapped(String month, DB db) {
       rows: [
         WRow('Побачення', '$n шт'),
         WRow(cap(menWord.$3 == 'людей' ? 'Люди' : (menWord.$3 == 'жінок' ? 'Жінки' : 'Чоловіки')), '${ids.length} шт'),
-        if (sx.isNotEmpty) WRow('Секс', '${sxAvg.round()}/5'),
-        if (tagN('alco1') > 0) WRow('«Келих-два»', '${tagN('alco1')} шт'),
-        if (tagN('alco2') > 0) WRow('«Більше»', '${tagN('alco2')} шт'),
+        ...[
+          if (sx.isNotEmpty) WRow('Секс', '${sxAvg.round()}/5'),
+          if (tagN('alco1') > 0) WRow('«Келих-два»', '${tagN('alco1')} шт'),
+          if (tagN('alco2') > 0) WRow('«Більше»', '${tagN('alco2')} шт'),
+        ].take(2),
         WRow('Ред-флаги', '${reds.length} шт', kind: 1),
         WRow('Грін-флаги', '${greens.length} шт', kind: 2),
       ]));
