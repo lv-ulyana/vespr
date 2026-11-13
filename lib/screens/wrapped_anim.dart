@@ -136,14 +136,17 @@ class _WAnimState extends State<WAnim> with SingleTickerProviderStateMixin {
   }
 }
 
-/// Шари, які в макеті лежать над текстом слайда (наліпка «до 5 хвилин» перекриває заголовок)
-const _aboveBody = {'s11_00.webp'};
+/// Шари, які лежать над текстом слайда
+const _aboveBody = <String>{};
+
+/// Зсув окремих шарів відносно макета: наліпка «до 5 хвилин» у макеті налазить на заголовок спринтера
+const _layerShift = {'s11_00.webp': Offset(0, -80)};
 
 /// Анімовані шари слайда, вирізані з макета; above — тільки ті, що над текстом
 List<Widget> wrappedLayers(int slide, {bool above = false}) => [
       for (final l in (wLayers[slide] ?? const <WL>[]).where((l) => _aboveBody.contains(l.file) == above))
         Positioned(
-          left: l.x, top: l.y, width: l.w, height: l.h,
+          left: l.x + (_layerShift[l.file]?.dx ?? 0), top: l.y + (_layerShift[l.file]?.dy ?? 0), width: l.w, height: l.h,
           child: WAnim(
             l.anim,
             delay: l.delay,

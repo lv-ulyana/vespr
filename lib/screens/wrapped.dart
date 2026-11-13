@@ -743,12 +743,13 @@ class _Slide extends StatelessWidget {
           ),
         ]);
       case WK.budget:
-        const tilt = -8 * math.pi / 180;
+        // у макеті цифра і заголовок лишаються під −8° (кінець анімації wrPop) — виглядало як незавершене, тут рівно
         ov.add(Positioned(left: 34, top: 452, width: 322, child: Text('витратив на тебе за ${w.monthNom}'.toUpperCase(), style: mt(8.4, FontWeight.w400, Colors.white.withValues(alpha: .78), h: 1, ls: 1.09))));
         ov.add(Positioned(
           left: 34, top: 458, width: 322,
           child: WAnim('wrPop', delay: 200, dur: 800, child: Transform.rotate(
-            angle: tilt,
+            angle: 0,
+            alignment: Alignment.centerLeft,
             child: Text.rich(TextSpan(children: [
               TextSpan(text: s.a, style: cg(72, FontWeight.w500, Colors.white, h: 1, ls: -.72)),
               const WidgetSpan(child: SizedBox(width: 6)),
@@ -758,8 +759,8 @@ class _Slide extends StatelessWidget {
         ));
         ov.add(Positioned(
           left: 34, top: 552, width: 322,
-          child: WAnim('wrPop', delay: 300, dur: 800, child: Transform.rotate(
-            angle: tilt,
+          child: WAnim('wrPop', delay: 300, dur: 800, origin: const Offset(0, 40), child: Transform.rotate(
+            angle: 0,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(s.title1, style: cg(40, FontWeight.w500, Colors.white, h: 1.02)),
               Text(s.title2, style: cg(44, FontWeight.w500, _rose, it: true, h: 1.02)),
@@ -897,6 +898,13 @@ class _Slide extends StatelessWidget {
                 for (final r in s.rows)
                   card(Ico(switch (r.kind) { 11 => _icShield, 12 => _icAlert, 13 => _icHeartF, _ => _icChat }, size: 26, color: _rose), r.label, r.value),
               ];
+        ov.add(Positioned(
+          left: 30, top: 196,
+          child: WAnim('wrPop', delay: 150, dur: 800, origin: const Offset(0, 50), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Варто', style: cg(54, FontWeight.w500, Colors.white, h: .95)),
+            Text('помітити', style: cg(60, FontWeight.w500, _rose, it: true, h: .95)),
+          ])),
+        ));
         ov.add(Positioned(
           left: 30, top: 318,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
