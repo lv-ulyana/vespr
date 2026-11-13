@@ -381,7 +381,7 @@ class _VoiceScreenState extends State<VoiceScreen> with SingleTickerProviderStat
         ]),
         const SizedBox(height: 10),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 132),
+          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height < 760 ? 88 : 132),
           child: SingleChildScrollView(reverse: true, child: SizedBox(width: double.infinity, child: _transcript(hits))),
         ),
         if (!before && sugg.isNotEmpty) ...[
@@ -473,22 +473,28 @@ class _VoiceScreenState extends State<VoiceScreen> with SingleTickerProviderStat
                 ),
               ),
               Expanded(
-                child: Align(
-                  alignment: const Alignment(0, -.6),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+                child: LayoutBuilder(builder: (context, c) {
+                  final timer = Text('$mm:${ss.toString().padLeft(2, '0')}', style: pr(34, ls: .02, h: 1.2));
+                  final hint = Text(before ? 'Що чекаєш від зустрічі? Ми запишемо текстом.' : 'Говори як подрузі. Ми запишемо текстом.', textAlign: TextAlign.center, style: rw(12, color: K.muted2));
+                  // кільце з таймером ~346 px; коли розшифровка довга і місця мало — тільки таймер
+                  final k = (c.maxHeight - 40) / 346;
+                  if (k < .6) {
+                    return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [timer, if (c.maxHeight > 90) ...[const SizedBox(height: 4), hint]]));
+                  }
+                  return Align(
+                    alignment: const Alignment(0, -.6),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 26),
+                      padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        _ring(),
-                        const SizedBox(height: 14),
-                        Text('$mm:${ss.toString().padLeft(2, '0')}', style: pr(34, ls: .02, h: 1.2)),
+                        Transform.scale(scale: math.min(1, k), child: SizedBox(width: 220, height: 220 * math.min(1, k), child: OverflowBox(maxHeight: 220, child: _ring()))),
+                        SizedBox(height: 14 * math.min(1, k)),
+                        timer,
                         const SizedBox(height: 4),
-                        Text(before ? 'Що чекаєш від зустрічі? Ми запишемо текстом.' : 'Говори як подрузі. Ми запишемо текстом.', style: rw(12, color: K.muted2)),
+                        hint,
                       ]),
                     ),
-                  ),
-                ),
+                  );
+                }),
               ),
               _card(),
             ]),
