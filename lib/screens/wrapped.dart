@@ -26,12 +26,15 @@ const _yel = Color(0xFFFFC83D);
 const _red = Color(0xFFE8333B);
 
 // Тема кожної дошки: m — темна (білий текст), l — світла, q — тиха
-const _th = ['m1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm1', 'm1', 'l3', 'q', 'l3', 'l2', 'l3', 'l3'];
+// тема панелі керування — як TH у макеті (кнопки), фон слайда може відрізнятись
+const _th = ['m1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm3', 'l2', 'l3', 'q', 'l3', 'l2', 'm1', 'l3'];
+// слайди з темним фоном (білий текст)
+const _darkBg = {0, 3, 5, 10, 11, 12, 14};
 const _bgOf = {'1': _ink, '2': _pink, '3': _yel, '': Color(0xFF17161F)};
 
 /// Cormorant Garamond (бюджет, «Варто помітити», фінал)
 TextStyle cg(double s, FontWeight w, Color c, {bool it = false, double? h, double ls = 0}) =>
-    TextStyle(fontFamily: 'Cormorant', fontSize: s, fontWeight: w, fontStyle: it ? FontStyle.italic : FontStyle.normal, color: c, height: h, letterSpacing: ls);
+    TextStyle(fontFamily: 'Cormorant', fontSize: s, fontWeight: w, fontStyle: it ? FontStyle.italic : FontStyle.normal, color: c, height: h, letterSpacing: ls, fontFeatures: const [FontFeature.liningFigures()]);
 
 /// Montserrat, дрібні підписи капсом
 TextStyle mt(double s, FontWeight w, Color c, {double? h, double ls = 0}) => TextStyle(fontFamily: 'Montserrat', fontSize: s, fontWeight: w, color: c, height: h, letterSpacing: ls);
@@ -194,7 +197,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
           key: shot,
           child: SizedBox(
             width: 390, height: 844,
-            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(key: ValueKey(idx), s: s, w: w, safe: safe, dark: darkChrome),
+            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(key: ValueKey(idx), s: s, w: w, safe: safe, dark: _darkBg.contains(s.k.index)),
           ),
         ),
         // прогрес
@@ -208,7 +211,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
                   height: 3,
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: const Color(0x597F788C)),
                   alignment: Alignment.centerLeft,
-                  child: k <= idx ? Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: darkChrome ? K.star : const Color(0xFF17161F))) : null,
+                  child: k <= idx ? Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: _darkBg.contains(s.k.index) ? K.star : const Color(0xFF17161F))) : null,
                 ),
               ),
             ],
@@ -328,7 +331,7 @@ class _Slide extends StatelessWidget {
   final bool safe, dark;
   const _Slide({super.key, required this.s, required this.w, required this.safe, required this.dark});
 
-  bool get txtDark => !(_th[s.k.index] == 'm1' || _th[s.k.index] == 'q');
+  bool get txtDark => !_darkBg.contains(s.k.index);
   Color get fg => txtDark ? _ink : Colors.white;
 
   Widget _title({String? line2}) {
@@ -572,7 +575,7 @@ class _Slide extends StatelessWidget {
           Column(children: [hb('Характер', s.score, _pink, true), hb('Секс', s.score2, _yel, false)]),
           if (s.a.isNotEmpty && s.b.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 4),
+              padding: const EdgeInsets.only(top: 16),
               child: Row(children: [
                 Text(s.a, style: ws(14, FontWeight.w500, Colors.white)),
                 const SizedBox(width: 10),
@@ -1044,7 +1047,7 @@ class _Slide extends StatelessWidget {
             : x,
     ];
     return Stack(clipBehavior: Clip.hardEdge, children: [
-      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _bgOf[_th[s.k.index].substring(1)] ?? _ink) : child)),
+      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _darkBg.contains(s.k.index) ? _ink : (_bgOf[_th[s.k.index].substring(1)] ?? _ink)) : child)),
       ...wrappedLayers(s.k.index),
       ...ovA,
       // шапка
