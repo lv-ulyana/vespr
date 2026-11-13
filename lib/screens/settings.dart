@@ -1446,7 +1446,7 @@ class _DeleteAllScreenState extends State<DeleteAllScreen> {
       builder: (context, h) => Stack(children: [
         Positioned.fill(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 76, 24, 170),
+            padding: const EdgeInsets.fromLTRB(24, 76, 24, 190),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
               Align(
                 alignment: Alignment.centerLeft,
@@ -1508,8 +1508,14 @@ class _DeleteAllScreenState extends State<DeleteAllScreen> {
           ),
         ),
         Positioned(
-          left: 24, right: 24, bottom: 24,
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          left: 0, right: 0, bottom: 0,
+          child: Container(
+            // непрозора підкладка: текст, що скролиться, не просвічує крізь кнопки
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x0017161F), K.bg], stops: [0, .22]),
+            ),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Press(
               onTap: () => Navigator.of(context).maybePop(),
               child: Container(
@@ -1547,6 +1553,7 @@ class _DeleteAllScreenState extends State<DeleteAllScreen> {
               ),
             ),
           ]),
+          ),
         ),
       ]),
     );
