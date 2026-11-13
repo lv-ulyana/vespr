@@ -8,12 +8,13 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/astro.dart';
 import '../logic/dates.dart';
+import '../logic/match_texts.dart' show easyArcana;
 import '../logic/stats.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'entry.dart' show PAvatar, seedOf;
-import 'people.dart' show PersonView;
+import 'match.dart' show openMatch;
 import 'settings.dart' show PaywallScreen;
 
 const _lilac = Color(0xFFD7D3E0);
@@ -288,13 +289,12 @@ class _CompareScreenState extends State<CompareScreen> {
       }
 
       // аркани пари «легко», якщо аркан пари з любовно-гармонійних (Імператриця, Закохані, Колесо, Сила, Помірність, Зірка, Сонце, Світ)
-      const easyArc = {3, 6, 10, 11, 14, 17, 19, 21};
       (int?, bool?, String?, bool?) pair(Person p) {
         final x = astroOf(p.birth, p.signOnly);
         if (x == null || me == null) return (null, null, null, null);
         final arc = x.arc == null || me.arc == null ? null : pairArcana(me.arc!, x.arc!);
         final els = me.el == x.el ? '${me.el} і ${x.el.toLowerCase()}' : '${me.el} і ${x.el.toLowerCase()}';
-        return (arc, arc == null ? null : easyArc.contains(arc), els, zodiacEase(me.sign, x.sign) == 'Легко');
+        return (arc, arc == null ? null : easyArcana.contains(arc), els, zodiacEase(me.sign, x.sign) == 'Легко');
       }
 
       final pa = pair(a), pb = pair(b);
@@ -308,7 +308,7 @@ class _CompareScreenState extends State<CompareScreen> {
           : 'Аркани: $arcS. Зодіак: $zS. Записи: ${recS == 'нічия' ? 'нічия' : recS}.';
       meta = 'аркани · зодіак · записи';
       Widget card(Person p, (int?, bool?, String?, bool?) m, bool lead) => Press(
-            onTap: () => go(context, PersonView(personId: p.id)),
+            onTap: () => openMatch(context, p),
             child: Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(28), color: K.w(.025), border: Border.all(color: K.w(.06))),

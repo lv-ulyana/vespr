@@ -16,6 +16,7 @@ import '../logic/stats.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'compare.dart' show openCompare;
+import 'match.dart' show openMatch;
 import 'entry.dart' show EntryForm, EntryView, PAvatar, entryTitle, seedOf;
 import 'onboarding.dart' show AddPersonScreen;
 
@@ -1096,7 +1097,7 @@ class _PersonViewState extends State<PersonView> {
                   Rise(
                     delay: .3,
                     child: m != null
-                        ? _MatchCard(m: m, onTap: () => _matchSheet(context, p, m))
+                        ? _MatchCard(m: m, onTap: () => openMatch(context, p))
                         : (p.birth == null || a?.arc == null)
                             ? _NoDateCard(
                                 f: f, dd: dd, mm: mm, fm: fm,
@@ -1597,25 +1598,6 @@ void _allSheet(BuildContext context, Person p, List<Entry> es) {
       ]));
 }
 
-void _matchSheet(BuildContext context, Person p, PairMatch m) {
-  showSheet(context, (ctx) => Sheet(children: [
-        Row(children: [
-          _ArcCard(roman: roman[m.arc]),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Аркан пари ${roman[m.arc]}', style: rw(12, color: K.muted2, w: FontWeight.w600)),
-              const SizedBox(height: 4),
-              Text(arcana[m.arc].name, style: pr(26, h: 1.1)),
-            ]),
-          ),
-        ]),
-        Text(m.line, style: rw(13, color: K.muted2)),
-        Text(arcana[m.arc].love, style: rw(14, color: K.soft, h: 1.5)),
-        Text('Зодіак: ${m.ease}. Зірки як гра, записи як правда.', style: rw(12, color: K.haze, h: 1.45)),
-        Press(onTap: () => Navigator.pop(ctx), child: SizedBox(height: 44, child: Center(child: Text('Закрити', style: rw(15, w: FontWeight.w700))))),
-      ]));
-}
 
 /// Старі виклики `PersonEdit(personId: …)` ведуть на нову форму з дошки PersonEdit
 class PersonEdit extends StatelessWidget {
