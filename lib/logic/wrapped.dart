@@ -22,7 +22,7 @@ class WP {
 class WRow {
   final String label, value;
   final String? sub;
-  final int kind; // 0 звичайний, 1 червоний, 2 зелений, 3 жовтий акцент, 4 закреслений
+  final int kind; // 0 звичайний, 1 червоний, 2 зелений, 3 жовтий акцент, 4 закреслений; бюджет 5–7 ресторан/кава/квіти; 9 число фіналу; 10–12 іконки «Варто помітити»
   final WP? who;
   const WRow(this.label, this.value, {this.sub, this.kind = 0, this.who});
 }
@@ -71,6 +71,7 @@ const _sxShort = {
   'sx_lead': 'Вести самій',
 };
 
+String _grn(int v) => v >= 1000 ? '${v ~/ 1000} ${(v % 1000).toString().padLeft(3, '0')}' : '$v';
 String _times(int n) => '$n ${plural(n, 'раз', 'рази', 'разів')}';
 String _shortDate(String d) {
   final x = parseIso(d);
@@ -142,7 +143,7 @@ Wrapped buildWrapped(String month, DB db) {
 
   if (es.isEmpty) {
     out.add(WSlide(WK.cover, '$nom:', 'сезон пледу', capSafe: '0 побачень. Плед, серіал, какао. Найздоровіші стосунки місяця.'));
-    out.add(WSlide(WK.closed, nom, 'закрито', score: double.nan, capSafe: '${cap(monthsNom[m % 12])}, ми готові. Майже.'));
+    out.add(WSlide(WK.closed, nom, 'загорнуто.', score: double.nan, a: 'vespr · ${m.toString().padLeft(2, '0')}/${(y % 100).toString().padLeft(2, '0')}', b: 'до зустрічі в ${monthsLoc[m % 12]} ✦', capSafe: '${cap(monthsNom[m % 12])}, ми готові. Майже.'));
     return Wrapped(month, label, monthsNom[m - 1], monthsGen[m - 1], out, 0);
   }
 
@@ -180,7 +181,7 @@ Wrapped buildWrapped(String month, DB db) {
       ]));
 
   if (n < 3) {
-    out.add(WSlide(WK.closed, nom, 'закрито', score: overall, capSafe: 'Ще ${3 - n} — і буде повний Wrapped з рекордами й нагородами.'));
+    out.add(WSlide(WK.closed, nom, 'загорнуто.', score: overall, rows: _numbers(overall, n, ids.length, menWord, greens.length, reds.length), a: 'vespr · ${m.toString().padLeft(2, '0')}/${(y % 100).toString().padLeft(2, '0')}', b: 'до зустрічі в ${monthsLoc[m % 12]} ✦', capSafe: 'Ще ${3 - n} — і буде повний Wrapped з рекордами й нагородами.'));
     return Wrapped(month, label, monthsNom[m - 1], monthsGen[m - 1], out, n);
   }
 
@@ -381,13 +382,16 @@ Wrapped buildWrapped(String month, DB db) {
     final total = restSum + cafeSum;
     final mx = [restSum, cafeSum, 1].reduce((a, b) => a > b ? a : b).toDouble();
     out.add(WSlide(WK.budget, 'Бюджет місяця:', '$gifts ${plural(gifts, 'квітка', 'квітки', 'квітів')}',
-        a: '~$total',
+        a: '~${_grn(total)}',
+        n1: paid,
+        n2: n,
         rows: [
-          if (rest.isNotEmpty) WRow('Ресторани ×${rest.length}', '~$restSum', sub: '${restSum / mx}'),
-          if (cafe.isNotEmpty) WRow('Кава ×${cafe.length}', '~$cafeSum', sub: '${cafeSum / mx}'),
-          WRow('Квіти', '$gifts', sub: gifts == 0 ? '0' : '0.2', kind: gifts == 0 ? 4 : 0),
+          if (rest.isNotEmpty) WRow('Ресторани ×${rest.length}', '~${_grn(restSum)}', sub: '${restSum / mx}', kind: 5),
+          if (cafe.isNotEmpty) WRow('Кава ×${cafe.length}', '~${_grn(cafeSum)}', sub: '${cafeSum / mx}', kind: 6),
+          WRow('Квіти', '$gifts', sub: gifts == 0 ? '0' : '0.2', kind: 7),
         ],
-        capSafe: 'Заплатив сам: $paid з $n ${plural(n, 'вечора', 'вечорів', 'вечорів')}. ${paid * 2 >= n ? 'Джентльмен.' : 'Бухгалтерія плаче.'}'));
+        c: 'заплатив сам: $paid з $n ${plural(n, 'вечора', 'вечорів', 'вечорів')}',
+        capSafe: gifts == 0 ? 'Троянди були тільки на цьому фото.' : (paid * 2 >= n ? 'Квіти були. Джентльмен.' : 'Квіти були. Бухгалтерія все одно плаче.')));
   }
 
   // 13. Ти хотіла: пари «вийшло / не вийшло» з тегів
@@ -412,18 +416,21 @@ Wrapped buildWrapped(String month, DB db) {
 
   // 14. Варто помітити — спокійно, без жартів, тільки для неї
   final sore = <WRow>[];
+  final soreIds = <String>[];
   void addSore(String title, bool Function(Entry) f) {
     final hit = es.where(f).toList();
     if (hit.isEmpty) return;
     final e = hit.last;
-    sore.add(WRow(title, '${_times(hit.length)} · ${_longDate(e.date)}', who: wp(e.personId)));
+    final same = soreIds.isNotEmpty && soreIds.first == e.id;
+    soreIds.add(e.id);
+    sore.add(WRow(title, '${_times(hit.length)} · ${same && sore.length == 1 ? 'той самий вечір' : _longDate(e.date)}', who: wp(e.personId), kind: title.startsWith('Хотіла') ? 10 : (title.startsWith('Без захисту') ? 11 : 12)));
   }
   addSore('Хотіла сказати «ні» і не сказала', (e) => e.tags.contains('limit_missed'));
   addSore('Без захисту', (e) => e.tags.contains('noprot'));
   addSore('Був дискомфорт', (e) => e.tags.contains('pain'));
   addSore('Він тиснув і квапив', (e) => e.flags.contains('flag_r_push'));
   if (sore.isNotEmpty) {
-    out.add(WSlide(WK.notice, 'Варто помітити', '', rows: sore.take(2).toList(), private: true, capSafe: 'Це не вирок і не жарт. Просто факт, щоб ти його бачила.'));
+    out.add(WSlide(WK.notice, 'Варто помітити', '', rows: sore.take(2).toList(), private: true, capSafe: 'Це не вирок і не жарт.\nПросто факт, щоб ти його бачила.${sore.length >= 2 && soreIds.length >= 2 && soreIds[0] == soreIds[1] ? '\nОбидва — один вечір.' : ''}'));
   }
 
   // 15. Нагороди місяця
@@ -463,9 +470,12 @@ Wrapped buildWrapped(String month, DB db) {
         capSafe: '${parts.join(', ')}${cs > ps ? ', і ти частіше кажеш, чого хочеш.' : '.'}'));
   }
 
-  // 17. Місяць закрито
-  out.add(WSlide(WK.closed, nom, 'закрито',
+  // 17. Місяць загорнуто: топ-моменти з уже зібраних слайдів + твої числа
+  out.add(WSlide(WK.closed, nom, 'загорнуто.',
       score: overall,
+      rows: [..._moments(out), ..._numbers(overall, n, ids.length, menWord, greens.length, reds.length)],
+      a: 'vespr · ${m.toString().padLeft(2, '0')}/${(y % 100).toString().padLeft(2, '0')}',
+      b: 'до зустрічі в ${monthsLoc[m % 12]} ✦',
       capSafe: '${pes.isNotEmpty && reds.length < pes.expand((e) => e.flags.where((x) => flagById(x)?.kind == FlagKind.r)).length ? 'Граблі стали меншими. ' : ''}${cap(monthsNom[m % 12])}, ми готові. Майже.'));
 
   // 18. Квиток для чату
@@ -480,6 +490,43 @@ Wrapped buildWrapped(String month, DB db) {
 
   return Wrapped(month, label, monthsNom[m - 1], monthsGen[m - 1], out, n);
 }
+
+/// Топ-моменти фіналу: беремо з уже зібраних слайдів, до 5
+List<WRow> _moments(List<WSlide> out) {
+  const order = [WK.best, WK.longest, WK.match, WK.budget, WK.fastest, WK.fame, WK.wishes];
+  final r = <WRow>[];
+  for (final k in order) {
+    final s = out.where((x) => x.k == k).firstOrNull;
+    if (s == null) continue;
+    switch (k) {
+      case WK.best:
+        r.add(WRow('Найкращий вечір', s.b, who: s.who.firstOrNull));
+      case WK.longest:
+        r.add(const WRow('Рекорд', '40+ хвилин'));
+      case WK.match:
+        r.add(WRow('Метч місяця', fmt(s.score2 > s.score ? s.score2 : s.score), who: s.who.firstOrNull));
+      case WK.budget:
+        r.add(WRow('Бюджет', '${s.a} · ${s.title2}'));
+      case WK.fastest:
+        r.add(const WRow('Спринтер', 'до 5 хв'));
+      case WK.fame:
+        r.add(WRow('Зала слави', '', who: s.who.firstOrNull));
+      case WK.wishes:
+        r.add(WRow('Ти хотіла', s.title2));
+      default:
+    }
+  }
+  return r.take(5).toList();
+}
+
+/// «Твої числа» фіналу (kind 9)
+List<WRow> _numbers(double overall, int n, int men, (String, String, String) menWord, int g, int r) => [
+      WRow('бал', fmt(overall), kind: 9),
+      WRow(plural(n, 'побачення', 'побачення', 'побачень'), '$n', kind: 9),
+      WRow(plural(men, menWord.$1, menWord.$2, menWord.$3), '$men', kind: 9),
+      WRow(plural(g, 'грін-флаг', 'грін-флаги', 'грін-флагів'), '$g', kind: 9),
+      WRow(plural(r, 'ред-флаг', 'ред-флаги', 'ред-флагів'), '$r', kind: 9),
+    ];
 
 /// Карточка архіву: головна цифра місяця і підпис
 (String, String) wrappedTeaser(String month, DB db) {

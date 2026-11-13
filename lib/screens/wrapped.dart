@@ -26,8 +26,18 @@ const _yel = Color(0xFFFFC83D);
 const _red = Color(0xFFE8333B);
 
 // Тема кожної дошки: m — темна (білий текст), l — світла, q — тиха
-const _th = ['m1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm3', 'l2', 'l3', 'q', 'l3', 'l2', 'm1', 'l3'];
+const _th = ['m1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm1', 'm1', 'l3', 'q', 'l3', 'l2', 'l3', 'l3'];
 const _bgOf = {'1': _ink, '2': _pink, '3': _yel, '': Color(0xFF17161F)};
+
+/// Cormorant Garamond (бюджет, «Варто помітити», фінал)
+TextStyle cg(double s, FontWeight w, Color c, {bool it = false, double? h, double ls = 0}) =>
+    TextStyle(fontFamily: 'Cormorant', fontSize: s, fontWeight: w, fontStyle: it ? FontStyle.italic : FontStyle.normal, color: c, height: h, letterSpacing: ls);
+
+/// Montserrat, дрібні підписи капсом
+TextStyle mt(double s, FontWeight w, Color c, {double? h, double ls = 0}) => TextStyle(fontFamily: 'Montserrat', fontSize: s, fontWeight: w, color: c, height: h, letterSpacing: ls);
+
+const _rose = Color(0xFFFF6FAE);
+const _plum = Color(0xFFE2559F);
 
 TextStyle ws(double s, FontWeight w, Color c, {double? h, double ls = 0, TextDecoration? dec, Color? decColor}) =>
     TextStyle(fontFamily: 'Onest', fontSize: s, fontWeight: w, color: c, height: h, letterSpacing: ls, decoration: dec, decorationColor: decColor, decorationThickness: 2);
@@ -46,6 +56,10 @@ final _icTimer2 = _svg('<g fill="none" stroke="currentColor" stroke-width="2.2" 
 final _icCheck = _svg('<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>');
 final _icX = _svg('<path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>');
 final _icPhone = _svg('<rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/>');
+final _icHeartO = _svg('<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>');
+final _icEye = _svg('<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g>');
+final _icChat = _svg('<path fill="currentColor" d="M12 3C6.5 3 2 6.8 2 11.4c0 2.4 1.2 4.5 3.2 6L4.5 21l4.1-2.1c1.1.3 2.2.5 3.4.5 5.5 0 10-3.8 10-8.4S17.5 3 12 3z"/><circle cx="8" cy="11.4" r="1.3" fill="#1A120E"/><circle cx="12" cy="11.4" r="1.3" fill="#1A120E"/><circle cx="16" cy="11.4" r="1.3" fill="#1A120E"/>');
+final _icShield = _svg('<path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="#1A120E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
 final _icHeart2 = _svg('<path d="M12 21C5 15.5 2 12 2 8a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7.5-10 13z" fill="currentColor"/>');
 final _icShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v13M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';
 final _icClose = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -366,8 +380,8 @@ class _Slide extends StatelessWidget {
         ),
       );
 
-  Widget _tape(double top, double deg, Color bg, Color c, String text) => Positioned(
-        left: -70, top: top, width: 530, height: 46,
+  Widget _tape(double top, double deg, Color bg, Color c, String text, {double h = 46, double size = 19, int? sec}) => Positioned(
+        left: -70, top: top, width: 530, height: h,
         child: Transform.rotate(
           angle: deg * math.pi / 180,
           child: Container(
@@ -378,10 +392,10 @@ class _Slide extends StatelessWidget {
               alignment: Alignment.centerLeft,
               maxWidth: 4000,
               child: WMarquee(
-                width: _textW(text.toUpperCase(), ws(19, FontWeight.w800, c, h: 1, ls: .76)) * 3,
-                seconds: deg > 0 ? 22 : 18,
+                width: _textW(text.toUpperCase(), ws(size, FontWeight.w800, c, h: 1, ls: size * .04)) * 3,
+                seconds: sec ?? (deg > 0 ? 22 : 18),
                 reverse: deg > 0,
-                child: Text((text * 12).toUpperCase(), maxLines: 1, softWrap: false, style: ws(19, FontWeight.w800, c, h: 1, ls: .76)),
+                child: Text((text * 12).toUpperCase(), maxLines: 1, softWrap: false, style: ws(size, FontWeight.w800, c, h: 1, ls: size * .04)),
               ),
             ),
           ),
@@ -529,56 +543,92 @@ class _Slide extends StatelessWidget {
           body.addAll([hrow('Ти', s.n1, _ink), hrow('Він', s.n2, _hot), _cap(s.capSafe)]);
         }
       case WK.match:
-        if (!safe) ov.add(_ntag(s.who.first.name, 294, 386));
+        if (!safe) {
+          ov.add(Positioned(
+            left: 156, top: 374,
+            child: Transform.rotate(
+              angle: -5 * math.pi / 180,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                Text(s.who.first.name, style: pr(30, color: Colors.white, h: 1)),
+                const SizedBox(height: 2),
+                CustomPaint(size: const Size(170, 14), painter: _Swoosh()),
+              ]),
+            ),
+          ));
+        }
         Widget hb(String l, double v, Color c, bool top) => Container(
-              height: 56,
+              padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(border: Border(top: top ? const BorderSide(color: Color(0x29FFFFFF)) : BorderSide.none, bottom: const BorderSide(color: Color(0x29FFFFFF)))),
               child: Row(children: [
-                SizedBox(
-                  width: 106,
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(l, style: ws(15, FontWeight.w700, Colors.white)),
-                    Text(safe ? 'він' : s.who.first.name, overflow: TextOverflow.ellipsis, style: ws(12, FontWeight.w500, Colors.white.withValues(alpha: .7))),
-                  ]),
-                ),
+                SizedBox(width: 96, child: Text(l, style: ws(16, FontWeight.w500, Colors.white, h: 1.1, ls: .16))),
+                const SizedBox(width: 10),
                 ..._hearts(v, c, w: 28, h: 26, step: 32),
                 const Spacer(),
-                Text(fmt(v), style: ws(22, FontWeight.w800, c)),
+                Text(fmt(v), style: ws(22, FontWeight.w500, c, h: 1)),
               ]),
             );
         body.addAll([
           _title(),
           Column(children: [hb('Характер', s.score, _pink, true), hb('Секс', s.score2, _yel, false)]),
           if (s.a.isNotEmpty && s.b.isNotEmpty)
-            Row(children: [
-              _pill(s.a, Colors.white, _ink, size: 14, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-              Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: Text('+', style: ws(16, FontWeight.w800, _yel))),
-              _pill(s.b, Colors.white, _ink, size: 14, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-              const SizedBox(width: 10),
-              Flexible(child: Text(s.c, style: ws(13, FontWeight.w600, Colors.white))),
-            ]),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(children: [
+                Text(s.a, style: ws(14, FontWeight.w500, Colors.white)),
+                const SizedBox(width: 10),
+                Text('✦', style: ws(14, FontWeight.w500, _pink)),
+                const SizedBox(width: 10),
+                Text(s.b, style: ws(14, FontWeight.w500, Colors.white)),
+                const SizedBox(width: 10),
+                Flexible(child: Text('· ${s.c}', overflow: TextOverflow.ellipsis, style: ws(14, FontWeight.w500, Colors.white.withValues(alpha: .62)))),
+              ]),
+            ),
         ]);
       case WK.matrix:
-        const centers = [Offset(300, 242), Offset(144, 254), Offset(290, 330), Offset(130, 335)];
+        // центри кружечків у картках 2×2: гаряче й безпечно, гаряче й токсично, надійно-нудно, навіщо
+        const centers = [Offset(290, 200), Offset(130, 200), Offset(290, 368), Offset(130, 368)];
+        const nameC = [_ink, Colors.white, _ink, _ink];
         for (var k = 0; k < s.who.length; k++) {
           var c = centers[s.ints[k]];
-          if (k == 1 && s.ints[0] == s.ints[1]) c = c.translate(0, 70);
+          if (s.ints.length > 1 && s.ints[0] == s.ints[1]) c = c.translate(k == 0 ? -26 : 26, k == 0 ? -10 : 14);
           ov.add(Positioned(
-            left: c.dx - 50, top: c.dy - 50, width: 100, height: 100,
+            left: c.dx - 43, top: c.dy - 43, width: 86, height: 86,
             child: Container(
-              decoration: BoxDecoration(shape: BoxShape.circle, color: _ink, border: Border.all(color: Colors.white, width: 5), boxShadow: const [BoxShadow(color: Color(0x660E0D1F), blurRadius: 24, offset: Offset(0, 12), spreadRadius: -8)]),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: _ink, border: Border.all(color: Colors.white, width: 6), boxShadow: const [BoxShadow(color: Color(0x800E0D1F), blurRadius: 22, offset: Offset(0, 14), spreadRadius: -10)]),
               alignment: Alignment.center,
               child: Text('?', style: ws(46, FontWeight.w800, _pink, h: 1)),
             ),
           ));
-          if (!safe) ov.add(_ntag(s.who[k].name, c.dx, c.dy + 56));
+          if (!safe) {
+            ov.add(Positioned(
+              left: c.dx - 90, top: c.dy + 48, width: 180,
+              child: Text(s.who[k].name, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: pr(20, color: nameC[s.ints[k]], h: 1)),
+            ));
+          }
         }
         body.addAll([_title(), _cap(s.cap(safe))]);
       case WK.battle:
-        if (!safe) ov.add(_ntag('Переможець', 126, 279, bg: _pink));
+        if (!safe) {
+          final wi = s.who.length > 2 && s.who[2].id == s.who[1].id ? 1 : 0;
+          Widget lab(String tag, String name, bool win, bool right) => Column(
+                crossAxisAlignment: right ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(6, 4, 6, 3),
+                    decoration: BoxDecoration(color: win ? _ink : null, border: win ? null : Border.all(color: _ink, width: 1.5)),
+                    child: Text(tag.toUpperCase(), style: mono(10, FontWeight.w600).copyWith(color: win ? _yel : _ink, letterSpacing: 1.4, height: 1)),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(name.toUpperCase(), maxLines: 1, style: const TextStyle(fontFamily: 'Oswald', fontSize: 30, fontWeight: FontWeight.w600, color: _ink, height: 1, letterSpacing: .3)),
+                ],
+              );
+          ov.add(Positioned(left: 52, top: 98, child: Transform.rotate(angle: _rot8, child: lab('переможець', s.who[wi].name, true, false))));
+          ov.add(Positioned(right: 26, top: 118, width: 160, child: Transform.rotate(angle: _rot8, alignment: Alignment.centerRight, child: Align(alignment: Alignment.centerRight, child: lab('суперник', s.who[1 - wi].name, false, true)))));
+        }
         Widget hp(int k, bool left) => Expanded(
               child: Column(crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end, children: [
-                Text(safe ? 'Гравець ${k + 1}' : s.who[k].name, overflow: TextOverflow.ellipsis, style: ws(11, FontWeight.w700, _ink, h: 1)),
+                Text(safe ? 'Гравець ${k + 1}' : s.who[k].name, overflow: TextOverflow.ellipsis, style: ws(11, FontWeight.w500, _ink, h: 1)),
                 const SizedBox(height: 5),
                 Container(
                   height: 20,
@@ -587,7 +637,7 @@ class _Slide extends StatelessWidget {
                   child: WAnim(left ? 'wrGrowX' : 'wrGrowXR', delay: 600, dur: 1000, child: FractionallySizedBox(widthFactor: ((left ? s.n1 : s.n2) / 100).clamp(0.0, 1.0), child: Container(color: left ? _ink : _red))),
                 ),
                 const SizedBox(height: 5),
-                Text('${left ? s.n1 : s.n2}%', style: ws(11, FontWeight.w700, _ink, h: 1)),
+                Text('${left ? s.n1 : s.n2}%', style: ws(11, FontWeight.w500, _ink, h: 1)),
               ]),
             );
         body.addAll([
@@ -602,7 +652,7 @@ class _Slide extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 11),
                   decoration: BoxDecoration(color: _red, borderRadius: BorderRadius.circular(8), border: Border.all(color: _ink, width: 2)),
-                  child: Text('K.O.', style: ws(18, FontWeight.w800, _yel, h: 1)),
+                  child: Text('K.O.', style: ws(18, FontWeight.w700, _yel, h: 1)),
                 ),
               )),
               hp(1, false),
@@ -616,14 +666,14 @@ class _Slide extends StatelessWidget {
                   height: 38,
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x330E0D1F)))),
                   child: Row(children: [
-                    Expanded(child: Text(r.label, style: ws(14.5, FontWeight.w600, _ink))),
+                    Expanded(child: Text(r.label, style: ws(14.5, FontWeight.w500, _ink))),
                     for (final v in [(r.value, r.kind == 1), (r.sub ?? '', r.kind == 2)])
                       Container(
                         width: 38, height: 27,
                         margin: const EdgeInsets.only(left: 6),
                         decoration: BoxDecoration(color: v.$2 ? _ink : null, borderRadius: BorderRadius.circular(999)),
                         alignment: Alignment.center,
-                        child: Text(v.$1, style: ws(15, FontWeight.w800, v.$2 ? _yel : _ink.withValues(alpha: .55), h: 1)),
+                        child: Text(v.$1, style: ws(15, FontWeight.w600, v.$2 ? _yel : _ink.withValues(alpha: .55), h: 1)),
                       ),
                   ]),
                 ),
@@ -665,7 +715,7 @@ class _Slide extends StatelessWidget {
       case WK.longest:
       case WK.fastest:
         final fast = s.k == WK.fastest;
-        final icons = fast ? [_icBolt, _icPersonF, _icTimer2] : [_icTimer, _icPerson, _icRepeat];
+        final icons = fast ? [_icTimer, _icPerson, _icHeartO] : [_icTimer, _icPerson, _icRepeat];
         body.addAll([
           _title(),
           Column(
@@ -673,34 +723,111 @@ class _Slide extends StatelessWidget {
               for (var k = 0; k < s.rows.length; k++)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: fast ? const Color(0xFFFFF2C7) : const Color(0x0FFFFFFF),
-                    borderRadius: BorderRadius.circular(16),
-                    border: fast ? null : Border.all(color: const Color(0x14FFFFFF)),
-                  ),
+                  decoration: BoxDecoration(color: const Color(0x0FFFFFFF), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0x14FFFFFF))),
                   child: Row(children: [
-                    Ico(icons[k.clamp(0, 2)], size: fast ? 26 : 28, color: fast ? _ink : _pink),
+                    Ico(icons[k.clamp(0, 2)], size: 28, color: fast && k == 2 ? Colors.white : _pink),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('${s.rows[k].who?.show(safe) ?? ''}${s.rows[k].label}',
-                          overflow: TextOverflow.ellipsis, style: ws(15, FontWeight.w700, fast ? _ink : _pink, h: 1.2)),
+                      child: Text('${s.rows[k].who?.show(safe) ?? ''}${s.rows[k].label}', overflow: TextOverflow.ellipsis, style: ws(15, FontWeight.w700, _pink, h: 1.2)),
                     ),
-                    _pill(s.rows[k].value, fast ? _ink : const Color(0xFF2E2A44), fast ? _yel : Colors.white, size: fast ? 14 : 15, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 7)),
+                    _pill(s.rows[k].value, const Color(0xFF2E2A44), Colors.white, size: 15, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 7)),
                   ]),
                 ),
             ], 8),
           ),
         ]);
       case WK.budget:
+        const tilt = -8 * math.pi / 180;
+        ov.add(Positioned(left: 34, top: 452, width: 322, child: Text('витратив на тебе за ${w.monthNom}'.toUpperCase(), style: mt(8.4, FontWeight.w400, Colors.white.withValues(alpha: .78), h: 1, ls: 1.09))));
         ov.add(Positioned(
-          left: 24, top: 104,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(s.a, style: ws(76, FontWeight.w800, _ink, h: 1, ls: -3.8)),
-            const SizedBox(height: 4),
-            _pill('гривень за місяць', _ink, _pink, size: 14, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 6)),
-          ]),
+          left: 34, top: 458, width: 322,
+          child: WAnim('wrPop', delay: 200, dur: 800, child: Transform.rotate(
+            angle: tilt,
+            child: Text.rich(TextSpan(children: [
+              TextSpan(text: s.a, style: cg(72, FontWeight.w500, Colors.white, h: 1, ls: -.72)),
+              const WidgetSpan(child: SizedBox(width: 6)),
+              TextSpan(text: 'грн', style: cg(26, FontWeight.w500, _rose, it: true, h: 1)),
+            ])),
+          )),
         ));
-        body.addAll([_title(), _fbl(s.rows), _cap(s.capSafe)]);
+        ov.add(Positioned(
+          left: 34, top: 552, width: 322,
+          child: WAnim('wrPop', delay: 300, dur: 800, child: Transform.rotate(
+            angle: tilt,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(s.title1, style: cg(40, FontWeight.w500, Colors.white, h: 1.02)),
+              Text(s.title2, style: cg(44, FontWeight.w500, _rose, it: true, h: 1.02)),
+            ]),
+          )),
+        ));
+        ov.add(Positioned(
+          left: 34, top: 650, width: 322,
+          child: WAnim('wrUp', delay: 450, dur: 900, child: Container(
+            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0x38FFFFFF)))),
+            child: Column(children: [
+              for (var k = 0; k < s.rows.length; k++)
+                Container(
+                  height: 32,
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x38FFFFFF)))),
+                  child: Row(children: [
+                    Container(
+                      width: 14, height: 14,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: s.rows[k].kind == 5 ? const Color(0xFFF3D9A4) : (s.rows[k].kind == 6 ? _rose : null),
+                        border: s.rows[k].kind == 7 ? Border.all(color: _rose, width: 1.5) : null,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    SizedBox(width: 96, child: Text(s.rows[k].label, maxLines: 1, style: mt(12, FontWeight.w300, Colors.white, h: 1))),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        height: 9,
+                        decoration: BoxDecoration(color: const Color(0x24FFFFFF), borderRadius: BorderRadius.circular(999)),
+                        alignment: Alignment.centerLeft,
+                        clipBehavior: Clip.antiAlias,
+                        child: WAnim('wrGrowX', delay: 600 + k * 150, dur: 1100, child: FractionallySizedBox(
+                          widthFactor: (double.tryParse(s.rows[k].sub ?? '') ?? 0).clamp(0.0, 1.0) * .87,
+                          child: Container(decoration: BoxDecoration(color: s.rows[k].kind == 5 ? const Color(0xFFF3D9A4) : _rose, borderRadius: BorderRadius.circular(999))),
+                        )),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    SizedBox(width: 50, child: Text(s.rows[k].value, textAlign: TextAlign.right, style: mt(12, FontWeight.w300, Colors.white, h: 1))),
+                  ]),
+                ),
+            ]),
+          )),
+        ));
+        ov.add(Positioned(
+          left: 34, top: 760, width: 322, height: 20,
+          child: WAnim('wrUp', delay: 600, dur: 900, child: Row(children: [
+            if (s.n2 <= 8)
+              for (var k = 0; k < s.n2; k++)
+                Container(
+                  width: 14, height: 14,
+                  margin: const EdgeInsets.only(right: 9),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: k < s.n1 ? _rose : null, border: Border.all(color: k < s.n1 ? _rose : const Color(0x99FFFFFF))),
+                ),
+            Container(
+              margin: EdgeInsets.only(left: s.n2 <= 8 ? 8 : 0),
+              padding: EdgeInsets.only(left: s.n2 <= 8 ? 16 : 0),
+              decoration: s.n2 <= 8 ? const BoxDecoration(border: Border(left: BorderSide(color: Color(0x47FFFFFF)))) : null,
+              height: 20,
+              alignment: Alignment.centerLeft,
+              child: Text(s.c, style: mt(12, FontWeight.w300, Colors.white, h: 1)),
+            ),
+          ])),
+        ));
+        ov.add(Positioned(
+          left: 34, top: 791, width: 322,
+          child: WAnim('wrUp', delay: 700, dur: 900, child: Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0x38FFFFFF)))),
+            child: Text(s.capSafe ?? '', style: cg(17, FontWeight.w500, const Color(0xEBFFFFFF), it: true, h: 1.2)),
+          )),
+        ));
       case WK.wishes:
         ov.add(Positioned(left: 93, top: 118, width: 204, height: 204, child: CustomPaint(painter: _RingN(s.n1, s.n2))));
         ov.add(Positioned(
@@ -742,15 +869,39 @@ class _Slide extends StatelessWidget {
           ),
         ]);
       case WK.notice:
-        body.addAll([
-          Text('🔒 ТІЛЬКИ ДЛЯ ТЕБЕ', style: rw(12, color: K.star, w: FontWeight.w500, ls: 1.68)),
-          Text(s.title1, style: pr(34, h: 1.15)),
-          if (safe)
-            _calm('Цей слайд бачиш тільки ти', 'У сторіз і «Без імен» його нема.')
-          else
-            Column(children: gapped([for (final r in s.rows) _calm(r.label, '${r.value}${r.who != null ? ', з ${r.who!.name}' : ''}')], 8)),
-          Text(s.capSafe ?? '', style: rw(16, color: K.star, h: 1.5)),
-        ]);
+        Widget card(Widget icon, String b, String sm) => Container(
+              width: 230,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(color: const Color(0x6B1C120E), borderRadius: BorderRadius.circular(18), border: Border.all(color: const Color(0x47FFFFFF))),
+              child: Row(children: [
+                SizedBox(width: 30, child: Align(alignment: Alignment.centerLeft, child: icon)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(b, style: cg(17, FontWeight.w600, Colors.white, h: 1.08)),
+                    const SizedBox(height: 6),
+                    Text(sm, style: mt(9.6, FontWeight.w400, const Color(0xD1FFFFFF), h: 1.3)),
+                  ]),
+                ),
+              ]),
+            );
+        final cards = safe
+            ? [card(Ico(_icEye, size: 26, color: _rose), 'Цей слайд бачиш тільки ти', 'У сторіз і «Без імен» його нема.')]
+            : [
+                for (final r in s.rows)
+                  card(Ico(r.kind == 11 ? _icShield : _icChat, size: 26, color: _rose), r.label, '${r.value}${r.who != null && !r.value.contains('той самий') ? ', з ${r.who!.name}' : ''}'),
+              ];
+        ov.add(Positioned(
+          left: 30, top: 318,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (var k = 0; k < cards.length; k++)
+              Padding(padding: const EdgeInsets.only(bottom: 7), child: WAnim('wrUp', delay: 350 + k * 150, dur: 900, child: cards[k])),
+          ]),
+        ));
+        ov.add(Positioned(
+          left: 30, right: 30, top: 716,
+          child: WAnim('wrUp', delay: 650, dur: 900, child: Text(s.capSafe ?? '', style: cg(16, FontWeight.w500, const Color(0xE6FFFFFF), it: true, h: 1.3))),
+        ));
       case WK.awards:
         body.addAll([
           _title(),
@@ -778,15 +929,81 @@ class _Slide extends StatelessWidget {
         }
         body.addAll([_title(), _cap(s.capSafe)]);
       case WK.closed:
+        final moments = s.rows.where((r) => r.kind != 9).toList();
+        final nums = s.rows.where((r) => r.kind == 9).toList();
+        final rib = '${(s.capSafe ?? '').replaceAll('. ', ' ✦ ').replaceAll(RegExp(r'\.$'), '')} ✦ ';
+        ov.add(_tape(712, -3, _ink, _pink, rib, h: 34, size: 14, sec: 22));
         ov.add(Positioned(
-          left: 96, top: 104, width: 200, height: 200,
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(s.score.isNaN ? '—' : fmt(s.score), style: ws(64, FontWeight.w800, _ink, h: 1, ls: -2)),
-            const SizedBox(height: 4),
-            Text('СЕРЕДНІЙ БАЛ\n${w.monthGen.toUpperCase()}', textAlign: TextAlign.center, style: ws(12, FontWeight.w700, _ink, h: 1.2)),
+          left: 26, right: 26, top: 330,
+          child: WAnim('wrUp', delay: 200, dur: 900, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${s.title1},', style: cg(56, FontWeight.w500, _ink, h: .9, ls: -.56)),
+            Text(s.title2, style: cg(56, FontWeight.w500, _plum, it: true, h: .9, ls: -.56)),
+          ])),
+        ));
+        final h4 = mt(8.6, FontWeight.w500, _ink.withValues(alpha: .75), h: 1, ls: 1.72);
+        ov.add(Positioned(
+          left: 26, right: 26, top: 450,
+          child: WAnim('wrUp', delay: 400, dur: 900, child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              flex: 125,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                if (moments.isNotEmpty) Text('ТОП-МОМЕНТИ', style: h4),
+                const SizedBox(height: 10),
+                for (var k = 0; k < moments.length; k++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 7),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      SizedBox(width: 18, child: Text('${k + 1}', style: cg(16, FontWeight.w500, _plum, h: 1.1))),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(moments[k].label, maxLines: 1, overflow: TextOverflow.ellipsis, style: cg(18, FontWeight.w500, _ink, it: true, h: 1)),
+                          const SizedBox(height: 3),
+                          Text(
+                            [if (moments[k].who != null) safe ? 'він' : moments[k].who!.name, if (moments[k].value.isNotEmpty) moments[k].value].join(' · ').toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: mt(8.6, FontWeight.w400, _ink.withValues(alpha: .75), h: 1.4, ls: 1.2),
+                          ),
+                        ]),
+                      ),
+                    ]),
+                  ),
+              ]),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              flex: 100,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('ТВОЇ ЧИСЛА', style: h4),
+                const SizedBox(height: 10),
+                for (final r in nums)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
+                      Text(r.value, style: cg(32, FontWeight.w600, _plum, h: .95)),
+                      const SizedBox(width: 8),
+                      Flexible(child: Text(r.label.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis, style: mt(8.6, FontWeight.w400, _ink.withValues(alpha: .8), h: 1, ls: 1.38))),
+                    ]),
+                  ),
+              ]),
+            ),
+          ])),
+        ));
+        ov.add(Positioned(
+          left: 26, right: 26, top: 762, height: 23,
+          child: Row(children: [
+            Text(s.a.toUpperCase(), style: mt(9, FontWeight.w500, _ink, h: 1, ls: 1.62)),
+            const Spacer(),
+            Container(
+              height: 23,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: _ink, borderRadius: BorderRadius.circular(999)),
+              child: Text(s.b.toUpperCase(), style: mt(9, FontWeight.w500, _yel, h: 1, ls: 1.62)),
+            ),
           ]),
         ));
-        body.addAll([_title(), _cap(s.capSafe)]);
       case WK.ticket:
         ov.add(Positioned(
           left: 44, top: 150, width: 231,
@@ -816,12 +1033,13 @@ class _Slide extends StatelessWidget {
 
     String ovAnim() => switch (s.k) {
           WK.sex || WK.wishes => 'wrSpinIn',
-          WK.receipt || WK.budget || WK.closed || WK.ticket => 'wrUp',
+          WK.receipt || WK.ticket => 'wrUp',
+          WK.match || WK.battle => 'wrPop',
           _ => 'wrStc',
         };
     final ovA = [
       for (final (n, x) in ov.indexed)
-        x is Positioned && x.child is! OverflowBox && !(s.k == WK.cover || (s.k == WK.best && n == 0))
+        x is Positioned && x.child is! OverflowBox && !(s.k == WK.cover || s.k == WK.budget || s.k == WK.notice || s.k == WK.closed || (s.k == WK.best && n == 0))
             ? Positioned(left: x.left, top: x.top, right: x.right, bottom: x.bottom, width: x.width, height: x.height, child: WAnim(ovAnim(), delay: 200 + n * 120, dur: 900, child: x.child))
             : x,
     ];
@@ -835,7 +1053,7 @@ class _Slide extends StatelessWidget {
         child: Row(children: [
           Image.asset(logo, width: 84, semanticLabel: 'Vespr'),
           const Spacer(),
-          Text(w.label, style: ws(13, FontWeight.w600, dark ? Colors.white : _ink)),
+          Text(w.label, style: s.k == WK.budget || s.k == WK.notice ? cg(15, FontWeight.w500, Colors.white, h: 1) : ws(13, FontWeight.w600, dark ? Colors.white : _ink)),
         ]),
       ),
       if (body.isNotEmpty) _body(body),
@@ -1177,4 +1395,20 @@ class _DashBox extends CustomPainter {
 
   @override
   bool shouldRepaint(_DashBox o) => o.c != c;
+}
+
+/// Рожевий розчерк під іменем на «Метчі»
+class _Swoosh extends CustomPainter {
+  @override
+  void paint(Canvas c, Size s) {
+    final k = s.width / 170;
+    final p = Path()
+      ..moveTo(2 * k, 9 * k)
+      ..cubicTo(32 * k, 3 * k, 60 * k, 1 * k, 94 * k, 4 * k)
+      ..cubicTo(120 * k, 6 * k, 142 * k, 8 * k, 168 * k, 3 * k);
+    c.drawPath(p, Paint()..color = _pink..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter o) => false;
 }
