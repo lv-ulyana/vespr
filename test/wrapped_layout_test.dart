@@ -7,34 +7,13 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vespr/data/demo.dart';
 import 'package:vespr/data/models.dart';
 import 'package:vespr/logic/wrapped.dart';
 import 'package:vespr/screens/wrapped.dart';
 
-const _fams = {
-  'Onest': 'Onest_',
-  'Prata': 'Prata_',
-  'Raleway': 'Raleway_',
-  'PlexMono': 'IBMPlexMono_',
-  'Cormorant': 'CormorantGaramond_',
-  'Montserrat': 'Montserrat_',
-  'Oswald': 'Oswald_',
-  'Zodiac': 'NotoZodiac',
-};
-
-Future<void> _loadFonts() async {
-  final files = Directory('assets/fonts').listSync().whereType<File>().where((f) => f.path.endsWith('.ttf')).toList();
-  for (final e in _fams.entries) {
-    final l = FontLoader(e.key);
-    for (final f in files.where((f) => f.uri.pathSegments.last.startsWith(e.value))) {
-      l.addFont(Future.value(ByteData.view(f.readAsBytesSync().buffer)));
-    }
-    await l.load();
-  }
-}
+import 'layout_util.dart';
 
 /// Демо з довгими іменами — найгірший випадок для верстки
 DB _longNames(DB db) {
@@ -45,55 +24,9 @@ DB _longNames(DB db) {
   return db;
 }
 
-class _Issue {
-  final String what;
-  const _Issue(this.what);
-  @override
-  String toString() => what;
-}
-
-List<_Issue> _scan(RenderObject root, String tag) {
-  final out = <_Issue>[];
-  final paras = <(RenderParagraph, Rect, String)>[];
-  void walk(RenderObject r) {
-    if (r is RenderParagraph && r.hasSize && r.attached) {
-      final t = r.text.toPlainText().trim();
-      if (t.isNotEmpty) {
-        final tl = r.localToGlobal(Offset.zero);
-        // справжні межі гліфів, а не всієї коробки тексту
-        final boxes = r.getBoxesForSelection(TextSelection(baseOffset: 0, extentOffset: r.text.toPlainText().length));
-        var rect = boxes.isEmpty ? (tl & r.size) : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b)).shift(tl);
-        // текст під поворотом/масштабом: беремо реальну трансформацію
-        final m = r.getTransformTo(null);
-        rect = MatrixUtils.transformRect(m, boxes.isEmpty ? Offset.zero & r.size : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b)));
-        paras.add((r, rect, t));
-        if (r.didExceedMaxLines) out.add(_Issue('$tag: обрізано «$t»'));
-        // біжучі стрічки свідомо ширші за екран
-        if (t.length < 60 && (rect.right > 391 || rect.left < -1)) out.add(_Issue('$tag: за краєм екрана «$t» ${rect.left.toStringAsFixed(0)}..${rect.right.toStringAsFixed(0)}'));
-      }
-    }
-    r.visitChildren(walk);
-  }
-
-  walk(root);
-  for (var i = 0; i < paras.length; i++) {
-    for (var j = i + 1; j < paras.length; j++) {
-      final a = paras[i], b = paras[j];
-      if (a.$3.length >= 60 || b.$3.length >= 60) continue;
-      final x = a.$2.intersect(b.$2);
-      final small = [a.$2.width * a.$2.height, b.$2.width * b.$2.height].reduce((p, q) => p < q ? p : q);
-      // рядки один під одним (заголовок у два рядки, цифра над підписом) — це не налізання
-      final minH = a.$2.height < b.$2.height ? a.$2.height : b.$2.height;
-      if ((a.$2.center.dy - b.$2.center.dy).abs() > minH * .5) continue;
-      if (x.width > 3 && x.height > 3 && x.width * x.height > small * .25) out.add(_Issue('$tag: налазять «${a.$3}» і «${b.$3}»'));
-    }
-  }
-  return out;
-}
-
 void main() {
   testWidgets('Wrapped: верстка слайдів', skip: Platform.environment['LAYOUT'] != '1', (tester) async {
-    await tester.runAsync(_loadFonts);
+    await tester.runAsync(loadFonts);
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -106,7 +39,7 @@ void main() {
       ('names', demoDb(now), false),
       ('long', _longNames(demoDb(now)), false),
     ];
-    final issues = <_Issue>[];
+    final issues = <Issue>[];
     final errors = <String>[];
     final old = FlutterError.onError;
     FlutterError.onError = (d) => errors.add(d.exceptionAsString().split('\n').first);
@@ -133,9 +66,9 @@ void main() {
           });
           await tester.pump();
           for (final e in errors) {
-            issues.add(_Issue('$name: $e'));
+            issues.add(Issue('$name: $e'));
           }
-          issues.addAll(_scan(key.currentContext!.findRenderObject()!, name));
+          issues.addAll(scanText(key.currentContext!.findRenderObject()!, name));
           if (shots) {
             await tester.runAsync(() async {
               final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
