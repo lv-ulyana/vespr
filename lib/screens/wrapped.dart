@@ -1085,25 +1085,25 @@ class WrappedArchiveScreen extends StatelessWidget {
                 : const LinearGradient(begin: Alignment(-.3, -1), end: Alignment(.3, 1), colors: [Color(0xFF3A3446), Color(0xFF25222F)]),
             border: big ? null : Border.all(color: K.w(.06)),
           ),
-          child: Stack(children: [
+          child: Stack(clipBehavior: Clip.none, children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(big ? '${mName(m)} ${m.substring(0, 4)}' : mName(m), style: rw(12, color: big ? _ink : K.muted2, w: FontWeight.w600)),
               const Spacer(),
               if (big)
                 Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text(t.$1, style: pr(96, color: txt, h: .85)),
+                  Text(t.$1, style: pr(96, color: txt, h: .85, ls: -.03)),
                   const SizedBox(width: 14),
-                  Expanded(child: Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t.$2, style: pr(18, color: txt, h: 1.3)))),
+                  Flexible(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 200), child: Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(t.$2, style: pr(18, color: txt, h: 1.3))))),
                 ])
               else ...[
-                Text(t.$1, style: pr(64, color: K.accSoft, h: .85)),
-                const SizedBox(height: 6),
+                Text(t.$1, style: pr(64, color: K.accSoft, h: .85, ls: -.03)),
+                const Spacer(),
                 Text(t.$2, maxLines: 2, overflow: TextOverflow.ellipsis, style: pr(14, color: txt, h: 1.3)),
               ],
             ]),
             if (big)
               Positioned(
-                right: -4, top: -4,
+                right: -4, top: -4, // 12/12 від краю картки (відступ 16 мінус 4)
                 child: Container(
                   height: 22,
                   padding: const EdgeInsets.symmetric(horizontal: 9),
@@ -1117,15 +1117,19 @@ class WrappedArchiveScreen extends StatelessWidget {
       );
     }
 
-    final lockCard = Container(
-      height: 176,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: K.w(.025), border: Border.all(color: K.w(.12))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(cap(monthsNom[now.month - 1]), style: rw(12, color: K.muted2, w: FontWeight.w600)),
-        const Spacer(),
-        Row(children: [Ico(BS.lock, size: 14, color: K.muted2), const SizedBox(width: 8), Text('$lastDay ${monthsGen[now.month - 1]}', style: rw(13, color: K.muted2))]),
-      ]),
+    const lockC = Color(0xFF9A94B0);
+    final lockCard = CustomPaint(
+      foregroundPainter: _DashBox(K.w(.12), 24),
+      child: Container(
+        height: 176,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: K.w(.025)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(cap(monthsNom[now.month - 1]), style: rw(12, color: lockC, w: FontWeight.w600)),
+          const Spacer(),
+          Row(children: [Ico(BS.lock, size: 14, color: lockC), const SizedBox(width: 8), Text('$lastDay ${monthsGen[now.month - 1]}', style: rw(13, color: lockC))]),
+        ]),
+      ),
     );
 
     final grid = <Widget>[...months.skip(1).map((m) => card(m)), lockCard];
@@ -1136,7 +1140,7 @@ class WrappedArchiveScreen extends StatelessWidget {
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Твої місяці', style: pr(34, h: 1.1)),
           const SizedBox(height: 8),
-          Text("Новий Wrapped з'являється в останній день місяця.", style: rw(14, color: K.muted2, h: 1.5)),
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text("Новий Wrapped з'являється в останній день місяця.", maxLines: 1, style: rw(14, color: K.muted2, h: 1.5))),
         ]),
         Column(children: gapped([
           if (months.isNotEmpty) card(months.first, big: true),
@@ -1150,4 +1154,27 @@ class WrappedArchiveScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Пунктирна рамка (border: 1px dashed)
+class _DashBox extends CustomPainter {
+  final Color c;
+  final double r;
+  const _DashBox(this.c, this.r);
+  @override
+  void paint(Canvas canvas, Size s) {
+    final path = Path()..addRRect(RRect.fromRectAndRadius((Offset.zero & s).deflate(.5), Radius.circular(r)));
+    final p = Paint()
+      ..color = c
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    for (final m in path.computeMetrics()) {
+      for (var d = 0.0; d < m.length; d += 6) {
+        canvas.drawPath(m.extractPath(d, d + 3), p);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashBox o) => o.c != c;
 }
