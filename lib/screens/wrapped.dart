@@ -958,7 +958,8 @@ class _Slide extends StatelessWidget {
         final moments = s.rows.where((r) => r.kind != 9).toList();
         final nums = s.rows.where((r) => r.kind == 9).toList();
         final rib = '${(s.capSafe ?? '').replaceAll('. ', ' ✦ ').replaceAll(RegExp(r'\.$'), '')} ✦ ';
-        ov.add(_tape(712, -3, _ink, _pink, rib, h: 34, size: 14, sec: 22));
+        // у переглядачі з 772 кнопки — стрічку й підвал піднято
+        ov.add(_tape(666, -3, _ink, _pink, rib, h: 34, size: 14, sec: 22));
         ov.add(Positioned(
           left: 26, right: 26, top: 330,
           child: WAnim('wrUp', delay: 200, dur: 900, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1016,7 +1017,7 @@ class _Slide extends StatelessWidget {
           ])),
         ));
         ov.add(Positioned(
-          left: 26, right: 26, top: 762, height: 23,
+          left: 26, right: 26, top: 718, height: 23,
           child: Row(children: [
             Text(s.a.toUpperCase(), style: mt(9, FontWeight.w500, _ink, h: 1, ls: 1.62)),
             const Spacer(),
