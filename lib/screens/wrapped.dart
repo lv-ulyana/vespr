@@ -384,7 +384,7 @@ class _Slide extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999), boxShadow: const [BoxShadow(color: Color(0x800E0D1F), blurRadius: 18, offset: Offset(0, 8), spreadRadius: -8)]),
-              child: Text(t, style: ws(15, FontWeight.w800, _ink, h: 1)),
+              child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: FittedBox(fit: BoxFit.scaleDown, child: Text(t, maxLines: 1, style: ws(15, FontWeight.w800, _ink, h: 1)))),
             ),
           ),
         ),
@@ -553,20 +553,8 @@ class _Slide extends StatelessWidget {
           body.addAll([hrow('Ти', s.n1, _ink), hrow('Він', s.n2, _hot), _cap(s.capSafe)]);
         }
       case WK.match:
-        if (!safe) {
-          ov.add(Positioned(
-            left: 156, top: 374, width: 218,
-            child: Transform.rotate(
-              angle: -5 * math.pi / 180,
-              alignment: Alignment.centerLeft,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(s.who.first.name, maxLines: 1, style: pr(30, color: Colors.white, h: 1))),
-                const SizedBox(height: 2),
-                CustomPaint(size: const Size(170, 14), painter: _Swoosh()),
-              ]),
-            ),
-          ));
-        }
+        // ім'я на білій плашці збоку серця, як було до нового макета (біла рамка + біле ім'я зливались)
+        if (!safe) ov.add(_ntag(s.who.first.name, 294, 386));
         Widget hb(String l, double v, Color c, bool top) => Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(border: Border(top: top ? const BorderSide(color: Color(0x29FFFFFF)) : BorderSide.none, bottom: const BorderSide(color: Color(0x29FFFFFF)))),
@@ -1410,20 +1398,4 @@ class _DashBox extends CustomPainter {
 
   @override
   bool shouldRepaint(_DashBox o) => o.c != c;
-}
-
-/// Рожевий розчерк під іменем на «Метчі»
-class _Swoosh extends CustomPainter {
-  @override
-  void paint(Canvas c, Size s) {
-    final k = s.width / 170;
-    final p = Path()
-      ..moveTo(2 * k, 9 * k)
-      ..cubicTo(32 * k, 3 * k, 60 * k, 1 * k, 94 * k, 4 * k)
-      ..cubicTo(120 * k, 6 * k, 142 * k, 8 * k, 168 * k, 3 * k);
-    c.drawPath(p, Paint()..color = _pink..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter o) => false;
 }
