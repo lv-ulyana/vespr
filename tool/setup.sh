@@ -53,7 +53,15 @@ if ! grep -q 'android.permission.READ_CALENDAR' "$MF"; then
   perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.READ_CALENDAR" />\n    <uses-permission android:name="android.permission.WRITE_CALENDAR" />#' "$MF"
 fi
 
-echo "› iOS: тексти дозволів (Face ID, календар, фото)"
+echo "› Android: мікрофон і системне розпізнавання мови (голосовий запис)"
+if ! grep -q 'android.permission.RECORD_AUDIO' "$MF"; then
+  perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />#' "$MF"
+fi
+if ! grep -q 'android.speech.RecognitionService' "$MF"; then
+  perl -0pi -e 's#<queries>#<queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>#' "$MF"
+fi
+
+echo "› iOS: тексти дозволів (Face ID, календар, фото, мікрофон)"
 PL=ios/Runner/Info.plist
 add() { /usr/libexec/PlistBuddy -c "Add :$1 string '$2'" "$PL" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :$1 '$2'" "$PL"; }
 if [ -x /usr/libexec/PlistBuddy ]; then
@@ -62,6 +70,8 @@ if [ -x /usr/libexec/PlistBuddy ]; then
   add NSCalendarsWriteOnlyAccessUsageDescription "Щоб додати заплановані зустрічі у твій календар."
   add NSCalendarsFullAccessUsageDescription "Щоб перенести у Vespr події з календаря, які ти обереш. Сам календар не змінюємо."
   add NSPhotoLibraryUsageDescription "Щоб додати фото людини. Воно лишається тільки на цьому телефоні."
+  add NSMicrophoneUsageDescription "Щоб записати голосом, як пройшла зустріч. Звук не зберігається, лише текст."
+  add NSSpeechRecognitionUsageDescription "Щоб перетворити твій голос на текст нотатки. Звук не зберігається."
   add NSContactsUsageDescription "Календар може запитати контакти для запрошень. Vespr їх не читає."
   add CFBundleDisplayName "Vespr"
 else

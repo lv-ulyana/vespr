@@ -15,6 +15,7 @@ import '../ui/d.dart';
 import 'awards.dart' show awardsSummary;
 import '../ui/kit.dart' show go;
 import 'calendar.dart';
+import 'voice.dart' show openVoice;
 import 'entry.dart';
 import 'onboarding.dart';
 import 'settings.dart';
@@ -168,7 +169,7 @@ class HomeTab extends StatelessWidget {
         Rise(
           delay: .05,
           child: Press(
-            onTap: () => go(context, s.people.isEmpty ? const AddPersonScreen() : const EntryForm()),
+            onTap: () => openVoice(context),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -448,7 +449,7 @@ class HomeTab extends StatelessWidget {
       // --- записати ---
       const SizedBox(height: 20),
       Press(
-        onTap: () => limitHit ? go(context, const PaywallScreen(kind: PaywallKind.limit)) : go(context, s.people.isEmpty ? const AddPersonScreen() : const EntryForm()),
+        onTap: () => limitHit ? go(context, const PaywallScreen(kind: PaywallKind.limit)) : openVoice(context),
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

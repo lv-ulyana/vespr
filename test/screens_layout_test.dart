@@ -28,6 +28,7 @@ import 'package:vespr/screens/pin_screens.dart';
 import 'package:vespr/screens/settings.dart';
 import 'package:vespr/screens/shell.dart';
 import 'package:vespr/screens/table_screen.dart';
+import 'package:vespr/screens/voice.dart';
 import 'package:vespr/screens/wrapped.dart';
 import 'package:vespr/ui/theme.dart';
 
@@ -45,6 +46,9 @@ List<(String, Widget)> _screens(DB db) => [
       ('awards', const Shell(initial: 3)),
       ('calendar', const CalendarScreen()),
       ('meeting_new', const MeetingForm()),
+      if (db.people.isNotEmpty) ('voice', const VoiceScreen(demoText: 'він не тиснув, сам спитав, чи мені комфортно, потім провів до хати. але піввечора сидів у телефоні')),
+      if (db.people.isNotEmpty) ('voice_long', const VoiceScreen(demoText: 'було дивно. спершу запізнився на пів години, потім весь час згадував колишню і рахував кожну копійку, а ще перебив мене разів десять. але провів додому і не тиснув. ніби старався, але я не знаю. мабуть, другого побачення не буде, хоча секс був норм, він питав, чи мені комфортно, і був уважний')),
+      if (db.people.isNotEmpty) ('voice_before', const VoiceScreen(before: true, demoText: 'хочу нарешті спокійно поговорити, без телефонів')),
       ('entry_new', const EntryForm()),
       if (db.entries.isNotEmpty) ('entry_view', EntryView(entryId: db.entries.last.id)),
       if (db.entries.isNotEmpty) ('entry_edit', EntryForm(entryId: db.entries.last.id)),

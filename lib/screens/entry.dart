@@ -80,7 +80,9 @@ class EntryForm extends StatefulWidget {
   final String? entryId;
   final String? personId;
   final String? date;
-  const EntryForm({super.key, this.entryId, this.personId, this.date});
+  final String? note; // з голосового: розшифровка
+  final List<String> flags; // з голосового: прапорці, які вона підтвердила
+  const EntryForm({super.key, this.entryId, this.personId, this.date, this.note, this.flags = const []});
   @override
   State<EntryForm> createState() => _EntryFormState();
 }
@@ -121,6 +123,8 @@ class _EntryFormState extends State<EntryForm> {
       final last = [...s.entries]..sort((a, b) => b.date.compareTo(a.date));
       personId = widget.personId ?? (last.isNotEmpty ? last.first.personId : (active.isNotEmpty ? active.first.id : ''));
       date = widget.date ?? today();
+      if (widget.note != null) note.text = widget.note!;
+      flagIds = List.of(widget.flags);
     }
     note.addListener(() => setState(() {}));
   }

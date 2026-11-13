@@ -9,6 +9,7 @@ import '../logic/export.dart';
 import '../services/files.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, goReplace;
+import 'voice.dart' show openVoice;
 import 'entry.dart' show EntryForm, EntryView, MonthGrid, PAvatar, entryTitle;
 import 'export_screen.dart';
 import 'onboarding.dart' show AddPersonScreen;
@@ -116,7 +117,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (s.people.isEmpty) {
       go(context, const AddPersonScreen());
     } else {
-      go(context, EntryForm(personId: personId, date: sel.compareTo(today()) > 0 ? today() : sel));
+      openVoice(context, personId: personId, date: sel.compareTo(today()) > 0 ? today() : sel);
     }
   }
 
@@ -638,7 +639,7 @@ class _MeetingFormState extends State<MeetingForm> {
               if (prev == null)
                 Center(
                   child: Press(
-                    onTap: !canSave ? null : () => goReplace(context, EntryForm(personId: personId, date: t)),
+                    onTap: !canSave ? null : () => openVoice(context, personId: personId, date: t, replace: true),
                     child: SizedBox(height: 44, child: Center(child: Text('Зустріч уже була? Одразу записати', style: rw(13, color: K.muted, w: FontWeight.w500)))),
                   ),
                 )
