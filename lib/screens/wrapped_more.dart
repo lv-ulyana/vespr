@@ -70,14 +70,15 @@ extension _More on _Slide {
         child: Text(t, style: _e(ws(fs, FontWeight.w800, fg, h: 1))),
       );
 
-  Widget _stamp(double l, double t, double deg, String text, Color c, Color bg, {double size = 17, EdgeInsets pad = const EdgeInsets.symmetric(horizontal: 12, vertical: 8)}) => Positioned(
+  Widget _stamp(double l, double t, double deg, String text, Color c, Color bg, {double size = 17, double maxW = 200, EdgeInsets pad = const EdgeInsets.symmetric(horizontal: 12, vertical: 8)}) => Positioned(
         left: l, top: t,
         child: WAnim('wrPop', delay: 900, dur: 600, child: Transform.rotate(
           angle: deg * math.pi / 180,
           child: Container(
             padding: pad,
+            constraints: BoxConstraints(maxWidth: maxW),
             decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10), border: Border.all(color: c, width: 3)),
-            child: Text(text.toUpperCase(), style: _e(ws(size, FontWeight.w800, c, h: 1, ls: size * .02))),
+            child: Text(text.toUpperCase(), textAlign: TextAlign.center, style: _e(ws(size, FontWeight.w800, c, h: 1.05, ls: size * .02))),
           ),
         )),
       );
@@ -173,7 +174,7 @@ extension _More on _Slide {
         ));
         // «відкрито» праворуч у шапці картки — над фото не залазить
         ov.add(Positioned(left: 38, top: 280, width: 318, height: 40, child: Transform.rotate(angle: math.pi / 180, child: Padding(padding: const EdgeInsets.fromLTRB(18, 18, 18, 0), child: Align(alignment: Alignment.topRight, child: Opacity(opacity: .6, child: Text((s.x['opened'] ?? '').toUpperCase(), style: _mono(9, FontWeight.w500, _ink, ls: .72))))))));
-        ov.add(_stamp(172, 612, -9, s.x['stamp'] ?? '', _red, const Color(0xD9FFFDF7), size: 18, pad: const EdgeInsets.symmetric(horizontal: 14, vertical: 9)));
+        ov.add(_stamp(172, 600, -9, s.x['stamp'] ?? '', _red, const Color(0xD9FFFDF7), size: 18, maxW: 196, pad: const EdgeInsets.symmetric(horizontal: 14, vertical: 9)));
         ov.add(_kc(736, c2, Colors.white));
         ov.add(_kl(765, s.x['cap2'] ?? '', Colors.white.withValues(alpha: .6), d: 7));
       case 20: // Відгуки покупців
@@ -629,7 +630,7 @@ extension _More on _Slide {
             )),
           ));
         }
-        ov.add(_stamp(214, 678, -12, s.x['stamp'] ?? '', _lime, const Color(0xD90E0D1F)));
+        ov.add(_stamp(222, 672, -12, s.x['stamp'] ?? '', _lime, const Color(0xD90E0D1F), maxW: 150));
         ov.add(_kc(724, c2, Colors.white.withValues(alpha: .9), w: 190));
       case 31: // Таро
         ov.add(_kl(150, 'твій аркан', Colors.white.withValues(alpha: .85)));
@@ -665,7 +666,7 @@ extension _More on _Slide {
               Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
                 Text(fmt(s.score), style: _e(cg(48, FontWeight.w600, _ink, h: 1))),
                 const SizedBox(width: 10),
-                Expanded(child: Text('${_nm(s.who.firstOrNull)} за секс.\n${s.b}', maxLines: 2, overflow: TextOverflow.ellipsis, style: _e(ws(13, FontWeight.w600, _ink, h: 1.25)))),
+                Expanded(child: Text('${safe ? 'Він' : _nm(s.who.firstOrNull)} за секс.\n${s.b}', maxLines: 2, overflow: TextOverflow.ellipsis, style: _e(ws(13, FontWeight.w600, _ink, h: 1.25)))),
               ]),
             ]),
           ))),
@@ -678,7 +679,7 @@ extension _More on _Slide {
         ov.add(Positioned(
           left: 40, top: 244, width: 310, height: 329,
           child: Transform.rotate(angle: -3 * math.pi / 180, child: Stack(children: [
-            Positioned(left: 70.6, top: 14, width: 150, child: Text(p == null ? '' : (safe ? p.safe : p.name), maxLines: 1, overflow: TextOverflow.ellipsis, style: _e(ws(14, FontWeight.w700, _ink, h: 1.2)))),
+            Positioned(left: 70.6, top: 14, width: 150, child: Text(p == null ? '' : (safe ? p.safe.replaceAll(RegExp(r'^(Він|Вона) '), '') : p.name), maxLines: 1, overflow: TextOverflow.ellipsis, style: _e(ws(14, FontWeight.w700, _ink, h: 1.2)))),
             Positioned(left: 0, right: 0, top: 74, child: Text((s.x['last'] ?? '').toUpperCase(), textAlign: TextAlign.center, style: pill)),
             Positioned(left: 0, right: 0, top: 146, child: Text((s.x['silence'] ?? '').toUpperCase(), textAlign: TextAlign.center, style: pill)),
             Positioned(left: 12, right: 12, top: 267, child: Text('— ${safe ? 'він' : (p?.name ?? 'він')} вийшов з чату —'.toUpperCase(), textAlign: TextAlign.center, maxLines: 1, style: _e(mt(9, FontWeight.w500, _ink.withValues(alpha: .45), h: 1, ls: 1.08)))),
@@ -835,6 +836,12 @@ extension _More on _Slide {
 class _QChart extends CustomPainter {
   final List<int> v; // середня ×100, -1 — нема записів
   _QChart(this.v);
+  double _y(int x) {
+    final ok = v.where((e) => e >= 0);
+    final lo = ok.reduce(math.min), hi = ok.reduce(math.max);
+    return hi == lo ? 55 : 88 - (x - lo) / (hi - lo) * 64;
+  }
+
   @override
   void paint(Canvas c, Size sz) {
     final sx = sz.width / 306;
@@ -849,7 +856,7 @@ class _QChart extends CustomPainter {
     const xs = [10.0, 105.3, 200.7, 296.0];
     final pts = <Offset>[
       for (var k = 0; k < v.length && k < 4; k++)
-        if (v[k] >= 0) Offset(xs[k] * sx, 95 - (v[k] / 100 - 1) / 4 * 80),
+        if (v[k] >= 0) Offset(xs[k] * sx, _y(v[k])),
     ];
     if (pts.isEmpty) return;
     final path = Path()..moveTo(pts.first.dx, pts.first.dy);

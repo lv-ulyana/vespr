@@ -630,7 +630,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
     final ast = p == null ? null : astroOf(p.birth, p.signOnly);
     final num = ids.indexOf(id) + 1;
     final verdict = a >= 4 ? 'виправдано' : (a >= 3 ? 'умовно' : 'довічно в минулих');
-    final top = redTop(pe).take(3).toList();
+    final top = redTop(pe).where((x) => !{'flag_r_push', 'flag_r_lie', 'flag_r_jealous'}.contains(x.key)).take(3).toList();
     cand(
         WSlide(WK.dossier, 'Особова', 'справа',
             who: [wp(id)],
