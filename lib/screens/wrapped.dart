@@ -498,7 +498,7 @@ class _Slide extends StatelessWidget {
                   height: 38,
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x2EFFFFFF)))),
                   child: Row(children: [
-                    SizedBox(width: 116, child: Text(r.label, style: ws(12, FontWeight.w500, Colors.white))),
+                    SizedBox(width: 98, child: Text(r.label, maxLines: 1, style: ws(12, FontWeight.w500, Colors.white))),
                     Expanded(child: Text(r.who != null ? r.who!.show(safe) : (r.sub ?? ''), overflow: TextOverflow.ellipsis, style: r.who != null && safe ? ws(12, FontWeight.w500, Colors.white) : ws(15, FontWeight.w700, Colors.white))),
                     _pill(r.value, r.kind == 3 ? _yel : _pink, _ink),
                   ]),

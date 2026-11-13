@@ -120,7 +120,7 @@ class _WAnimState extends State<WAnim> with SingleTickerProviderStateMixin {
         final k = (1 - math.cos(v * 2 * math.pi)) / 2;
         final s = _lerp(1, 1.05, k);
         return tf(Matrix4.identity()
-          ..rotateZ(_deg(9 * k))
+          ..rotateZ(_deg(-5 + 9 * k))
           ..scale(s, s), 1);
       case 'wrBob':
       case 'wrFloat':
