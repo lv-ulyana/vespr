@@ -52,7 +52,9 @@ Widget titleAcc(List<(String, bool)> parts, double size, {double h = 1.1, TextAl
 class DFrame extends StatelessWidget {
   final Widget Function(BuildContext context, double h) builder;
   final Color bg;
-  const DFrame({super.key, required this.builder, this.bg = K.bg});
+  /// Нижче цієї висоти екран не стискається, а прокручується вниз (для екранів без власної прокрутки)
+  final double? minH;
+  const DFrame({super.key, required this.builder, this.bg = K.bg, this.minH});
   @override
   Widget build(BuildContext context) => Material(
         color: bg,
@@ -62,10 +64,13 @@ class DFrame extends StatelessWidget {
             child: LayoutBuilder(builder: (context, c) {
               final s = c.maxWidth / 390;
               final h = c.maxHeight / s;
+              final hh = minH != null && h < minH! ? minH! : h;
+              Widget body = SizedBox(width: 390, height: hh, child: ClipRect(child: builder(context, hh)));
+              if (hh > h) body = SizedBox(width: 390, height: h, child: SingleChildScrollView(child: body));
               return FittedBox(
                 fit: BoxFit.contain,
                 alignment: Alignment.topCenter,
-                child: SizedBox(width: 390, height: h, child: ClipRect(child: builder(context, h))),
+                child: body,
               );
             }),
           ),
@@ -536,7 +541,7 @@ class Sheet extends StatelessWidget {
           Positioned.fill(child: GestureDetector(onTap: () => Navigator.pop(context))),
           Positioned(
             left: 12, right: 12, bottom: 16,
-            child: Container(
+            child: ConstrainedBox(constraints: BoxConstraints(maxHeight: h - 56), child: SingleChildScrollView(child: Container(
               padding: const EdgeInsets.fromLTRB(20, 26, 20, 12),
               decoration: BoxDecoration(
                 color: K.card2,
@@ -548,7 +553,7 @@ class Sheet extends StatelessWidget {
                 Positioned(top: -18, left: 0, right: 0, child: Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: K.w(.18), borderRadius: BorderRadius.circular(2))))),
                 Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped(children, 10)),
               ]),
-            ),
+            ))),
           ),
         ]),
       );

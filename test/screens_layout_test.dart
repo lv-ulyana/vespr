@@ -109,9 +109,9 @@ void main() {
     };
     try {
       // 390×844 — макет; 375×667 — низький екран (iPhone SE), там найчастіше налазить
-      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty']), (Size(375, 667), ['full'])]) {
+      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty']), (Size(375, 667), ['full']), (Size(320, 568), ['full'])]) {
       tester.view.physicalSize = sz;
-      final px = sz.height < 700 ? 'se_' : '';
+      final px = sz.height < 600 ? 'xs_' : (sz.height < 700 ? 'se_' : '');
       for (final v in vs) {
         SharedPreferences.setMockInitialValues({});
         final store = AppStore();

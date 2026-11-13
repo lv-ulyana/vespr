@@ -170,7 +170,7 @@ class _PinNewScreenState extends State<PinNewScreen> {
   Widget build(BuildContext context) {
     final title = step == 1 ? 'Придумай новий PIN' : step == 2 ? 'Повтори його' : 'Готово';
     final sub = mismatch ? 'Не збіглось. Придумай ще раз' : step == 3 ? 'Новий PIN збережено. Записи на місці.' : step == 2 ? "Ще раз, щоб точно запам'ятати" : '4 цифри, які знаєш тільки ти';
-    return DFrame(
+    return DFrame(minH: 640, 
       builder: (context, h) => Stack(children: [
         Positioned(left: -60, top: -80, child: EGlow(w: 510, h: 460, colors: [K.a(.16), const Color(0x0017161F)], stops: const [0, .7])),
         Positioned(left: 20, top: 58, child: Navigator.of(context).canPop() && step != 3 ? const BackBtn() : const SizedBox()),
@@ -281,7 +281,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => DFrame(
+  Widget build(BuildContext context) => DFrame(minH: 640, 
         builder: (context, h) => Stack(children: [
           Positioned(left: -60, top: -80, child: EGlow(w: 510, h: 460, colors: [K.a(.2), const Color(0x128C86A3), const Color(0x0017161F)], stops: const [0, .45, .7])),
           starDot(60, 110, 2, K.star, .5),

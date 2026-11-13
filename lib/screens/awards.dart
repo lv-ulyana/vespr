@@ -125,7 +125,7 @@ class _AwardsTabState extends State<AwardsTab> {
             Positioned.fill(child: GestureDetector(onTap: () => Navigator.pop(ctx))),
             Positioned(
               left: 12, right: 12, bottom: 16,
-              child: Container(
+              child: ConstrainedBox(constraints: BoxConstraints(maxHeight: h - 56), child: SingleChildScrollView(child: Container(
                 padding: const EdgeInsets.fromLTRB(22, 30, 22, 14),
                 decoration: BoxDecoration(
                   color: K.card2,
@@ -180,7 +180,7 @@ class _AwardsTabState extends State<AwardsTab> {
                     Press(onTap: () => Navigator.pop(ctx), child: SizedBox(height: 44, width: double.infinity, child: Center(child: Text('Закрити', style: rw(15, w: FontWeight.w600))))),
                   ]),
                 ]),
-              ),
+              ))),
             ),
           ]),
         ));

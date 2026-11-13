@@ -758,7 +758,7 @@ Future<void> personActions(BuildContext context, Person p, {bool fromCard = true
         Positioned.fill(child: GestureDetector(onTap: () => Navigator.pop(ctx))),
         Positioned(
           left: 12, right: 12, bottom: 16,
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          child: ConstrainedBox(constraints: BoxConstraints(maxHeight: h - 56), child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Container(
               padding: const EdgeInsets.only(top: 12),
               decoration: BoxDecoration(
@@ -801,7 +801,7 @@ Future<void> personActions(BuildContext context, Person p, {bool fromCard = true
               onTap: () => Navigator.pop(ctx),
               child: Container(height: 54, decoration: BoxDecoration(color: K.card2, borderRadius: BorderRadius.circular(999), border: Border.all(color: K.w(.08))), alignment: Alignment.center, child: Text('Скасувати', style: rw(15, w: FontWeight.w600))),
             ),
-          ]),
+          ]))),
         ),
       ]),
     ),

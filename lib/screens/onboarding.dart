@@ -73,7 +73,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) => DFrame(
+  Widget build(BuildContext context) => DFrame(minH: 640, 
         builder: (context, h) => Stack(children: [
           // .halo: дихає 5 c
           Positioned(
@@ -184,7 +184,7 @@ class _GuideScreenState extends State<GuideScreen> with SingleTickerProviderStat
   static const _chips = [('Голос', 0), ('Записи', 1), ('Мапа', 2), ('Люди', 3), ('Зірки', 4), ('Приватність', 5)];
 
   @override
-  Widget build(BuildContext context) => DFrame(
+  Widget build(BuildContext context) => DFrame(minH: 640, 
         builder: (context, h) => Stack(children: [
           PageView(
             controller: pc,

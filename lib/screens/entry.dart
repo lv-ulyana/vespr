@@ -1071,7 +1071,7 @@ class _ActionsSheet extends StatelessWidget {
         Positioned.fill(child: GestureDetector(onTap: () => Navigator.pop(context))),
         Positioned(
           left: 12, right: 12, bottom: 16,
-          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          child: ConstrainedBox(constraints: BoxConstraints(maxHeight: h - 56), child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Container(
               padding: const EdgeInsets.only(top: 12),
               decoration: BoxDecoration(color: K.card2, borderRadius: BorderRadius.circular(28), border: Border(top: BorderSide(color: K.w(.09)))),
@@ -1108,7 +1108,7 @@ class _ActionsSheet extends StatelessWidget {
               onTap: () => Navigator.pop(context),
               child: Container(height: 54, alignment: Alignment.center, decoration: BoxDecoration(color: K.card2, borderRadius: BorderRadius.circular(999), border: Border.all(color: K.w(.08))), child: Text('Скасувати', style: rw(15, w: FontWeight.w600))),
             ),
-          ]),
+          ]))),
         ),
       ]),
     );
