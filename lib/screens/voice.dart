@@ -476,15 +476,16 @@ class _VoiceScreenState extends State<VoiceScreen> with SingleTickerProviderStat
                 child: LayoutBuilder(builder: (context, c) {
                   final timer = Text('$mm:${ss.toString().padLeft(2, '0')}', style: pr(34, ls: .02, h: 1.2));
                   final hint = Text(before ? 'Що чекаєш від зустрічі? Ми запишемо текстом.' : 'Говори як подрузі. Ми запишемо текстом.', textAlign: TextAlign.center, style: rw(12, color: K.muted2));
-                  // кільце з таймером ~346 px; коли розшифровка довга і місця мало — тільки таймер
-                  final k = (c.maxHeight - 40) / 346;
+                  // як на дошці: кільце за 26 px під людиною, під ним таймер (разом ~295 px);
+                  // коли розшифровка довга і місця мало — кільце менше, а зовсім мало — тільки таймер
+                  final k = (c.maxHeight - 34) / 295;
                   if (k < .6) {
                     return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [timer, if (c.maxHeight > 90) ...[const SizedBox(height: 4), hint]]));
                   }
                   return Align(
-                    alignment: const Alignment(0, -.6),
+                    alignment: k >= 1 ? Alignment.topCenter : Alignment.center,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      padding: EdgeInsets.only(top: k >= 1 ? 26 : 0),
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         Transform.scale(scale: math.min(1, k), child: SizedBox(width: 220, height: 220 * math.min(1, k), child: OverflowBox(maxHeight: 220, child: _ring()))),
                         SizedBox(height: 14 * math.min(1, k)),
