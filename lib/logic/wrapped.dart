@@ -10,7 +10,19 @@ import 'stats.dart';
 const freeSlides = 3;
 
 /// Номер дошки в макеті = номер фонового шару assets/wrapped/sNN.webp
-enum WK { cover, receipt, best, sex, orgasm, match, matrix, battle, phone, fame, longest, fastest, budget, wishes, notice, awards, glow, closed, ticket }
+enum WK {
+  cover, receipt, best, sex, orgasm, match, matrix, battle, phone, fame, longest, fastest, budget, wishes, notice, awards, glow, closed, ticket,
+  // кандидати з дошки «Інші кандидати» (WrappedMore): фони 19–33
+  dossier, reviews, size, clown, rakes, oscars, init, alco, territory, after, voice, quarter, tarot, horo, archive,
+  // «Він vs минулий місяць» (фон 35) і «Типаж» (фони 39–45, 47)
+  himPrev, type,
+}
+
+/// Фони варіантів з тієї самої дошки: обкладинки, метч-роздвоєння, типажі, ганьба-колишня
+abstract final class WArt {
+  static const coverOne = 34, himPrev = 35, coverNoSex = 36, coverMini = 37, matchSplit = 38;
+  static const detective = 39, artist = 40, serial = 41, auditor = 42, hr = 43, boss = 44, plaid = 45, clownEx = 46, night = 47;
+}
 
 /// Людина на слайді: справжнє ім'я і безпечна підміна («Він №1»)
 class WP {
@@ -41,9 +53,13 @@ class WSlide {
   final List<int> ints;
   final List<bool> flags;
   final bool private;
+  final int artOv; // фон іншого варіанта макета (WArt); -1 — за видом слайда
+  final Map<String, String> x; // додаткові підписи слайду
   const WSlide(this.k, this.title1, this.title2,
       {this.title2Full,
-      this.capSafe, this.capFull, this.rows = const [], this.score = 0, this.score2 = 0, this.n1 = 0, this.n2 = 0, this.a = '', this.b = '', this.c = '', this.who = const [], this.ints = const [], this.flags = const [], this.private = false});
+      this.capSafe, this.capFull, this.rows = const [], this.score = 0, this.score2 = 0, this.n1 = 0, this.n2 = 0, this.a = '', this.b = '', this.c = '', this.who = const [], this.ints = const [], this.flags = const [], this.private = false, this.artOv = -1, this.x = const {}});
+  /// Номер фону assets/wrapped/sNN.webp
+  int get art => artOv >= 0 ? artOv : k.index;
   String? cap(bool safe) => safe ? capSafe : (capFull ?? capSafe);
   String t2(bool safe) => safe ? title2 : (title2Full ?? title2);
 }
@@ -149,7 +165,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   WP wp(String id) => wps[id] ?? WP(id, '—', 'Він');
 
   if (es.isEmpty) {
-    out.add(WSlide(WK.cover, '$nom:', 'сезон пледу', capSafe: '0 побачень. Плед, серіал, какао. Найздоровіші стосунки місяця.'));
+    out.add(const WSlide(WK.type, 'Сезон', 'пледу', artOv: WArt.plaid, a: '0', x: {'lab': 'побачень.\nі це ок'}, capSafe: '0 побачень. Плед, серіал, какао. Найздоровіші стосунки місяця.'));
     out.add(WSlide(WK.closed, nom, 'загорнуто.', score: double.nan, a: 'vespr · ${m.toString().padLeft(2, '0')}/${(y % 100).toString().padLeft(2, '0')}', b: 'до зустрічі в ${monthsLoc[m % 12]} ✦', capSafe: '${cap(monthsNom[m % 12])}, ми готові. Майже.'));
     return Wrapped(month, label, monthsNom[m - 1], monthsGen[m - 1], out, 0);
   }
@@ -167,13 +183,24 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   final mini = n < 3;
   final men = '${ids.length} ${plural(ids.length, menWord.$1, menWord.$2, menWord.$3)}';
   final dates = '$n ${plural(n, 'побачення', 'побачення', 'побачень')}';
+  final bestAll = es.map((e) => e.overall).reduce((a, b) => a > b ? a : b);
   if (mini) {
-    out.add(WSlide(WK.cover, 'Твій ${monthsNom[m - 1]}:', 'перші|кроки',
-        capSafe: '$dates, середня ${fmt(overall)}/5. Повний Wrapped — від трьох записів.'));
+    out.add(WSlide(WK.cover, '$n ${plural(n, 'запис', 'записи', 'записів')} —', 'гарний старт',
+        artOv: WArt.coverMini,
+        n1: n,
+        x: {'kick': 'Твій ${monthsNom[m - 1]} · перші кроки', 'left': 'ще ${3 - n} до повного Wrapped', 'prog': '$n з 3 записів', 'men': '${ids.length}', 'menL': plural(ids.length, menWord.$1, menWord.$2, menWord.$3), 'best': '$bestAll', 'dates': plural(n, 'побачення', 'побачення', 'побачень')},
+        capSafe: 'З третім записом відкриються рекорди, хлопці і нагороди.'));
   } else if (sx.isEmpty) {
-    out.add(WSlide(WK.cover, '$nom:', 'тільки|побачення', capSafe: '$dates, 0 сексу. Оцінюємо вечори і хлопців.'));
+    out.add(WSlide(WK.cover, '$nom:', 'тільки|побачення',
+        artOv: WArt.coverNoSex, n1: n, x: {'dates': plural(n, 'побачення', 'побачення', 'побачень')}, capSafe: 'Місяць розмов, келихів і перших вражень.'));
   } else if (ids.length == 1) {
-    out.add(WSlide(WK.cover, '$nom:', 'ти і|він', title2Full: 'ти і|${wp(ids.first).name}', capSafe: '$n ${plural(n, 'вечір', 'вечори', 'вечорів')} разом. Середня ${fmt(overall)}/5.'));
+    out.add(WSlide(WK.cover, nom, 'з ним',
+        title2Full: 'і ${wp(ids.first).name}',
+        artOv: WArt.coverOne,
+        n1: n,
+        score: overall,
+        x: {'eves': plural(n, 'вечір', 'вечори', 'вечорів')},
+        capSafe: overall >= 4 ? 'Один на весь місяць — і це було добре.' : (overall >= 3 ? 'Один на весь місяць. Є над чим попрацювати.' : 'Один на весь місяць. І це було важко.')));
   } else if (overall >= 4.3) {
     out.add(WSlide(WK.cover, '$nom:', 'звіт про|виживання', capSafe: 'Спойлер: кайфанула. $dates, $men, середня ${fmt(overall)}/5 — ${rateWord(overall)}.'));
   } else if (overall >= 3) {
@@ -302,12 +329,12 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
     } else {
       // роздвоєння: секс найкращий з одним, говорити — з іншим
       cand(
-          WSlide(WK.match, 'Метч місяця:', 'роздвоєння',
+          WSlide(WK.match, 'Роздво', 'єння',
+              artOv: WArt.matchSplit,
               score: ch(cl),
               score2: sv(sl),
               who: [wp(cl), wp(sl)],
-              capSafe: 'Секс найкращий з одним (${fmt(sv(sl))}/5), говорити найкраще з іншим (${fmt(ch(cl))}/5).',
-              capFull: 'Секс найкращий: ${wp(sl).name} (${fmt(sv(sl))}/5). Говорити найкраще: ${wp(cl).name} (${fmt(ch(cl))}/5).'),
+              capSafe: 'Класика, яку ще ніхто не вирішив.'),
           .7,
           recs);
     }
@@ -576,6 +603,412 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
     cand(WSlide(WK.notice, 'Варто помітити', '', rows: rows, private: true, capSafe: capTxt), 1, n);
   }
 
+  // ---- Кандидати з дошки «Інші кандидати» (WrappedMore)
+  Person? per(String id) => db.people.where((x) => x.id == id).firstOrNull;
+  List<Entry> ofP(String id) => es.where((e) => e.personId == id).toList();
+  double sexOf(Entry e) => (e.ratings['sx_overall'] ?? e.overall).toDouble();
+  String nTimes(int k) => k == 2 ? 'двічі' : _times(k);
+  // нова людина: перший запис з нею — цього місяця
+  bool isNew(String id) => !all.any((e) => e.personId == id && e.date.compareTo(es.first.date.substring(0, 8) + '01') < 0);
+  int countF(List<Entry> xs, String f) => xs.where((e) => e.flags.contains(f)).length;
+  List<MapEntry<String, int>> redTop(List<Entry> xs) {
+    final c = <String, int>{};
+    for (final e in xs) {
+      for (final f in e.flags.where((f) => flagById(f)?.kind == FlagKind.r)) {
+        c[f] = (c[f] ?? 0) + 1;
+      }
+    }
+    return c.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  // Особова справа: нова людина з 2+ записами; максимум дві — найкраща і найгірша
+  final dossiers = ids.where((id) => isNew(id) && ofP(id).length >= 2).toList()..sort((a, b) => avg(ofP(b).map((e) => e.overall)).compareTo(avg(ofP(a).map((e) => e.overall))));
+  for (final id in {if (dossiers.isNotEmpty) dossiers.first, if (dossiers.length > 1) dossiers.last}) {
+    final pe = ofP(id);
+    final a = avg(pe.map((e) => e.overall));
+    final p = per(id);
+    final ast = p == null ? null : astroOf(p.birth, p.signOnly);
+    final num = ids.indexOf(id) + 1;
+    final verdict = a >= 4 ? 'виправдано' : (a >= 3 ? 'умовно' : 'довічно в минулих');
+    final top = redTop(pe).take(3).toList();
+    cand(
+        WSlide(WK.dossier, 'Особова', 'справа',
+            who: [wp(id)],
+            rows: [for (final t in top) WRow((flagById(t.key)?.label ?? '').toLowerCase(), '×${t.value}', sub: '|' * t.value.clamp(1, 6))],
+            x: {
+              'num': '№$num',
+              'tab': 'справа · ${monthsNom[m - 1].substring(0, 4)}',
+              'obj': "об'єкт №$num",
+              'opened': 'відкрито ${parseIso(pe.first.date).day.toString().padLeft(2, '0')}.${m.toString().padLeft(2, '0')}',
+              'sign': ast == null ? '—' : '${zodiacGlyph(ast.sign)} ${ast.signName}',
+              'meet': '${pe.length}',
+              'avg': '${fmt(a)} / 5',
+              'stamp': 'Вирок: $verdict',
+              'cap2': a >= 3 && a < 4 ? 'справа не закрита' : 'справу закрито',
+            },
+            capSafe: a >= 4 ? 'Претензій нема. Справу закрито.' : (a >= 3 ? 'Шанс є. Але з випробувальним терміном.' : 'Без права на апеляцію.')),
+        ((a - 3.5).abs() / 1.5 + .3),
+        pe.length,
+        'p:$id');
+  }
+
+  // Відгуки покупців: 2+ людей, по картці на двох найчастіших
+  if (ids.length >= 2) {
+    final top2 = byCount.take(2).toList();
+    const pros = {'flag_g_asks': 'Сам питає, що подобається', 'flag_g_listen': 'Слухає і розпитує', 'flag_g_walk': 'Проводжає додому', 'flag_g_paid': 'Платить сам', 'flag_g_ontime': 'Приходить вчасно', 'flag_g_gift': 'Квіти без приводу', 'flag_g_remember': "Пам'ятає деталі", 'flag_g_texts': 'Пише після', 'flag_g_no': 'Чує «ні»', 'flag_g_word': 'Тримає слово', 'flag_g_kind': 'Чемний з усіма', 'flag_g_condom': 'Сам подбав про захист'};
+    const cons = {'flag_r_phone': 'Батарея сідає швидко', 'flag_r_late': 'доставка запізнюється', 'flag_r_self': 'Багато говорить про себе', 'flag_r_ex': 'У комплекті колишня', 'flag_r_cheap': 'Рахує копійки', 'flag_r_jab': 'Неприємні підколи', 'flag_r_drunk': "Буває занадто п'яний", 'flag_r_gone': 'Зникає після', 'flag_r_jealous': 'Ревнує', 'flag_r_lie': 'Щось не збігається', 'flag_r_push': 'Квапить'};
+    final cards = <WRow>[];
+    final stars = <int>[];
+    for (final id in top2) {
+      final pe = ofP(id);
+      final st = avg(pe.map((e) => e.overall)).round().clamp(1, 5);
+      stars.add(st);
+      final g = <String, int>{}, r = <String, int>{};
+      for (final e in pe) {
+        for (final f in e.flags) {
+          if (pros.containsKey(f)) g[f] = (g[f] ?? 0) + 1;
+          if (cons.containsKey(f)) r[f] = (r[f] ?? 0) + 1;
+        }
+      }
+      final gs = (g.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(2).map((x) => pros[x.key]!).toList();
+      final rs = (r.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).take(2).map((x) => cons[x.key]!).toList();
+      final plus = gs.isEmpty ? 'На фото такий самий' : gs.join('. ');
+      final minus = rs.isEmpty ? '' : cap(rs.join(', ').toLowerCase());
+      final quote = st >= 5 ? 'Рекомендую подругам. Ні, не рекомендую — це мій.' : (st >= 4 ? 'Беру ще раз. Без знижки.' : (st >= 3 ? 'Брала на пробу. Думаю.' : 'До кошика повторно не додам.'));
+      cards.add(WRow(plus, '$st', sub: minus, who: wp(id)));
+      cards.add(WRow(quote, '${pe.length * 4 + st}', kind: 0));
+    }
+    final ra = avg(stars);
+    cand(
+        WSlide(WK.reviews, 'Відгуки', 'покупців',
+            rows: cards,
+            score: ra,
+            ints: [for (var k = 5; k >= 1; k--) stars.where((x) => x == k).length],
+            x: {'cnt': '${stars.length} ${plural(stars.length, 'відгук', 'відгуки', 'відгуків')}', 'verdict': ra >= 4.5 ? 'Хіт продажів.' : (ra >= 3.5 ? 'Середина ринку.' : 'Акція не допомогла.'), 'date': '${monthsNom[m - 1].substring(0, 4)} $y'}),
+        .45,
+        ofP(top2[1]).length);
+  }
+
+  // Колекція (розмір): нові люди з розміром у картці. Тільки повна версія
+  final sizeIds = ids.where((id) => isNew(id) && per(id)?.size != null).toList();
+  if (sizeIds.isNotEmpty) {
+    final withSize = ids.where((id) => per(id)?.size != null).toList();
+    final small = withSize.where((id) => per(id)!.size == 0).length;
+    final giant = withSize.where((id) => per(id)!.size == sizes.length - 1).length;
+    cand(
+        WSlide(WK.size, 'Розмір', 'місяця',
+            private: true,
+            rows: [for (final id in withSize.take(3)) WRow(sizes[per(id)!.size!.clamp(0, sizes.length - 1)], '${per(id)!.size}', who: wp(id), sub: sizeIds.contains(id) ? 'новий експонат' : 'розмір')],
+            n1: small,
+            n2: giant,
+            x: {'of': 'з ${withSize.length}', 'intro': 'Твої позначки «розмір» за ${monthsNom[m - 1]}: хто що показав.'},
+            capSafe: 'Подробиці — в закритому показі.'),
+        .5,
+        sizeIds.length);
+  }
+
+  // Зала ганьби: найчастіший червоний 2+ (без болючих — вони у «Варто помітити»)
+  const noJoke = {'flag_r_push', 'flag_r_lie', 'flag_r_jealous'};
+  const meme = {
+    'flag_r_phone': 'Айфон, мабуть, гарніший.',
+    'flag_r_late': 'Годинник, мабуть, декоративний.',
+    'flag_r_self': 'Монолог на біс. Ти була глядачкою.',
+    'flag_r_cheap': 'Скупий платить двічі. Цей — жодного.',
+    'flag_r_jab': 'Стендап не вдався. Двічі.',
+    'flag_r_drunk': 'Тост явно був зайвий.',
+    'flag_r_gone': 'Був — і нема. Фокус без бісу.',
+    'flag_r_ex': 'Ти не на побаченні, ти на груповій терапії.',
+  };
+  final shameTop = redTop(es).where((x) => !noJoke.contains(x.key) && x.value >= 2).firstOrNull;
+  if (shameTop != null) {
+    final f = shameTop.key;
+    final hit = es.where((e) => e.flags.contains(f)).toList();
+    final whoC = <String, int>{};
+    for (final e in hit) {
+      whoC[e.personId] = (whoC[e.personId] ?? 0) + 1;
+    }
+    final main = (whoC.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
+    final lab = (flagById(f)?.label ?? '').toLowerCase();
+    final sp = lab.indexOf(' ');
+    final ex = f == 'flag_r_ex';
+    cand(
+        WSlide(WK.clown, ex ? 'Колишня 👋' : 'Клоун', ex ? 'передає привіт' : 'місяця',
+            artOv: ex ? WArt.clownEx : -1,
+            who: [wp(main)],
+            a: '×${shameTop.value}',
+            x: {'lab': sp < 0 ? lab : '${lab.substring(0, sp)}\n${lab.substring(sp + 1)}'},
+            capSafe: ex ? meme[f] : '${whoC.length > 1 ? '${whoC.length} людей' : 'Він'}. ${meme[f] ?? 'Без коментарів.'}',
+            capFull: ex ? meme[f] : '${whoC.length > 1 ? whoC.keys.map((k) => wp(k).name).join(', ') : wp(main).name}. ${meme[f] ?? 'Без коментарів.'}'),
+        (shameTop.value / n).clamp(.3, 1.0),
+        hit.length,
+        f);
+  }
+
+  // Мем «Граблі»: той самий червоний у 3+ різних людей
+  for (final rt in redTop(es)) {
+    if (noJoke.contains(rt.key)) continue;
+    final ppl = es.where((e) => e.flags.contains(rt.key)).map((e) => e.personId).toSet().toList();
+    if (ppl.length < 3) continue;
+    const emo = {'flag_r_phone': '📱', 'flag_r_late': '⏱', 'flag_r_ex': '👻', 'flag_r_self': '🎙', 'flag_r_cheap': '🪙', 'flag_r_jab': '🗯', 'flag_r_drunk': '🍷', 'flag_r_gone': '💨'};
+    const cases = {3: 'трьох', 4: 'чотирьох', 5: "п'ятьох", 6: 'шістьох'};
+    const scene = {
+      'flag_r_phone': 'дістали телефон на побаченні',
+      'flag_r_late': 'запізнились на побачення',
+      'flag_r_ex': 'згадали колишню на побаченні',
+      'flag_r_self': 'говорили тільки про себе',
+      'flag_r_cheap': 'рахували копійки в чеку',
+      'flag_r_jab': 'пожартували невдало',
+      'flag_r_drunk': 'перебрали на побаченні',
+      'flag_r_gone': 'зникли після побачення',
+    };
+    final lab = (flagById(rt.key)?.label ?? '').toLowerCase();
+    final best = ([...ppl]..sort((a, b) => avg(ofP(b).map((e) => e.overall)).compareTo(avg(ofP(a).map((e) => e.overall))))).first;
+    final all3 = ppl.length <= 3 ? 'всі троє' : 'всі ${ppl.length}';
+    cand(
+        WSlide(WK.rakes, 'Різні хлопці.', 'Той самий|прапорець',
+            who: [for (final id in ppl.take(3)) wp(id)],
+            n1: ppl.length,
+            x: {'pill': '${emo[rt.key] ?? '⚑'} $lab — у всіх ${cases[ppl.length] ?? ppl.length}', 'meme': 'Коли $all3 ${scene[rt.key] ?? lab}', 'lvl': 'граблі · рівень ${ppl.length}'},
+            capSafe: 'Навіть найкращий раз попався. Проблема, схоже, не в них.',
+            capFull: 'Навіть ${wp(best).name} раз попався. Проблема, схоже, не в них.'),
+        .8,
+        ppl.length,
+        rt.key);
+    break;
+  }
+
+  // Номінації: прапорці 2+ рази, що не стали заголовками вище
+  final noms = <WRow>[];
+  final redsBy = <String, int>{};
+  for (final e in es) {
+    redsBy[e.personId] = (redsBy[e.personId] ?? 0) + e.flags.where((f) => flagById(f)?.kind == FlagKind.r).length;
+  }
+  final walker = (redsBy.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).firstOrNull;
+  if (walker != null && walker.value >= 3) {
+    noms.add(WRow('Ходячий червоний прапорець', '⚑', sub: ': ${walker.value} червоних за ${ofP(walker.key).length} ${plural(ofP(walker.key).length, 'зустріч', 'зустрічі', 'зустрічей')}', who: wp(walker.key)));
+  }
+  void nom(String f, String title, String icon, String Function(int k, String id) sub) {
+    final hit = es.where((e) => e.flags.contains(f)).toList();
+    if (hit.length < 2) return;
+    final c = <String, int>{};
+    for (final e in hit) {
+      c[e.personId] = (c[e.personId] ?? 0) + 1;
+    }
+    final id = (c.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
+    noms.add(WRow(title, icon, sub: sub(hit.length, id), who: c.length == 1 ? wp(id) : null));
+  }
+
+  nom('flag_r_late', 'Майстер спорту з запізнень', '⏱', (k, id) => ', ${nTimes(k)}. Годинник, мабуть, декоративний');
+  nom('flag_r_cheap', 'Золотий гаманець', '₴', (k, id) => 'Рахував копійки. Заплатив ${countF(es, 'flag_g_paid')} ${plural(countF(es, 'flag_g_paid'), 'раз', 'рази', 'разів')}');
+  nom('flag_r_self', 'Людина-подкаст', '◉', (k, id) => ', ${nTimes(k)} говорив тільки про себе');
+  nom('flag_r_jab', 'Стендап року', '✦', (k, id) => ', ${nTimes(k)}. Ніхто не сміявся');
+  final gBest = (gBy.entries.where((x) => x.value.length >= 2).toList()..sort((a, b) => b.value.length.compareTo(a.value.length))).firstOrNull;
+  if (noms.length >= 2 || (noms.isNotEmpty && gBest != null)) {
+    const short = {'flag_g_walk': 'провів', 'flag_g_paid': 'заплатив', 'flag_g_ontime': 'вчасно', 'flag_g_listen': 'слухав', 'flag_g_asks': 'питав', 'flag_g_gift': 'квіти', 'flag_g_remember': "пам'ятав", 'flag_g_texts': 'написав', 'flag_g_no': 'чув «ні»', 'flag_g_word': 'слово', 'flag_g_kind': 'чемний', 'flag_g_condom': 'захист'};
+    final gl = gBest == null ? <String>[] : (gBest.value.toSet().toList()..sort((a, b) => gBest.value.where((x) => x == b).length.compareTo(gBest.value.where((x) => x == a).length))).take(3).map((f) => short[f] ?? '').toList();
+    cand(
+        WSlide(WK.oscars, 'Оскари', 'місяця',
+            rows: noms.take(3).toList(),
+            who: [if (gBest != null) wp(gBest.key)],
+            x: {'cer': 'церемонія · ${noms.take(3).length + (gBest == null ? 0 : 1)} ${plural(noms.take(3).length + (gBest == null ? 0 : 1), 'номінація', 'номінації', 'номінацій')}', 'g': gl.join('|')},
+            capSafe: 'Промову ніхто не підготував.'),
+        .55,
+        n);
+  }
+
+  // Ініціатива в ліжку: 2+ записи, хтось 80%+
+  final initE = sx.where((e) => e.tags.contains('init_me') || e.tags.contains('init_him')).toList();
+  if (initE.length >= 2) {
+    final me = initE.where((e) => e.tags.contains('init_me')).length;
+    final him = initE.length - me;
+    final hisIds = initE.map((e) => e.personId).toSet();
+    final heWho = hisIds.length == 1 ? wp(hisIds.first) : null;
+    if (me / initE.length >= .8 || him / initE.length >= .8) {
+      final mine = me >= him;
+      cand(
+          WSlide(WK.init, 'Хто почав:', mine ? 'ти, $me з ${initE.length}' : 'він, $him з ${initE.length}',
+              who: [if (heWho != null) heWho],
+              n1: me,
+              n2: him,
+              a: mine ? '$me/${initE.length}' : '$him/${initE.length}',
+              b: mine ? 'ти перша' : 'він перший',
+              capSafe: mine ? 'Він чекав, поки ти все зробиш сама. Як на роботі, тільки без зарплати.' : 'Нарешті хтось старається.'),
+          ((mine ? me : him) / initE.length - .5) * 2,
+          initE.length,
+          'init');
+    }
+  }
+
+  // Алкоголь і секс: по 2+ записи тверезо і з алкоголем, різниця 0,7+
+  final sober = sx.where((e) => e.tags.contains('sober')).toList();
+  final drink = sx.where((e) => e.tags.contains('alco1') || e.tags.contains('alco2')).toList();
+  if (sober.length >= 2 && drink.length >= 2) {
+    final a = avg(sober.map(sexOf)), b = avg(drink.map(sexOf));
+    if ((a - b).abs() >= .7) {
+      final d = b - a;
+      cand(
+          WSlide(WK.alco, 'Алкоголь', 'і секс',
+              score: a,
+              score2: b,
+              n1: sober.length,
+              n2: drink.length,
+              a: '${d > 0 ? '+' : '−'}${fmt(d.abs())}',
+              capSafe: d < 0 ? 'Тверезий секс на ${fmt(-d)} бала кращий. Вино розслабляє, але не там, де треба.' : 'З келихом на ${fmt(d)} бала краще. Тільки знай міру.'),
+          ((a - b).abs() / 2).clamp(.3, 1.0),
+          sober.length + drink.length);
+    }
+  }
+
+  // Чия територія: 3+ записи з полем, одна сторона 60%+
+  final his = es.where((e) => e.tags.contains('his')).toList();
+  final mineT = es.where((e) => e.tags.contains('mine')).toList();
+  final terr = his.length + mineT.length + es.where((e) => e.tags.contains('hotel') || e.tags.contains('other')).length;
+  if (terr >= 3 && (his.length / terr >= .6 || mineT.length / terr >= .6)) {
+    final atHis = his.length >= mineT.length;
+    final a = avg(his.map((e) => e.overall)), b = avg(mineT.map((e) => e.overall));
+    cand(
+        WSlide(WK.territory, 'Чия', 'територія',
+            n1: atHis ? his.length : mineT.length,
+            n2: terr,
+            score: a,
+            score2: b,
+            a: atHis ? 'ночей\nу нього' : 'ночей\nу тебе',
+            capSafe: atHis
+                ? (b.isNaN || a >= b ? 'Ти вже знаєш, де в нього рушники. І там тобі краще.' : 'Ти вже знаєш, де в нього рушники. Але вдома тобі краще.')
+                : 'Твоя територія — твої правила.'),
+        ((atHis ? his.length : mineT.length) / terr - .5) * 2,
+        terr);
+  }
+
+  // Після: близькість або хто написав першим, 2+
+  final cud = tagN('cuddle'), cold = tagN('cold'), tMe = tagN('text_me'), tHim = tagN('text_him');
+  if (cud + cold >= 2 || tMe + tHim >= 2) {
+    cand(
+        WSlide(WK.after, 'Після', '',
+            n1: cud,
+            n2: cud + cold,
+            rows: [
+              if (cud + cold >= 2) WRow('Одразу в телефони', '$cold'),
+              if (tMe + tHim >= 2) WRow('Першим написав', 'ти $tMe · він $tHim'),
+            ],
+            capSafe: cold >= 2 ? '${cap(nTimes(cold))} — скрол рілсів спиною одне до одного.' : (cud >= 2 ? 'Обіймались частіше, ніж гортали. Так і має бути.' : null)),
+        cold >= 2 ? .6 : .35,
+        cud + cold + tMe + tHim);
+  }
+
+  // Твій голос: сказала, чого хочеш / позначила межу 2+, якщо нема «Ти хотіла»
+  final said = tagN('said'), lim = tagN('limit');
+  if (wr.length < 2 && (said >= 2 || lim >= 2)) {
+    final prevSaid = all.where((e) => monthKey(e.date) == iso(DateTime(y, m - 1, 1)).substring(0, 7) && e.tags.contains('said')).length;
+    final record = said > prevSaid;
+    cand(
+        WSlide(WK.voice, 'Голос є.', 'Користуйся.',
+            n1: said,
+            flags: [record],
+            rows: [
+              if (lim > 0) WRow('Позначила межу', _times(lim), kind: 2),
+              if (tagN('praise') > 0) WRow('Похвалила, що сподобалось', _times(tagN('praise')), kind: 2),
+              if (tagN('stop') > 0) WRow('Зупинила, що не подобалось', _times(tagN('stop')), kind: 2),
+              if (tagN('limit_missed') > 0) WRow('Хотіла, не сказала', _times(tagN('limit_missed')), kind: 1),
+            ].take(3).toList(),
+            capSafe: said > prevSaid ? 'У ${monthsLoc[(m + 10) % 12]} було $prevSaid. Це рекорд.' : 'Минулого місяця — $prevSaid. Тримай рівень.'),
+        (said + lim) / (n * 2) + .2,
+        said + lim);
+  }
+
+  // Архів колишніх: хто пішов у минулі цього місяця через «Він зник»
+  final gone = db.people.where((p) => p.status == 'past' && p.pastReason == 'gone' && p.pastAt != null && monthKey(p.pastAt!) == month).toList();
+  if (gone.isNotEmpty) {
+    final p = gone.first;
+    final last = all.where((e) => e.personId == p.id).map((e) => e.date).fold<String?>(null, (a, b) => a == null || b.compareTo(a) > 0 ? b : a);
+    final silence = last == null ? 0 : parseIso(p.pastAt!).difference(parseIso(last)).inDays;
+    final idx = ids.indexOf(p.id);
+    cand(
+        WSlide(WK.archive, 'Архів', 'колишніх',
+            who: [WP(p.id, p.name, idx < 0 ? 'Він' : '№${idx + 1}')],
+            x: {'last': last == null ? '' : '${parseIso(last).day} ${monthsGen[parseIso(last).month - 1]}', 'silence': '$silence ${plural(silence, 'день', 'дні', 'днів')} тиші', 'reason': '«${pastReasonLabel(p.pastReason)}»'},
+            capSafe: 'Зник — значить зник. Справу закрито без права повернення.'),
+        .6,
+        1,
+        'p:${p.id}');
+  }
+
+  // Він vs минулий місяць: одна людина весь місяць і з нею 2+ записи минулого
+  if (ids.length == 1) {
+    final id = ids.first;
+    final pp = all.where((e) => e.personId == id && monthKey(e.date) == iso(DateTime(y, m - 1, 1)).substring(0, 7)).toList();
+    if (pp.length >= 2) {
+      double q(List<Entry> xs, String k) => k == 'sex'
+          ? avg(xs.where((e) => e.hadSex).map(sexOf))
+          : (k == 'eve' ? avg(xs.map((e) => e.overall)) : avg(xs.map((e) => e.ratings[k]).whereType<int>()));
+      const keys = [('sex', 'Секс'), ('pt_hears', 'Чує тебе'), ('sx_pace', 'Темп'), ('pt_limits', 'Поважає межі'), ('sx_fore', 'Прелюдія'), ('pt_trust', 'Довіра'), ('eve', 'Вечір')];
+      final rows = <WRow>[];
+      for (final k in keys) {
+        final a = q(pp, k.$1), b = q(ofP(id), k.$1);
+        if (a.isNaN || b.isNaN) continue;
+        final d = b - a;
+        rows.add(WRow(k.$2, fmt(b), sub: fmt(a), kind: d.abs() < .3 ? 0 : (d > 0 ? 2 : 1)));
+        if (rows.length == 3) break;
+      }
+      if (rows.length >= 2) {
+        final up = rows.where((r) => r.kind == 2).length, down = rows.where((r) => r.kind == 1).length;
+        final still = rows.where((r) => r.kind == 0).firstOrNull;
+        final drop = rows.where((r) => r.kind == 1).firstOrNull;
+        final pl = monthsLoc[(m + 10) % 12];
+        cand(
+            WSlide(WK.himPrev, up >= down ? 'Краще, ніж' : 'Гірше, ніж', 'у $pl',
+                artOv: WArt.himPrev,
+                who: [wp(id)],
+                rows: rows,
+                x: {'cols': '${monthsNom[(m + 10) % 12].substring(0, 3)} → ${monthsNom[m - 1].substring(0, 3)}'},
+                capSafe: drop != null
+                    ? 'Що просіло: ${drop.label.toLowerCase()} ${drop.sub} → ${drop.value}. Прямо.'
+                    : (still != null ? '${still.label} — єдине, що не зрушило. Варто сказати.' : 'Росте по всіх пунктах. Так і тримай.')),
+            .4 + .2 * (up - down).abs(),
+            pp.length + ofP(id).length,
+            'p:$id');
+      }
+    }
+  }
+
+  // Типаж місяця: перший, що спрацював, згори вниз (телефон — окремий слайд вище)
+  if (ph.length < 3) {
+    final exP = es.where((e) => e.flags.contains('flag_r_ex')).map((e) => e.personId).toSet();
+    final night = tagN('night');
+    final nightM = tagN('night') + tagN('left');
+    final cheap = countF(es, 'flag_r_cheap');
+    final ghosts = db.people.where((p) => ids.contains(p.id) && (es.any((e) => e.personId == p.id && e.flags.contains('flag_r_gone')) || (p.status == 'past' && p.pastReason == 'gone'))).length;
+    final fakeN = tagN('o_fake');
+    final seconds = ids.where((id) => ofP(id).length >= 2).length;
+    WSlide? ty;
+    String? fact;
+    if (exP.length >= 2) {
+      ty = WSlide(WK.type, 'Детекторка 🕵️‍♀️', 'чужих ексів', artOv: WArt.detective, a: '${exP.length}', b: '/${ids.length}', x: const {'lab': 'згадали\nколишню'},
+          capSafe: '${exP.length} з ${ids.length} згадали колишню. Ти не на побаченні, ти на груповій терапії.');
+      fact = 'flag_r_ex';
+    } else if (initE.length >= 2 && initE.where((e) => e.tags.contains('init_me')).length / initE.length >= .8) {
+      final me = initE.where((e) => e.tags.contains('init_me')).length;
+      ty = WSlide(WK.type, 'Ген', 'директорка', artOv: WArt.boss, a: '$me', b: '/${initE.length}', x: const {'lab': 'почала\nти'}, capSafe: 'Почала ти $me з ${initE.length}. Він працює на півставки.');
+      fact = 'init';
+    } else if (night >= 3) {
+      ty = WSlide(WK.type, 'Нічна', 'зміна', artOv: WArt.night, a: '$night', b: '/$nightM', x: const {'lab': 'лишалась\nна ніч'}, capSafe: 'Лишалась $night з $nightM ночей. Сніданок у договір не входив.');
+    } else if (ids.length >= 4) {
+      ty = WSlide(WK.type, 'Серійна 🎯', 'стрільчиня', artOv: WArt.serial, n1: n, n2: ids.length, a: '$seconds',
+          x: {'l1': plural(n, 'побачення', 'побачення', 'побачень'), 'l2': plural(ids.length, menWord.$1, menWord.$2, menWord.$3), 'l3': seconds == 1 ? 'продовження' : 'продовжень'},
+          capSafe: '$n ${plural(n, 'побачення', 'побачення', 'побачень')}, ${ids.length} ${plural(ids.length, 'різний', 'різні', 'різних')} ${plural(ids.length, menWord.$1, menWord.$2, menWord.$3)}, $seconds ${seconds == 1 ? 'продовження' : 'продовжень'}. ${seconds == 0 ? 'Кастинг триває.' : 'Кастинг звужується.'}');
+    } else if (cheap >= 2) {
+      ty = WSlide(WK.type, 'Фінансова 🧮', 'аудиторка', artOv: WArt.auditor, a: '$cheap', x: const {'lab': 'рахував\nкопійки'}, capSafe: 'Він рахував копійки ${_times(cheap)}. Ти рахувала його прапорці. Нічия.');
+      fact = 'flag_r_cheap';
+    } else if (ghosts >= 2) {
+      ty = WSlide(WK.type, 'Відділ 👻', 'кадрів', artOv: WArt.hr, a: '$ghosts', x: const {'lab': 'звільнились\nбез відпрацювання'}, capSafe: '$ghosts ${plural(ghosts, 'звільнився', 'звільнились', 'звільнились')} без відпрацювання. Ghosting — теж відповідь.');
+      fact = 'flag_r_gone';
+    } else if (fakeN >= 2) {
+      ty = WSlide(WK.type, 'Заслужена', 'артистка 🎭', artOv: WArt.artist, private: true, a: '$fakeN', b: '/${sx.length}', x: const {'lab': 'вдавала\nцього місяця'},
+          capSafe: 'Станіславський аплодує стоячи. Деталі — на закритому показі.', capFull: 'Вдавала ${_times(fakeN)} з ${sx.length}. Станіславський аплодує стоячи. Він нічого не помітив.');
+    }
+    if (ty != null) cand(ty, .75, n, fact);
+  }
+
   // 15. Нагороди місяця
   final fixedEnd = <WSlide>[];
   fixedEnd.add(awards.isEmpty
@@ -587,6 +1020,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   final prev = DateTime(y, m - 1, 1);
   final pk = iso(prev).substring(0, 7);
   final pes = all.where((e) => monthKey(e.date) == pk).toList();
+  WSlide? glowS;
   if (pes.length >= 2) {
     final po = avg(pes.map((e) => e.overall));
     final pr = pes.expand((e) => e.flags.where((x) => flagById(x)?.kind == FlagKind.r)).length;
@@ -601,7 +1035,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
       overall - po >= .3 ? 'Оцінка вище' : (po - overall >= .3 ? 'Оцінка нижче' : 'Оцінка без змін'),
       reds.length < pr ? 'прапорців менше' : (reds.length > pr ? 'прапорців більше' : 'прапорців стільки ж'),
     ];
-    fixedEnd.add(WSlide(WK.glow, '$nom vs', '${monthsNom[prev.month - 1]}: $verdict',
+    glowS = WSlide(WK.glow, '$nom vs', '${monthsNom[prev.month - 1]}: $verdict',
         rows: [
           WRow('Середня', fmt(overall), sub: fmt(po), kind: overall >= po ? 1 : 3),
           WRow('Ред-флаги', '${reds.length}', sub: '$pr', kind: reds.length <= pr ? 3 : 1),
@@ -611,16 +1045,95 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
         a: nom,
         b: monthsNom[prev.month - 1].substring(0, 3),
         c: monthsNom[m - 1].substring(0, 3),
-        capSafe: '${parts.join(', ')}${cs > ps ? ', і ти частіше кажеш, чого хочеш.' : '.'}'));
+        capSafe: '${parts.join(', ')}${cs > ps ? ', і ти частіше кажеш, чого хочеш.' : '.'}');
   }
+
+  // Таро / гороскоп / квартальний звіт: чергуються з «проти минулого»
+  final opts = <WSlide>[if (glowS != null) glowS];
+  final topRed = redTop(es).where((x) => x.value >= 2).firstOrNull;
+  final newSign = ids.where((id) => isNew(id)).map(per).whereType<Person>().where((p) => astroOf(p.birth, p.signOnly) != null).firstOrNull;
+  if (topRed != null || newSign != null) {
+    final myArc = db.profile.birth == null ? 14 : arcanaOf(db.profile.birth!);
+    final arc = reduce22(myArc + m);
+    const advice = {
+      'flag_r_phone': 'Якщо ще раз підеш на каву з тим, хто сидить у телефоні, вселенський баланс трісне і ти почнеш кусати людей. Зроби перерву.',
+      'flag_r_late': 'Якщо знову чекатимеш пів години — не чекай. Карта каже: йди першою.',
+      'flag_r_ex': 'Якщо знову почуєш про колишню — це не побачення, це сеанс. Не йди на другу зустріч.',
+      'flag_r_self': 'Якщо знову слухатимеш монолог — дай йому мікрофон і йди додому.',
+      'flag_r_cheap': 'Якщо знову ділитимете чек до гривні — карта радить ділити й прощання.',
+      'flag_r_jab': 'Якщо знову підколюватиме — це не флірт. Не йди на другу зустріч.',
+      'flag_r_drunk': 'Якщо знову перебере — вечір закінчується разом із його келихом.',
+      'flag_r_gone': 'Якщо знову зникне — не шукай. Карта каже: ти не служба розшуку.',
+    };
+    final f = topRed?.key;
+    final tip = f != null
+        ? (advice[f] ?? 'Якщо знову ${(flagById(f)?.label ?? '').toLowerCase()} — не йди на другу зустріч.')
+        : 'Новий знак на горизонті: ${astroOf(newSign!.birth, newSign.signOnly)!.signName}. Карта радить не поспішати.';
+    opts.add(WSlide(WK.tarot, 'Таро', 'на ${monthsNom[m % 12]}', a: roman[arc], b: arcana[arc].name, capSafe: tip));
+  }
+  final me = db.profile.birth == null ? null : astroOf(db.profile.birth);
+  if (me != null) {
+    for (final id in ids) {
+      final p = per(id);
+      final hs = p == null ? null : astroOf(p.birth, p.signOnly);
+      final ps = sx.where((e) => e.personId == id).toList();
+      if (hs == null || ps.length < 2) continue;
+      final easy = zodiacEase(me.sign, hs.sign) == 'Легко';
+      final sv = avg(ps.map(sexOf));
+      if (easy == sv >= 3.5) continue; // зорі й записи не сперечаються — нема слайда
+      const verbs = {'flag_r_phone': 'сидить у телефоні', 'flag_r_late': 'запізнюється', 'flag_r_ex': 'згадує колишню', 'flag_r_self': 'говорить про себе', 'flag_r_cheap': 'рахує копійки', 'flag_r_jab': 'підколює', 'flag_r_drunk': 'перебирає', 'flag_r_jealous': 'ревнує', 'flag_r_gone': 'зникає', 'flag_r_lie': 'бреше', 'flag_r_push': 'квапить'};
+      final rv = redTop(ofP(id)).map((x) => verbs[x.key]).whereType<String>().take(2).toList();
+      opts.add(WSlide(WK.horo, 'Зорі брешуть,', 'метрики ні',
+          who: [wp(id)],
+          score: sv,
+          a: '${me.signName} і ${hs.signName} — ${easy ? 'пристрасть' : 'складно'}',
+          b: rv.isEmpty ? 'Без жодного прапорця.' : '${cap(rv.join(' і '))}.',
+          capSafe: easy ? 'Довіряй таблиці, а не зорям.' : 'Зорі сумнівались. Записи — ні.'));
+      break;
+    }
+  }
+  if (m % 3 == 0) {
+    final qm = [for (var k = 2; k >= 0; k--) iso(DateTime(y, m - k, 1)).substring(0, 7)];
+    final qe = all.where((e) => qm.contains(monthKey(e.date))).toList();
+    final active = qm.where((k) => qe.any((e) => monthKey(e.date) == k)).length;
+    if (active >= 2) {
+      final pq = [for (var k = 5; k >= 3; k--) iso(DateTime(y, m - k, 1)).substring(0, 7)];
+      final pe = all.where((e) => pq.contains(monthKey(e.date))).toList();
+      final idx = avg(qe.map((e) => e.overall));
+      final pidx = avg(pe.map((e) => e.overall));
+      final pct = pidx.isNaN ? null : ((idx / pidx - 1) * 100).round();
+      final four = [for (var k = 3; k >= 0; k--) DateTime(y, m - k, 1)];
+      final metQ = qe.map((e) => e.personId).toSet().where((id) => !all.any((e) => e.personId == id && e.date.compareTo('${qm.first}-01') < 0)).toList();
+      final conv = metQ.isEmpty ? 0 : (metQ.where((id) => qe.where((e) => e.personId == id).length >= 2).length / metQ.length * 100).round();
+      final qRed = qe.expand((e) => e.flags.where((x) => flagById(x)?.kind == FlagKind.r)).length;
+      final ignored = qe.where((e) => e.flags.any((x) => flagById(x)?.kind == FlagKind.r) && all.any((o) => o.personId == e.personId && o.date.compareTo(e.date) > 0)).length;
+      final fired = db.people.where((p) => p.pastAt != null && qm.contains(monthKey(p.pastAt!))).length;
+      opts.insert(0, WSlide(WK.quarter, 'Квартальний', 'звіт',
+          score: idx,
+          ints: [for (final d in four) all.where((e) => monthKey(e.date) == iso(d).substring(0, 7)).isEmpty ? -1 : (avg(all.where((e) => monthKey(e.date) == iso(d).substring(0, 7)).map((e) => e.overall)) * 100).round()],
+          rows: [for (final d in four) WRow(monthsNom[d.month - 1].substring(0, 3), '')],
+          x: {
+            'q': 'Q${(m - 1) ~/ 3 + 1} · ${m.toString().padLeft(2, '0')}/${(y % 100).toString().padLeft(2, '0')}',
+            'pct': pct == null ? '' : '${pct >= 0 ? '▲' : '▼'} ${pct.abs()}%',
+            'vs': 'рентабельність вечора\nдо ${monthsGen[DateTime(y, m - 3, 1).month - 1]}',
+            'conv': '$conv%',
+            'convL': conv >= 70 ? 'ринок перегрітий' : (conv >= 30 ? 'стабільний попит' : 'жорсткий відбір'),
+            'risk': '$qRed/$ignored',
+            'fired': '$fired',
+            'stamp': idx >= 3.5 ? 'Аудит пройдено*' : 'Аудит не пройдено',
+          },
+          capSafe: idx >= 3.5 ? 'Рада директорів задоволена.\n*Майже.' : 'Рада директорів скликає нараду.'));
+    }
+  }
+  if (opts.isNotEmpty) fixedEnd.add(m % 3 == 0 && opts.first.k == WK.quarter ? opts.first : opts[m % opts.length]);
 
   // ---- Відбір: акти 2–6 з лімітами слотів
   const acts = <WK, int>{
     WK.sex: 2, WK.orgasm: 2, // Секс
-    WK.match: 3, WK.matrix: 3, WK.battle: 3, // Хлопці
-    WK.phone: 4, WK.fame: 4, // Прапорці
-    WK.longest: 5, WK.fastest: 5, WK.budget: 5, // Рекорди
-    WK.wishes: 6, WK.notice: 6, // Ти
+    WK.match: 3, WK.matrix: 3, WK.battle: 3, WK.dossier: 3, WK.reviews: 3, WK.size: 3, WK.archive: 3, WK.himPrev: 3, // Хлопці
+    WK.phone: 4, WK.type: 4, WK.fame: 4, WK.clown: 4, WK.rakes: 4, WK.oscars: 4, // Прапорці
+    WK.longest: 5, WK.fastest: 5, WK.budget: 5, WK.init: 5, WK.alco: 5, WK.territory: 5, WK.after: 5, // Рекорди
+    WK.wishes: 6, WK.voice: 6, WK.notice: 6, // Ти
   };
   const slots = <int, (int, int)>{2: (0, 2), 3: (1, 3), 4: (1, 2), 5: (0, 3), 6: (0, 2)};
   // новизна: 0,5, якщо такий слайд уже був у минулому Wrapped

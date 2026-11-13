@@ -15,6 +15,8 @@ import '../ui/kit.dart' show go;
 import 'settings.dart' show PaywallScreen;
 import 'wrapped_anim.dart';
 
+part 'wrapped_more.dart';
+
 /// Wrapped за дошкою «Wrapped»: 19 сторіз-слайдів 390×844.
 /// Декор (стікери, фото, стрічки, візерунки) — запечені шари assets/wrapped/sNN.webp з макета;
 /// усе, що залежить від даних (заголовки, цифри, рядки, кільця, графіки), малюється тут.
@@ -27,9 +29,13 @@ const _red = Color(0xFFE8333B);
 
 // Тема кожної дошки: m — темна (білий текст), l — світла, q — тиха
 // тема панелі керування — як TH у макеті (кнопки), фон слайда може відрізнятись
-const _th = ['m1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm3', 'l2', 'l3', 'q', 'l3', 'l2', 'm1', 'l3'];
+const _th = [
+  'm1', 'l2', 'l3', 'm1', 'l3', 'm1', 'l2', 'l3', 'l2', 'l3', 'm1', 'm3', 'l2', 'l3', 'q', 'l3', 'l2', 'm1', 'l3', //
+  'l2', 'l3', 'm1', 'l2', 'l3', 'm1', 'm1', 'm1', 'm1', 'l3', 'l2', 'm1', 'm1', 'm1', 'm1', // 19–33: дошка WrappedMore
+  'l2', 'm1', 'l3', 'm1', 'm1', 'm1', 'l2', 'l3', 'm1', 'l2', 'l3', 'm1', 'l2', 'm1', // 34–47: варіанти
+];
 // слайди з темним фоном (білий текст)
-const _darkBg = {0, 3, 5, 10, 11, 12, 14};
+const _darkBg = {0, 3, 5, 10, 11, 12, 14, 21, 24, 25, 26, 27, 30, 31, 32, 33, 35, 37, 38, 39, 42, 45, 47};
 const _bgOf = {'1': _ink, '2': _pink, '3': _yel, '': Color(0xFF17161F)};
 
 /// Cormorant Garamond (бюджет, «Варто помітити», фінал)
@@ -98,8 +104,8 @@ class _WrappedScreenState extends State<WrappedScreen> {
     super.didChangeDependencies();
     if (_cached) return;
     _cached = true;
-    // усі 19 фонів одразу, щоб текст не з'являвся поверх старого слайда
-    for (var k = 0; k < 19; k++) {
+    // усі фони одразу, щоб текст не з'являвся поверх старого слайда
+    for (var k = 0; k < _th.length; k++) {
       precacheImage(AssetImage(wAsset('s${k.toString().padLeft(2, '0')}.webp')), context);
       for (final l in wLayers[k] ?? const <WL>[]) {
         precacheImage(AssetImage(wAsset(l.file)), context);
@@ -120,7 +126,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
       final side = img.height.toDouble();
       final rec = ui.PictureRecorder();
       final c = Canvas(rec);
-      c.drawRect(Rect.fromLTWH(0, 0, side, side), Paint()..color = _bgOf[_th[s.k.index].substring(1)] ?? _ink);
+      c.drawRect(Rect.fromLTWH(0, 0, side, side), Paint()..color = _bgOf[_th[s.art].substring(1)] ?? _ink);
       c.drawImage(img, Offset((side - img.width) / 2, 0), Paint());
       out = await rec.endRecording().toImage(side.toInt(), side.toInt());
     }
@@ -179,7 +185,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
     final w = buildWrapped(widget.month, st.db);
     final idx = i.clamp(0, w.slides.length - 1).toInt();
     final s = w.slides[idx];
-    final th = _th[s.k.index];
+    final th = _th[s.art];
     final darkChrome = th.startsWith('m') || th == 'q';
     final bg = _bgOf[th.substring(1)] ?? _ink;
     final locked = !st.profile.premium && idx >= freeSlides;
@@ -199,7 +205,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
           key: shot,
           child: SizedBox(
             width: 390, height: 844,
-            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(key: ValueKey(idx), s: s, w: w, safe: safe, dark: _darkBg.contains(s.k.index)),
+            child: locked ? _Locked(s: s, left: w.slides.length - freeSlides) : _Slide(key: ValueKey(idx), s: s, w: w, safe: safe, dark: _darkBg.contains(s.art)),
           ),
         ),
         // прогрес
@@ -213,7 +219,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
                   height: 3,
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: const Color(0x597F788C)),
                   alignment: Alignment.centerLeft,
-                  child: k <= idx ? Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: _darkBg.contains(s.k.index) ? K.star : const Color(0xFF17161F))) : null,
+                  child: k <= idx ? Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: _darkBg.contains(s.art) ? K.star : const Color(0xFF17161F))) : null,
                 ),
               ),
             ],
@@ -299,7 +305,7 @@ class _Locked extends StatelessWidget {
   const _Locked({required this.s, required this.left});
   @override
   Widget build(BuildContext context) => Stack(children: [
-        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset(wAsset('s${s.k.index.toString().padLeft(2, '0')}.webp'), fit: BoxFit.cover))),
+        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset(wAsset('s${s.art.toString().padLeft(2, '0')}.webp'), fit: BoxFit.cover))),
         Positioned.fill(child: Container(color: const Color(0xB30E0D1F))),
         Positioned(
           left: 24, right: 24, bottom: 150,
@@ -328,7 +334,7 @@ class _Locked extends StatelessWidget {
 
 /// Слайд без панелі керування — для тесту верстки і знімків
 @visibleForTesting
-Widget wrappedSlideForTest(WSlide s, Wrapped w, {required bool safe}) => _Slide(s: s, w: w, safe: safe, dark: _darkBg.contains(s.k.index));
+Widget wrappedSlideForTest(WSlide s, Wrapped w, {required bool safe}) => _Slide(s: s, w: w, safe: safe, dark: _darkBg.contains(s.art));
 
 /// Один слайд: запечений фон + дані поверх
 class _Slide extends StatelessWidget {
@@ -337,7 +343,7 @@ class _Slide extends StatelessWidget {
   final bool safe, dark;
   const _Slide({super.key, required this.s, required this.w, required this.safe, required this.dark});
 
-  bool get txtDark => !_darkBg.contains(s.k.index);
+  bool get txtDark => !_darkBg.contains(s.art);
   Color get fg => txtDark ? _ink : Colors.white;
 
   Widget _title({String? line2, bool fit = false}) {
@@ -452,11 +458,14 @@ class _Slide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final img = wAsset('s${s.k.index.toString().padLeft(2, '0')}.webp');
+    final img = wAsset('s${s.art.toString().padLeft(2, '0')}.webp');
     final logo = dark ? 'assets/img/logo.webp' : 'assets/img/logo_dark.webp';
     final ov = <Widget>[];
     final body = <Widget>[];
 
+    if (s.art >= 19) {
+      more(ov);
+    } else {
     switch (s.k) {
       case WK.cover:
         ov.add(_tape(412, -7, Colors.white, _ink, '${w.label} ✦ '));
@@ -1043,6 +1052,8 @@ class _Slide extends StatelessWidget {
           ]),
         ));
         body.addAll([_title(), _cap(s.capSafe)]);
+      default:
+    }
     }
 
     String ovAnim() => switch (s.k) {
@@ -1053,13 +1064,13 @@ class _Slide extends StatelessWidget {
         };
     final ovA = [
       for (final (n, x) in ov.indexed)
-        x is Positioned && x.child is! OverflowBox && !(s.k == WK.cover || s.k == WK.budget || s.k == WK.notice || s.k == WK.closed || (s.k == WK.best && n == 0))
+        s.art < 19 && x is Positioned && x.child is! OverflowBox && !(s.k == WK.cover || s.k == WK.budget || s.k == WK.notice || s.k == WK.closed || (s.k == WK.best && n == 0))
             ? Positioned(left: x.left, top: x.top, right: x.right, bottom: x.bottom, width: x.width, height: x.height, child: WAnim(ovAnim(), delay: 200 + n * 120, dur: 900, child: x.child))
             : x,
     ];
     return Stack(clipBehavior: Clip.hardEdge, children: [
-      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _darkBg.contains(s.k.index) ? _ink : (_bgOf[_th[s.k.index].substring(1)] ?? _ink)) : child)),
-      ...wrappedLayers(s.k.index),
+      Positioned.fill(child: Image.asset(img, fit: BoxFit.fill, frameBuilder: (_, child, frame, sync) => frame == null && !sync ? ColoredBox(color: _darkBg.contains(s.art) ? _ink : (_bgOf[_th[s.art].substring(1)] ?? _ink)) : child)),
+      ...wrappedLayers(s.art),
       ...ovA,
       // шапка
       Positioned(
@@ -1071,7 +1082,7 @@ class _Slide extends StatelessWidget {
         ]),
       ),
       if (body.isNotEmpty) _body(body),
-      ...wrappedLayers(s.k.index, above: true),
+      ...wrappedLayers(s.art, above: true),
     ]);
   }
 

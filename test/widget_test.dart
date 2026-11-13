@@ -96,7 +96,8 @@ void main() {
     }
     final empty = buildWrapped('2026-08', db);
     expect(empty.count, 0);
-    expect(empty.slides.first.k, WK.cover);
+    expect(empty.slides.first.k, WK.type); // «Сезон пледу»
+    expect(empty.slides.first.art, WArt.plaid);
   });
 
   test('Wrapped: генератор з актами', () {
@@ -104,13 +105,16 @@ void main() {
     final k = buildWrapped('2026-10', db).slides.map((s) => s.k).toList();
     // акт 1 — сталі три, акт 7 — нагороди (завжди), проти минулого (у вересні 3 записи), підсумок, квиток
     expect(k.take(3), [WK.receipt, WK.best].fold<List<WK>>([WK.cover], (l, x) => l..add(x)));
-    expect(k.sublist(k.length - 4), [WK.awards, WK.glow, WK.closed, WK.ticket]);
+    expect(k.sublist(k.length - 4).first, WK.awards);
+    expect({WK.glow, WK.tarot, WK.horo}, contains(k[k.length - 3])); // проти минулого / таро / гороскоп чергуються
+    expect(k.sublist(k.length - 2), [WK.closed, WK.ticket]);
     expect(k.length, inInclusiveRange(8, 19));
     int act(Set<WK> s) => k.where(s.contains).length;
     expect(act({WK.sex, WK.orgasm}), lessThanOrEqualTo(2));
-    expect(act({WK.match, WK.matrix, WK.battle}), inInclusiveRange(1, 3));
-    expect(act({WK.phone, WK.fame}), lessThanOrEqualTo(2));
-    expect(act({WK.longest, WK.fastest, WK.budget}), lessThanOrEqualTo(3));
+    expect(act({WK.match, WK.matrix, WK.battle, WK.dossier, WK.reviews, WK.size, WK.archive, WK.himPrev}), inInclusiveRange(1, 3));
+    expect(act({WK.phone, WK.type, WK.fame, WK.clown, WK.rakes, WK.oscars}), lessThanOrEqualTo(2));
+    expect(act({WK.longest, WK.fastest, WK.budget, WK.init, WK.alco, WK.territory, WK.after}), lessThanOrEqualTo(3));
+    expect(act({WK.wishes, WK.voice, WK.notice}), lessThanOrEqualTo(2));
     // тиск і дискомфорт у жовтні є → «Варто помітити» завжди
     expect(k, contains(WK.notice));
 
@@ -118,7 +122,8 @@ void main() {
     final two = DB(profile: Profile(), people: people, entries: entries.where((e) => e.date.startsWith('2026-10')).take(2).toList(), meetings: []);
     final mini = buildWrapped('2026-10', two);
     expect(mini.slides.map((s) => s.k), [WK.cover, WK.receipt, WK.best, WK.closed]);
-    expect(mini.slides.first.t2(true), 'перші|кроки');
+    expect(mini.slides.first.t2(true), 'гарний старт');
+    expect(mini.slides.first.art, WArt.coverMini);
   });
 
   test('експорт у таблицю', () {
