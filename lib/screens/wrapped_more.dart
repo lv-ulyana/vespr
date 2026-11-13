@@ -53,7 +53,12 @@ extension _More on _Slide {
         Text(l2, style: _ktS(c2, it: true)),
       ]), w: 338, d: d);
 
-  Widget _kc(double top, String? t, Color c, {double w = 338, int d = 6}) => t == null || t.isEmpty ? const SizedBox.shrink() : _at(26, top, Text(t, style: _kcS(c)), w: w, d: d);
+  /// Підпис унизу: у макеті до 790, але у переглядачі з 772 панель кнопок — тож низ тексту не нижче 752
+  Widget _kc(double top, String? t, Color c, {double w = 338, int d = 6, double bottom = 92}) => t == null || t.isEmpty
+      ? const SizedBox.shrink()
+      : top < 700
+          ? _at(26, top, Text(t, style: _kcS(c)), w: w, d: d)
+          : Positioned(left: 26, bottom: bottom, width: w, child: WAnim('wrUp', delay: 150 + d * 90, dur: 900, child: Text(t, style: _kcS(c))));
 
   Widget _kl(double top, String t, Color c, {double left = 26, int d = 0}) => _at(left, top, Text(t.toUpperCase(), style: _klS(c)), w: 338, d: d);
 
@@ -175,8 +180,8 @@ extension _More on _Slide {
         // «відкрито» праворуч у шапці картки — над фото не залазить
         ov.add(Positioned(left: 38, top: 280, width: 318, height: 40, child: Transform.rotate(angle: math.pi / 180, child: Padding(padding: const EdgeInsets.fromLTRB(18, 18, 18, 0), child: Align(alignment: Alignment.topRight, child: Opacity(opacity: .6, child: Text((s.x['opened'] ?? '').toUpperCase(), style: _mono(9, FontWeight.w500, _ink, ls: .72))))))));
         ov.add(_stamp(172, 600, -9, s.x['stamp'] ?? '', _red, const Color(0xD9FFFDF7), size: 18, maxW: 196, pad: const EdgeInsets.symmetric(horizontal: 14, vertical: 9)));
-        ov.add(_kc(736, c2, Colors.white));
-        ov.add(_kl(765, s.x['cap2'] ?? '', Colors.white.withValues(alpha: .6), d: 7));
+        ov.add(_kc(736, c2, Colors.white, bottom: 112));
+        ov.add(Positioned(left: 26, bottom: 92, child: Text((s.x['cap2'] ?? '').toUpperCase(), style: _klS(Colors.white.withValues(alpha: .6)))));
       case 20: // Відгуки покупців
         ov.add(_kh(112, s.title1, s.title2, _ink, _plum));
         final st = s.score.isNaN ? 0 : s.score.round();
@@ -269,7 +274,7 @@ extension _More on _Slide {
             )),
           ));
         }
-        ov.add(_at(26, 772, Text('* ТОВАР ПОВЕРНЕННЮ НЕ ПІДЛЯГАЄ', style: _e(mt(9.5, FontWeight.w500, _ink, h: 1, ls: 1.4))), d: 8));
+        ov.add(_at(26, 742, Text('* ТОВАР ПОВЕРНЕННЮ НЕ ПІДЛЯГАЄ', style: _e(mt(9.5, FontWeight.w500, _ink, h: 1, ls: 1.4))), d: 8));
       case 21: // Розмір місяця
         ov.add(_at(26, 130, _kpill('🔒 тільки для тебе · у сторіз не йде', _ink, Colors.white, border: Border.all(color: Colors.white.withValues(alpha: .6)), size: 9.5, w: FontWeight.w500, mont: true)));
         ov.add(_kt(176, s.title1, s.title2, Colors.white, _rose, d: 1));
