@@ -1,0 +1,40 @@
+# Знімки й перевірка верстки Wrapped: рендерить кожен слайд у трьох варіантах
+# і кладе PNG + звіт у гілку shots. Деплой не блокує.
+name: shots
+
+on:
+  push:
+    branches: [main]
+    paths: ['lib/**', 'assets/**', 'test/wrapped_layout_test.dart', '.github/workflows/shots.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shots
+  cancel-in-progress: true
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Рендер слайдів
+        run: LAYOUT=1 SHOTS=1 flutter test test/wrapped_layout_test.dart > layout.txt 2>&1 || true
+      - name: Гілка shots
+        run: |
+          mkdir -p out && cp -r build/shots out/ 2>/dev/null || true
+          cp layout.txt out/
+          cd out
+          git init -q -b shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -qm "shots ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" shots

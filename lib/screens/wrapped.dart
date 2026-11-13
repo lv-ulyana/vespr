@@ -324,6 +324,10 @@ class _Locked extends StatelessWidget {
       ]);
 }
 
+/// Слайд без панелі керування — для тесту верстки і знімків
+@visibleForTesting
+Widget wrappedSlideForTest(WSlide s, Wrapped w, {required bool safe}) => _Slide(s: s, w: w, safe: safe, dark: _darkBg.contains(s.k.index));
+
 /// Один слайд: запечений фон + дані поверх
 class _Slide extends StatelessWidget {
   final WSlide s;
