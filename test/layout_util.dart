@@ -111,7 +111,7 @@ List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
         for (RenderObject? p = r.parent; p != null; p = p.parent) {
           final scr = scrolls[p];
           if (scr == null) continue;
-          if (scr.axis == Axis.horizontal) {
+          if (axisDirectionToAxis(scr.axisDirection) == Axis.horizontal) {
             hScroll = true;
           } else if (vp == null) {
             vp = p;
