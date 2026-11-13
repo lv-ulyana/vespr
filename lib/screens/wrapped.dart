@@ -799,15 +799,16 @@ class _Slide extends StatelessWidget {
               ('Зашкварик', s.b),
               ('Нагород', '+${s.n2}'),
             ])
-              Container(
+              CustomPaint(
+                foregroundPainter: _Dash(bottom: true),
+                child: SizedBox(
                 height: 24,
-                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x330E0D1F)))),
                 child: Row(children: [
                   Text(r.$1, style: ws(13, FontWeight.w600, _ink)),
                   const SizedBox(width: 8),
                   Expanded(child: Text(r.$2, textAlign: TextAlign.right, overflow: TextOverflow.ellipsis, style: ws(13, FontWeight.w800, _ink))),
                 ]),
-              ),
+              )),
           ]),
         ));
         body.addAll([_title(), _cap(s.capSafe)]);
@@ -906,13 +907,16 @@ class _Dots extends CustomPainter {
 }
 
 class _Dash extends CustomPainter {
+  final bool bottom; // пунктир по нижньому краю (рядки квитка)
+  _Dash({this.bottom = false});
   @override
   void paint(Canvas c, Size s) {
     final p = Paint()
-      ..color = const Color(0x802B2830)
+      ..color = bottom ? const Color(0x660E0D1F) : const Color(0x802B2830)
       ..strokeWidth = 1;
+    final y = bottom ? s.height - .5 : 0.0;
     for (var x = 0.0; x < s.width; x += 6) {
-      c.drawLine(Offset(x, 0), Offset(x + 3, 0), p);
+      c.drawLine(Offset(x, y), Offset(x + 3, y), p);
     }
   }
 
