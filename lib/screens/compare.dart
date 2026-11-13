@@ -261,15 +261,16 @@ class _CompareScreenState extends State<CompareScreen> {
       } else if (both.isEmpty) {
         verdict = 'Порівнювати нема з чим: питання відповідені тільки для одного.';
       } else if (sex) {
-        final orgA = sa.orgN == 0 ? '' : 'З ${a.name} ти кінчала у ${sa.orgMe} з ${sa.orgN} зустрічей. ';
+        // імена не відмінюємо: «з Марк» звучить криво, тому речення будуємо без відмінків
+        final orgA = sa.orgN == 0 ? '' : '${a.name}: ти кінчала у ${sa.orgMe} з ${sa.orgN} ${plural(sa.orgN, 'зустрічі', 'зустрічей', 'зустрічей')}. ';
         verdict = otherBest == null
-            ? '$orgA${lead.name} краще за всіма ${both.length} питаннями.'
-            : '$orgA${lead.name} виграє ${lead == a ? aWins.length : bWins.length} з ${both.length} питань. З ${other.name} краще: «${otherBest.label.toLowerCase()}».';
+            ? '$orgA${lead.name} кращий за всіма ${both.length} ${plural(both.length, 'питанням', 'питаннями', 'питаннями')}.'
+            : '$orgA${lead.name} виграє ${lead == a ? aWins.length : bWins.length} з ${both.length}. ${other.name} сильніший у «${otherBest.label.toLowerCase()}».';
       } else {
         const verbs = {'flag_r_phone': 'сидить у телефоні', 'flag_r_late': 'запізнюється', 'flag_r_ex': 'згадує колишню', 'flag_r_self': 'говорить тільки про себе', 'flag_r_cheap': 'рахує копійки', 'flag_r_jab': 'підколює', 'flag_r_drunk': 'перебирає', 'flag_r_jealous': 'ревнує', 'flag_r_gone': 'зникає', 'flag_r_lie': 'бреше', 'flag_r_push': 'тисне'};
         final worse = sa.red > sb.red ? (a, sa) : (sb.red > sa.red ? (b, sb) : null);
         final rv = worse == null ? <String>[] : worse.$2.flagCounts.where((f) => f.kind == FlagKind.r).map((f) => verbs[f.id]).whereType<String>().take(2).toList();
-        verdict = '${otherBest == null ? '${lead.name} сильніший за всіма питаннями.' : 'З ${other.name} ${otherBest.label.toLowerCase()}, з ${lead.name} — решта.'}${rv.isEmpty ? '' : ' Але ${worse!.$1.name} ${rv.join(' і ')}.'}';
+        verdict = '${otherBest == null ? '${lead.name} сильніший за всіма питаннями.' : '${other.name} сильніший у «${otherBest.label.toLowerCase()}», ${lead.name} — у решті.'}${rv.isEmpty ? '' : ' Але ${worse!.$1.name} ${rv.join(' і ')}.'}';
       }
       meta = sex ? '${ea.where((e) => e.hadSex).length} і ${eb.where((e) => e.hadSex).length} ${plural(eb.where((e) => e.hadSex).length, 'зустріч', 'зустрічі', 'зустрічей')}' : '${shown.length} ${plural(shown.length, 'питання', 'питання', 'питань')}';
       body = [
@@ -304,7 +305,7 @@ class _CompareScreenState extends State<CompareScreen> {
       final recS = recA == recB ? 'нічия' : (recA > recB ? a.name : b.name);
       verdict = me == null
           ? 'Додай свою дату народження в налаштуваннях, щоб порівняти зірки.'
-          : '${arcS == 'нічия' ? 'Аркани — нічия' : 'Аркани за $arcS'}, ${zS == 'нічия' ? 'зодіак — нічия' : 'зодіак за $zS'}. Записи на боці ${recS == 'нічия' ? 'обох однаково' : recS}.';
+          : 'Аркани: $arcS. Зодіак: $zS. Записи: ${recS == 'нічия' ? 'нічия' : recS}.';
       meta = 'аркани · зодіак · записи';
       Widget card(Person p, (int?, bool?, String?, bool?) m, bool lead) => Press(
             onTap: () => go(context, PersonView(personId: p.id)),
@@ -316,9 +317,9 @@ class _CompareScreenState extends State<CompareScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(23),
                   color: K.card2,
-                  gradient: lead ? RadialGradient(center: Alignment.topLeft, radius: 1.1, colors: [K.a(.13), K.a(0)], stops: const [0, .6]) : null,
                   boxShadow: const [BoxShadow(color: Color(0xF209080E), blurRadius: 28, offset: Offset(0, 16), spreadRadius: -20)],
                 ),
+                foregroundDecoration: lead ? BoxDecoration(borderRadius: BorderRadius.circular(23), gradient: RadialGradient(center: Alignment.topLeft, radius: 1.1, colors: [K.a(.13), K.a(0)], stops: const [0, .6])) : null,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
