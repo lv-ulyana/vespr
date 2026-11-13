@@ -612,7 +612,8 @@ class _Slide extends StatelessWidget {
           ));
           if (!safe) {
             ov.add(Positioned(
-              left: c.dx - 76, top: c.dy + 48, width: 152,
+              // у нижніх картках підпис кутка знизу — ім'я ставимо над кружечком
+              left: c.dx - 76, top: s.ints[k] >= 2 ? c.dy - 70 : c.dy + 48, width: 152,
               child: FittedBox(fit: BoxFit.scaleDown, child: Text(s.who[k].name, textAlign: TextAlign.center, maxLines: 1, style: pr(20, color: nameC[s.ints[k]], h: 1))),
             ));
           }
@@ -632,7 +633,7 @@ class _Slide extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 165),
+                    constraints: const BoxConstraints(maxWidth: 148),
                     child: FittedBox(fit: BoxFit.scaleDown, alignment: right ? Alignment.centerRight : Alignment.centerLeft, child: Text(name.toUpperCase(), maxLines: 1, style: const TextStyle(fontFamily: 'Oswald', fontSize: 30, fontWeight: FontWeight.w600, color: _ink, height: 1, letterSpacing: .3))),
                   ),
                 ],

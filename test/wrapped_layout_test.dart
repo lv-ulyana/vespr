@@ -81,7 +81,8 @@ List<_Issue> _scan(RenderObject root, String tag) {
       final a = paras[i], b = paras[j];
       if (a.$3.length >= 60 || b.$3.length >= 60) continue;
       final x = a.$2.intersect(b.$2);
-      if (x.width > 3 && x.height > 3) out.add(_Issue('$tag: налазять «${a.$3}» і «${b.$3}»'));
+      final small = [a.$2.width * a.$2.height, b.$2.width * b.$2.height].reduce((p, q) => p < q ? p : q);
+      if (x.width > 3 && x.height > 3 && x.width * x.height > small * .25) out.add(_Issue('$tag: налазять «${a.$3}» і «${b.$3}»'));
     }
   }
   return out;
