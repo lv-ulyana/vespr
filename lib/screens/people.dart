@@ -15,6 +15,7 @@ import '../logic/dates.dart';
 import '../logic/stats.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
+import 'compare.dart' show openCompare;
 import 'entry.dart' show EntryForm, EntryView, PAvatar, entryTitle, seedOf;
 import 'onboarding.dart' show AddPersonScreen;
 
@@ -398,7 +399,7 @@ class _QuickTiles extends StatelessWidget {
         ),
         t1: 'Порівняти двох',
         t2: 'Секс і особистість',
-        onTap: () => dToast(context, 'Порівняння переносимо з дизайну наступним'),
+        onTap: () => openCompare(context),
       ),
       const SizedBox(width: 8),
       _tile(
@@ -1167,7 +1168,7 @@ class _PersonViewState extends State<PersonView> {
           child: Row(children: [
             Press(
               label: 'Порівняти',
-              onTap: () => dToast(context, 'Порівняння переносимо з дизайну наступним'),
+              onTap: () => openCompare(context, personId: p.id),
               child: Container(width: 56, height: 56, decoration: const BoxDecoration(shape: BoxShape.circle, color: K.hour), alignment: Alignment.center, child: const Ico(_icRings, size: 20)),
             ),
             const SizedBox(width: 10),

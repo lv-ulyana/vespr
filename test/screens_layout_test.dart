@@ -15,6 +15,7 @@ import 'package:vespr/data/legal.dart';
 import 'package:vespr/data/models.dart';
 import 'package:vespr/data/store.dart';
 import 'package:vespr/screens/calendar.dart';
+import 'package:vespr/screens/compare.dart';
 import 'package:vespr/screens/entry.dart';
 import 'package:vespr/screens/export_screen.dart';
 import 'package:vespr/screens/import_screen.dart';
@@ -48,6 +49,9 @@ List<(String, Widget)> _screens(DB db) => [
       if (db.people.isNotEmpty) ('person_view', PersonView(personId: db.people.first.id)),
       if (db.people.length > 1) ('person_view2', PersonView(personId: db.people[1].id)),
       if (db.people.isNotEmpty) ('person_edit', PersonEdit(personId: db.people.first.id)),
+      if (db.people.length > 1) ('compare_sex', const CompareScreen()),
+      if (db.people.length > 1) ('compare_him', const CompareScreen(tab: 1)),
+      if (db.people.length > 1) ('compare_stars', const CompareScreen(tab: 2)),
       ('shame', const ShameScreen()),
       ('glory', const ShameScreen(glory: true)),
       ('arcana', const MyArcanaScreen()),
