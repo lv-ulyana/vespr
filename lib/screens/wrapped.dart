@@ -731,7 +731,7 @@ class _Slide extends StatelessWidget {
                     Ico(icons[k.clamp(0, 2)], size: 28, color: fast && k == 2 ? Colors.white : _pink),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('${s.rows[k].who?.show(safe) ?? ''}${s.rows[k].label}', overflow: TextOverflow.ellipsis, style: ws(15, FontWeight.w700, _pink, h: 1.2)),
+                      child: Text('${s.rows[k].who == null ? '' : (safe ? s.rows[k].who!.safe.split(' ').first : s.rows[k].who!.name)}${s.rows[k].label}', overflow: TextOverflow.ellipsis, style: ws(15, FontWeight.w700, _pink, h: 1.2)),
                     ),
                     _pill(s.rows[k].value, const Color(0xFF2E2A44), Colors.white, size: 15, pad: const EdgeInsets.symmetric(horizontal: 12, vertical: 7)),
                   ]),
@@ -824,7 +824,7 @@ class _Slide extends StatelessWidget {
           ])),
         ));
         ov.add(Positioned(
-          left: 34, top: 791, width: 322,
+          left: 34, top: 808, width: 322,
           child: WAnim('wrUp', delay: 700, dur: 900, child: Container(
             padding: const EdgeInsets.only(top: 12),
             decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0x38FFFFFF)))),
@@ -1060,6 +1060,7 @@ class _Slide extends StatelessWidget {
         ]),
       ),
       if (body.isNotEmpty) _body(body),
+      ...wrappedLayers(s.k.index, above: true),
     ]);
   }
 
