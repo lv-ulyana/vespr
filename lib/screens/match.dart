@@ -422,7 +422,6 @@ class _MatchScreenState extends State<MatchScreen> {
                 check,
               ] else
                 Text('Для аркана пари потрібна повна дата народження ${p.name}, не тільки знак.', style: rw(13, color: K.muted, h: 1.5)),
-              Padding(padding: const EdgeInsets.only(top: 12), child: Center(child: Text('Це гра, а не наука', style: rw(11, color: K.muted2)))),
             ], 16)),
           ),
         ),

@@ -1532,7 +1532,6 @@ class _MyArcanaScreenState extends State<MyArcanaScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                Text('Це гра, а не наука', textAlign: TextAlign.center, style: rw(11, color: K.muted2)),
               ]),
             ),
           ),
