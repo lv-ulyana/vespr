@@ -79,16 +79,17 @@ class DScroll extends StatelessWidget {
   final EdgeInsets padding;
   final double gap;
   final Widget? bottom; // закріплена кнопка внизу
+  final double bottomH; // скільки місця лишити під неї в прокрутці
   final List<Widget> overlay;
-  const DScroll({super.key, required this.children, this.padding = const EdgeInsets.fromLTRB(20, 58, 20, 22), this.gap = 16, this.bottom, this.overlay = const []});
+  const DScroll({super.key, required this.children, this.padding = const EdgeInsets.fromLTRB(20, 58, 20, 22), this.gap = 16, this.bottom, this.bottomH = 80, this.overlay = const []});
   @override
   Widget build(BuildContext context) => DFrame(
         builder: (context, h) => Stack(children: [
           Positioned.fill(
             child: SingleChildScrollView(
-              padding: padding.copyWith(bottom: padding.bottom + (bottom != null ? 80 : 0)),
+              padding: padding.copyWith(bottom: padding.bottom + (bottom != null ? bottomH : 0)),
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: h - padding.vertical - (bottom != null ? 80 : 0)),
+                constraints: BoxConstraints(minHeight: h - padding.vertical - (bottom != null ? bottomH : 0)),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped(children, gap)),
               ),
             ),
@@ -293,7 +294,7 @@ class EGlow extends StatelessWidget {
           child: Transform.scale(
             scaleY: h / w,
             child: OverflowBox(
-              maxHeight: w,
+              minWidth: w, maxWidth: w, minHeight: w, maxHeight: w,
               child: Container(
                 width: w,
                 height: w,

@@ -1,9 +1,10 @@
 // Спільне для тестів верстки: справжні шрифти і пошук проблем з текстом.
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' show ScrollPosition;
+import 'package:flutter/widgets.dart';
 
 const _fams = {
   'Onest': 'Onest_',
@@ -58,7 +59,7 @@ class _Para {
   final List<Rect> lines; // «чорнильні» рядки: без порожнього міжрядкового простору
   final Rect rect;
   final String t;
-  final RenderViewportBase? vp; // вертикальна прокрутка
+  final RenderObject? vp; // вертикальна прокрутка
   final double rest; // скільки ще можна прокрутити вниз
   _Para(this.lines, this.rect, this.t, this.vp, this.rest);
 }
@@ -67,6 +68,17 @@ class _Para {
 List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
   final out = <Issue>[];
   final paras = <_Para>[];
+  // усі прокрутки на екрані: їхній рендер-вузол → стан (вісь, позиція)
+  final scrolls = <RenderObject, ScrollableState>{};
+  void findScroll(Element e) {
+    if (e is StatefulElement && e.state is ScrollableState) {
+      final ro = e.findRenderObject();
+      if (ro != null) scrolls[ro] = e.state as ScrollableState;
+    }
+    e.visitChildren(findScroll);
+  }
+  final rootEl = WidgetsBinding.instance.rootElement;
+  if (rootEl != null) findScroll(rootEl);
   void walk(RenderObject r) {
     if (r is RenderParagraph && r.hasSize && r.attached && _visible(r)) {
       final full = r.text.toPlainText();
@@ -78,30 +90,35 @@ List<Issue> scanText(RenderObject root, String tag, {double width = 390}) {
         final local = boxes.isEmpty ? Offset.zero & r.size : boxes.map((b) => b.toRect()).reduce((a, b) => a.expandToInclude(b));
         final rect = MatrixUtils.transformRect(m, local);
         // рядок — без інтерліньяжу: верх 18% і низ 12% бокса це повітря
+        // під невеликим кутом (стікери, плашки) рамку не роздуваємо до описаного прямокутника:
+        // центр рядка переносимо, розмір множимо на масштаб
+        final sc = math.sqrt(m.entry(0, 0) * m.entry(0, 0) + m.entry(1, 0) * m.entry(1, 0));
+        Rect place(Rect l) => m.entry(1, 0).abs() < 1e-6
+            ? MatrixUtils.transformRect(m, l)
+            : Rect.fromCenter(center: MatrixUtils.transformPoint(m, l.center), width: l.width * sc, height: l.height * sc);
         final lines = [
           for (final b in boxes)
-            if (b.toRect().height > 0)
-              MatrixUtils.transformRect(m, Rect.fromLTRB(b.left, b.top + (b.bottom - b.top) * .18, b.right, b.bottom - (b.bottom - b.top) * .12)),
+            if (b.toRect().height > 0) place(Rect.fromLTRB(b.left, b.top + (b.bottom - b.top) * .18, b.right, b.bottom - (b.bottom - b.top) * .12)),
         ];
         // повністю поза екраном збоку (сусідні сторінки PageView) — не видно
         if (rect.right < 0 || rect.left > width) {
           r.visitChildren(walk);
           return;
         }
-        RenderViewportBase? vp;
+        RenderObject? vp;
         var hScroll = false;
+        var rest = 0.0;
         for (RenderObject? p = r.parent; p != null; p = p.parent) {
-          if (p is RenderViewportBase) {
-            if (p.axis == Axis.horizontal) {
-              hScroll = true;
-            } else {
-              vp ??= p;
-            }
+          final scr = scrolls[p];
+          if (scr == null) continue;
+          if (scr.axis == Axis.horizontal) {
+            hScroll = true;
+          } else if (vp == null) {
+            vp = p;
+            final pos = scr.position;
+            if (pos.hasContentDimensions) rest = (pos.maxScrollExtent - pos.pixels) * sc;
           }
         }
-        var rest = 0.0;
-        final off = vp?.offset;
-        if (off is ScrollPosition && off.hasContentDimensions) rest = off.maxScrollExtent - off.pixels;
         paras.add(_Para(lines.isEmpty ? [rect] : lines, rect, t, vp, rest));
         if (r.didExceedMaxLines) out.add(Issue('$tag: обрізано «$t»'));
         // біжучі стрічки й горизонтальні стрічки чипів свідомо ширші за екран

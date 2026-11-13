@@ -1175,6 +1175,7 @@ class SubscriptionScreen extends StatelessWidget {
 
     return DScroll(
       padding: const EdgeInsets.fromLTRB(20, 58, 20, 24),
+      bottomH: 116,
       bottom: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (premium)
           Press(

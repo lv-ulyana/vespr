@@ -622,7 +622,7 @@ class _Slide extends StatelessWidget {
                     decoration: BoxDecoration(color: win ? _ink : null, border: win ? null : Border.all(color: _ink, width: 1.5)),
                     child: Text(tag.toUpperCase(), style: mono(10, FontWeight.w600).copyWith(color: win ? _yel : _ink, letterSpacing: 1.4, height: 1)),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 148),
                     child: FittedBox(fit: BoxFit.scaleDown, alignment: right ? Alignment.centerRight : Alignment.centerLeft, child: Text(name.toUpperCase(), maxLines: 1, style: const TextStyle(fontFamily: 'Oswald', fontSize: 30, fontWeight: FontWeight.w600, color: _ink, height: 1, letterSpacing: .3))),
