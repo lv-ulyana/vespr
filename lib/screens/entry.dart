@@ -368,7 +368,7 @@ class _EntryFormState extends State<EntryForm> {
   Widget _sexTab(List<Question> qs) => _list([
         Text('Був секс?', style: rw(13, w: FontWeight.w600)),
         _seg(const [('y', 'Так'), ('n', 'Ні, тільки побачення')], hadSex ? 'y' : 'n', (v) => setState(() => hadSex = v == 'y')),
-        if (!hadSex) Text('Питання про секс пропускаємо. У Wrapped цей вечір піде як побачення: оцінюємо сам вечір і його.', style: rw(12, color: K.muted2, h: 1.45)),
+        if (!hadSex) Text('Тоді без питань про секс: оціниш сам вечір і його.', style: rw(12, color: K.muted2, h: 1.45)),
         const SizedBox(height: 6),
         if (hadSex)
           for (final q in qs)
