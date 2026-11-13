@@ -63,6 +63,8 @@ final _icHeartO = _svg('<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3
 final _icEye = _svg('<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g>');
 final _icChat = _svg('<path fill="currentColor" d="M12 3C6.5 3 2 6.8 2 11.4c0 2.4 1.2 4.5 3.2 6L4.5 21l4.1-2.1c1.1.3 2.2.5 3.4.5 5.5 0 10-3.8 10-8.4S17.5 3 12 3z"/><circle cx="8" cy="11.4" r="1.3" fill="#1A120E"/><circle cx="12" cy="11.4" r="1.3" fill="#1A120E"/><circle cx="16" cy="11.4" r="1.3" fill="#1A120E"/>');
 final _icShield = _svg('<path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="#1A120E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
+final _icAlert = _svg('<circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 7v6" stroke="#1A120E" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.3" fill="#1A120E"/>');
+final _icHeartF = _svg('<path fill="currentColor" d="M12 21C5 15.5 2 12 2 8a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7.5-10 13z"/><path d="m8.5 11.5 2.4 2.4 4.6-4.6" fill="none" stroke="#1A120E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>');
 final _icHeart2 = _svg('<path d="M12 21C5 15.5 2 12 2 8a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-3 7.5-10 13z" fill="currentColor"/>');
 final _icShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v13M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';
 final _icClose = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -341,7 +343,7 @@ class _Slide extends StatelessWidget {
   Widget _title({String? line2, bool fit = false}) {
     final big = txtDark ? 48.0 : 46.0;
     final st = ws(big, FontWeight.w800, fg, h: .93, ls: -big * .05);
-    final l2 = line2 ?? s.title2;
+    final l2 = line2 ?? s.t2(safe);
     final parts = l2.split('|');
     final lines = <Widget>[
       Text(s.title1, style: st),
@@ -582,6 +584,7 @@ class _Slide extends StatelessWidget {
                 Flexible(child: Text('· ${s.c}', overflow: TextOverflow.ellipsis, style: ws(14, FontWeight.w500, Colors.white.withValues(alpha: .62)))),
               ]),
             ),
+          if (s.a.isEmpty || s.b.isEmpty) _cap(s.cap(safe)),
         ]);
       case WK.matrix:
         // центри кружечків у картках 2×2: гаряче й безпечно, гаряче й токсично, надійно-нудно, навіщо
@@ -892,7 +895,7 @@ class _Slide extends StatelessWidget {
             ? [card(Ico(_icEye, size: 26, color: _rose), 'Цей слайд бачиш тільки ти', 'У сторіз і «Без імен» його нема.')]
             : [
                 for (final r in s.rows)
-                  card(Ico(r.kind == 11 ? _icShield : _icChat, size: 26, color: _rose), r.label, '${r.value}${r.who != null && !r.value.contains('той самий') ? ', з ${r.who!.name}' : ''}'),
+                  card(Ico(switch (r.kind) { 11 => _icShield, 12 => _icAlert, 13 => _icHeartF, _ => _icChat }, size: 26, color: _rose), r.label, r.value),
               ];
         ov.add(Positioned(
           left: 30, top: 318,
@@ -924,6 +927,7 @@ class _Slide extends StatelessWidget {
                 ),
             ]),
           ),
+          if (s.rows.isEmpty) _cap(s.capSafe),
         ]);
       case WK.glow:
         ov.add(_Calendar(month: s.a, best: s.ints.first, firstWeekday: s.ints.length > 1 ? s.ints[1] : 1));

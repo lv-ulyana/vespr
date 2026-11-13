@@ -99,6 +99,28 @@ void main() {
     expect(empty.slides.first.k, WK.cover);
   });
 
+  test('Wrapped: генератор з актами', () {
+    final db = DB(profile: Profile(), people: people, entries: entries, meetings: []);
+    final k = buildWrapped('2026-10', db).slides.map((s) => s.k).toList();
+    // акт 1 — сталі три, акт 7 — нагороди (завжди), проти минулого (у вересні 3 записи), підсумок, квиток
+    expect(k.take(3), [WK.receipt, WK.best].fold<List<WK>>([WK.cover], (l, x) => l..add(x)));
+    expect(k.sublist(k.length - 4), [WK.awards, WK.glow, WK.closed, WK.ticket]);
+    expect(k.length, inInclusiveRange(8, 19));
+    int act(Set<WK> s) => k.where(s.contains).length;
+    expect(act({WK.sex, WK.orgasm}), lessThanOrEqualTo(2));
+    expect(act({WK.match, WK.matrix, WK.battle}), inInclusiveRange(1, 3));
+    expect(act({WK.phone, WK.fame}), lessThanOrEqualTo(2));
+    expect(act({WK.longest, WK.fastest, WK.budget}), lessThanOrEqualTo(3));
+    // тиск і дискомфорт у жовтні є → «Варто помітити» завжди
+    expect(k, contains(WK.notice));
+
+    // 0–2 записи → Міні-Wrapped на 4 слайди
+    final two = DB(profile: Profile(), people: people, entries: entries.where((e) => e.date.startsWith('2026-10')).take(2).toList(), meetings: []);
+    final mini = buildWrapped('2026-10', two);
+    expect(mini.slides.map((s) => s.k), [WK.cover, WK.receipt, WK.best, WK.closed]);
+    expect(mini.slides.first.t2(true), 'перші|кроки');
+  });
+
   test('експорт у таблицю', () {
     final db = DB(profile: Profile(), people: people, entries: entries, meetings: []);
     final now = DateTime(2026, 10, 30);
