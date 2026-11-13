@@ -22,7 +22,7 @@ import 'import_screen.dart';
 import 'map.dart' show MyArcanaScreen;
 import 'pin_screens.dart';
 import 'table_screen.dart';
-import 'wrapped.dart' show WrappedScreen;
+import 'wrapped.dart' show WrappedArchiveScreen;
 
 /// Перемикачі без окремого поля в профілі живуть у counters під ключем opt:… (1 — увімкнено).
 bool profOpt(Profile p, String k) => (p.counters['opt:$k'] ?? 1) == 1;
@@ -291,7 +291,7 @@ class SettingsScreen extends StatelessWidget {
         labeled(
           'Записи',
           Grp([
-            GRow(icon: BS.wrapped, title: 'Wrapped', value: cap(monthsNom[prev.month - 1]), arrow: BS.chev, onTap: () => go(context, WrappedScreen(month: iso(prev).substring(0, 7)))),
+            GRow(icon: BS.wrapped, title: 'Wrapped', value: cap(monthsNom[prev.month - 1]), arrow: BS.chev, onTap: () => go(context, const WrappedArchiveScreen())),
             GRow(icon: _icStar, title: 'Мої питання', value: '$sexN + $ptN', arrow: BS.chev, onTap: () => go(context, const QuestionsScreen())),
             GRow(icon: BS.download, title: 'Експорт', value: 'Таблиця, календар', arrow: BS.chev, onTap: () => go(context, const ExportScreen())),
             GRow(icon: BS.upload, title: 'Імпорт', value: 'З таблиці чи календаря', arrow: BS.chev, onTap: () => go(context, const ImportScreen())),
@@ -1542,7 +1542,7 @@ class _DeleteAllScreenState extends State<DeleteAllScreen> {
                   curve: easeD,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: ok ? const Color(0xFFD9544F) : Colors.transparent,
+                    color: ok ? const Color(0xFFD9544F) : K.w(.06),
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: ok ? const Color(0xFFD9544F) : K.w(.1)),
                     boxShadow: ok ? const [BoxShadow(color: Color(0xB3D9544F), blurRadius: 30, offset: Offset(0, 14), spreadRadius: -14)] : null,

@@ -18,7 +18,7 @@ import 'calendar.dart';
 import 'entry.dart';
 import 'onboarding.dart';
 import 'settings.dart';
-import 'wrapped.dart';
+import 'wrapped.dart' show WrappedScreen;
 
 /// «сьогодні», «завтра», «у суботу» (до тижня), інакше «14.11»
 String _when(String d) {

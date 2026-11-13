@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' show Rect;
 
 import 'package:add_2_calendar/add_2_calendar.dart';
@@ -32,6 +33,22 @@ Future<void> shareTextFile(String name, String content, String mime, {String? su
   await f.writeAsString(content, flush: true);
   // На iPad вікно «Поділитися» потребує точки прив'язки
   await Share.shareXFiles([XFile(f.path, mimeType: mime, name: name)], subject: subject, sharePositionOrigin: origin ?? const Rect.fromLTWH(0, 0, 1, 1));
+}
+
+/// Картинка чи інший бінарний файл у системне «Поділитися» (у браузері — завантаження, якщо не вийшло)
+Future<void> shareBytesFile(String name, List<int> bytes, String mime) async {
+  if (kIsWeb) {
+    try {
+      final r = await Share.shareXFiles([XFile.fromData(Uint8List.fromList(bytes), mimeType: mime, name: name)]);
+      if (r.status != ShareResultStatus.unavailable) return;
+    } catch (_) {}
+    downloadBytes(bytes, name, mime);
+    return;
+  }
+  final dir = await getTemporaryDirectory();
+  final f = File('${dir.path}/$name');
+  await f.writeAsBytes(bytes, flush: true);
+  await Share.shareXFiles([XFile(f.path, mimeType: mime, name: name)], sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1));
 }
 
 /// Одна зустріч одразу у вікно створення події календаря телефону.
