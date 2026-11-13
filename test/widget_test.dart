@@ -86,12 +86,17 @@ void main() {
   });
 
   test('Wrapped', () {
-    final w = buildWrapped('2026-10', entries, people);
-    expect(w.mini, isFalse);
-    expect(w.slides.first.key, 'cover');
-    expect(w.slides.map((s) => s.key), containsAll(['best', 'sex', 'shame', 'type', 'notice', 'end']));
-    expect(w.slides.firstWhere((s) => s.key == 'notice').private, isTrue);
-    expect(buildWrapped('2026-08', entries, people).slides.single.key, 'empty');
+    final db = DB(profile: Profile(), people: people, entries: entries, meetings: []);
+    final w = buildWrapped('2026-10', db);
+    expect(w.slides.first.k, WK.cover);
+    expect(w.slides.last.k, WK.ticket);
+    expect(w.slides.map((s) => s.k), containsAll([WK.receipt, WK.best, WK.closed]));
+    for (final s in w.slides.where((s) => s.k == WK.notice || s.k == WK.orgasm)) {
+      expect(s.private, isTrue);
+    }
+    final empty = buildWrapped('2026-08', db);
+    expect(empty.count, 0);
+    expect(empty.slides.first.k, WK.cover);
   });
 
   test('експорт у таблицю', () {
