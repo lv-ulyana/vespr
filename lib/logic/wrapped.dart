@@ -1084,7 +1084,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
       final easy = zodiacEase(me.sign, hs.sign) == 'Легко';
       final sv = avg(ps.map(sexOf));
       if (easy == sv >= 3.5) continue; // зорі й записи не сперечаються — нема слайда
-      const verbs = {'flag_r_phone': 'сидить у телефоні', 'flag_r_late': 'запізнюється', 'flag_r_ex': 'згадує колишню', 'flag_r_self': 'говорить про себе', 'flag_r_cheap': 'рахує копійки', 'flag_r_jab': 'підколює', 'flag_r_drunk': 'перебирає', 'flag_r_jealous': 'ревнує', 'flag_r_gone': 'зникає', 'flag_r_lie': 'бреше', 'flag_r_push': 'квапить'};
+      const verbs = {'flag_r_phone': 'сидить у телефоні', 'flag_r_late': 'запізнюється', 'flag_r_ex': 'згадує колишню', 'flag_r_self': 'говорить про себе', 'flag_r_cheap': 'рахує копійки', 'flag_r_jab': 'підколює', 'flag_r_drunk': 'перебирає', 'flag_r_gone': 'зникає'}; // ревнощі, брехня і тиск — не для жартівливого слайда
       final rv = redTop(ofP(id)).map((x) => verbs[x.key]).whereType<String>().take(2).toList();
       opts.add(WSlide(WK.horo, 'Зорі брешуть,', 'метрики ні',
           who: [wp(id)],
