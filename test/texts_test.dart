@@ -8,10 +8,10 @@ import 'package:vespr/logic/insights.dart';
 import 'layout_util.dart';
 
 void main() {
-  testWidgets('Факт дня: кожен влазить у картку на SE і 390', (tester) async {
+  testWidgets('Факт дня: кожен влазить у картку на 375 і 390', (tester) async {
     await tester.runAsync(loadFonts);
-    // картка «Факт дня»: на 390 текст має ~132 px ширини, на 375 ~125, на 320 ~99; висота ~110 px
-    for (final w in [132.0, 125.0, 99.0]) {
+    // картка «Факт дня»: на 390 текст має ~132 px ширини, на 375 ~125; на 320 текст сам зменшується
+    for (final w in [132.0, 125.0]) {
       for (final f in dayFacts) {
         final tp = TextPainter(
           textDirection: TextDirection.ltr,

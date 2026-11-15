@@ -520,9 +520,22 @@ class HomeTab extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                       Row(children: [const Ico(Svgs.star4, size: 13, color: K.acc), const SizedBox(width: 6), Text('Факт дня', style: rw(11, color: K.muted2, w: FontWeight.w600))]),
-                      Text.rich(
-                        TextSpan(text: fact.plain, children: [TextSpan(text: fact.accent, style: rw(14, w: FontWeight.w500, h: 1.38))]),
-                        style: rw(14, color: const Color(0xFFD7D3E0), w: FontWeight.w300, h: 1.38),
+                      const SizedBox(height: 6),
+                      // на вузьких екранах довгий факт трохи зменшується, а не вилазить
+                      Flexible(
+                        child: LayoutBuilder(
+                          builder: (context, bc) => FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.bottomLeft,
+                            child: SizedBox(
+                              width: bc.maxWidth,
+                              child: Text.rich(
+                                TextSpan(text: fact.plain, children: [TextSpan(text: fact.accent, style: rw(14, w: FontWeight.w500, h: 1.38))]),
+                                style: rw(14, color: const Color(0xFFD7D3E0), w: FontWeight.w300, h: 1.38),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ]),
                   ),
