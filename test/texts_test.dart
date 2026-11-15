@@ -12,7 +12,7 @@ void main() {
     await tester.runAsync(loadFonts);
     // картка «Факт дня»: на 390 текст має ~132 px ширини, на 375 ~125; на 320 текст сам зменшується
     for (final w in [132.0, 125.0]) {
-      for (final f in dayFacts) {
+      for (final f in dayCards) {
         final tp = TextPainter(
           textDirection: TextDirection.ltr,
           text: TextSpan(
@@ -29,8 +29,9 @@ void main() {
   });
 
   test('Факт дня: щодня інший, усі різні', () {
-    final seen = {for (final f in dayFacts) f.plain + f.accent};
-    expect(seen.length, dayFacts.length);
+    final seen = {for (final f in dayCards) f.plain + f.accent};
+    expect(seen.length, dayCards.length);
+    expect(dayCards.length, dayFacts.length + dayThoughts.length);
     expect(factOfDay(DateTime(2026, 11, 15)) != factOfDay(DateTime(2026, 11, 16)), isTrue);
   });
 

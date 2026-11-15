@@ -519,7 +519,7 @@ class HomeTab extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      Row(children: [const Ico(Svgs.star4, size: 13, color: K.acc), const SizedBox(width: 6), Text('Факт дня', style: rw(11, color: K.muted2, w: FontWeight.w600))]),
+                      Row(children: [const Ico(Svgs.star4, size: 13, color: K.acc), const SizedBox(width: 6), Text(fact.label, style: rw(11, color: K.muted2, w: FontWeight.w600))]),
                       const SizedBox(height: 6),
                       // на вузьких екранах довгий факт трохи зменшується, а не вилазить
                       Flexible(
