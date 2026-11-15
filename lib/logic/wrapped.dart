@@ -1004,7 +1004,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
       fact = 'flag_r_gone';
     } else if (fakeN >= 2) {
       ty = WSlide(WK.type, 'Заслужена', 'артистка 🎭', artOv: WArt.artist, private: true, a: '$fakeN', b: '/${sx.length}', x: const {'lab': 'вдавала\nцього місяця'},
-          capSafe: 'Станіславський аплодує стоячи. Деталі — на закритому показі.', capFull: 'Вдавала ${_times(fakeN)} з ${sx.length}. Станіславський аплодує стоячи. Він нічого не помітив.');
+          capSafe: 'Станіславський аплодує стоячи. Деталі — на закритому показі.', capFull: 'Вдавала ${_times(fakeN)} з ${sx.length}. Станіславський аплодує стоячи.');
     }
     if (ty != null) cand(ty, .75, n, fact);
   }

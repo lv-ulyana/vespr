@@ -44,7 +44,7 @@ void openMatch(BuildContext context, Person p) {
     return;
   }
   if (astroOf(p.birth, p.signOnly) == null) {
-    dToast(context, 'Додай дату народження чи знак ${p.name} в картці');
+    dToast(context, 'Додай його дату народження чи знак у картці');
     return;
   }
   go(context, MatchScreen(personId: p.id));
@@ -421,7 +421,7 @@ class _MatchScreenState extends State<MatchScreen> {
                 Text('Аркан каже, записи перевіряють', style: pr(24, h: 1.2)),
                 check,
               ] else
-                Text('Для аркана пари потрібна повна дата народження ${p.name}, не тільки знак.', style: rw(13, color: K.muted, h: 1.5)),
+                Text('Для аркана пари потрібна його повна дата народження, а не тільки знак.', style: rw(13, color: K.muted, h: 1.5)),
             ], 16)),
           ),
         ),

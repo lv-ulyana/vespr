@@ -1,6 +1,7 @@
 // «Календар» і «Нова зустріч»: перенесено з дошок Calendar і MeetingNew.
 import 'package:flutter/material.dart';
 
+import '../services/reminders.dart';
 import '../data/catalog.dart';
 import '../data/models.dart';
 import '../data/store.dart';
@@ -632,6 +633,7 @@ class _MeetingFormState extends State<MeetingForm> {
               Cta(prev == null ? 'Запланувати' : 'Зберегти', onTap: !canSave
                   ? null
                   : () async {
+                      if (remind) await Reminders.ask();
                       await s.saveMeeting(_m);
                       if (context.mounted) Navigator.pop(context);
                     }),

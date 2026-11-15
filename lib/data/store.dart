@@ -1,3 +1,4 @@
+import '../services/reminders.dart';
 import 'dart:convert';
 import 'dart:math';
 
@@ -41,10 +42,12 @@ class AppStore extends ChangeNotifier {
         await _prefs.setString('$_key-broken', raw);
       }
     }
+    Reminders.sync(meetings);
   }
 
   Future<void> _save() async {
     notifyListeners();
+    Reminders.sync(meetings);
     await _prefs.setString(_key, jsonEncode(db.toJson()));
   }
 

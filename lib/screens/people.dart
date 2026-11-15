@@ -557,7 +557,7 @@ class _StaleBanner extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
           child: Row(children: [
-            Expanded(child: Text('З ${person.name} не було записів $days ${plural(days, 'день', 'дні', 'днів')}. Перенести в минулі?', style: rw(13, color: K.soft, h: 1.4))),
+            Expanded(child: Text('${person.name}: записів не було $days ${plural(days, 'день', 'дні', 'днів')}. Перенести в минулі?', style: rw(13, color: K.soft, h: 1.4))),
             const SizedBox(width: 10),
             Press(onTap: onYes, child: Container(height: 44, padding: const EdgeInsets.symmetric(horizontal: 18), decoration: BoxDecoration(color: K.star, borderRadius: BorderRadius.circular(999)), alignment: Alignment.center, child: Text('Так', style: rw(13, color: K.bg, w: FontWeight.w600)))),
             const SizedBox(width: 10),

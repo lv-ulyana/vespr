@@ -297,11 +297,6 @@ class SettingsScreen extends StatelessWidget {
             GRow(icon: BS.download, title: 'Експорт', value: 'Таблиця, календар', arrow: BS.chev, onTap: () => go(context, const ExportScreen())),
             GRow(icon: BS.upload, title: 'Імпорт', value: 'З таблиці чи календаря', arrow: BS.chev, onTap: () => go(context, const ImportScreen())),
             GRow(icon: BS.table, title: 'Усі записи таблицею', arrow: BS.chev, onTap: () => go(context, const TableScreen())),
-            GRow(
-              icon: BS.bell,
-              title: 'Нагадати записати',
-              trailing: SwS(on: profOpt(p, 'remind'), label: 'Нагадувати записати після зустрічі', onChanged: (v) => _setOpt(s, 'remind', v)),
-            ),
           ]),
         ),
         // --- приватність ---

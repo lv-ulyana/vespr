@@ -53,6 +53,26 @@ if ! grep -q 'android.permission.READ_CALENDAR' "$MF"; then
   perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.READ_CALENDAR" />\n    <uses-permission android:name="android.permission.WRITE_CALENDAR" />#' "$MF"
 fi
 
+echo "› Android: нагадування за годину до зустрічі (локальні сповіщення)"
+for f in android/app/build.gradle.kts android/app/build.gradle; do
+  [ -f "$f" ] || continue
+  if ! grep -q 'desugar_jdk_libs' "$f"; then
+    if [[ "$f" == *.kts ]]; then
+      perl -0pi -e 's#compileOptions \{#compileOptions {\n        isCoreLibraryDesugaringEnabled = true#' "$f"
+      printf '\ndependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")\n}\n' >> "$f"
+    else
+      perl -0pi -e 's#compileOptions \{#compileOptions {\n        coreLibraryDesugaringEnabled true#' "$f"
+      printf "\ndependencies {\n    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'\n}\n" >> "$f"
+    fi
+  fi
+done
+if ! grep -q 'POST_NOTIFICATIONS' "$MF"; then
+  perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />#' "$MF"
+fi
+if ! grep -q 'ScheduledNotificationReceiver' "$MF"; then
+  perl -0pi -e 's#</application>#    <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />\n        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">\n            <intent-filter>\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>\n                <action android:name="android.intent.action.QUICKBOOT_POWERON" />\n            </intent-filter>\n        </receiver>\n    </application>#' "$MF"
+fi
+
 echo "› Android: мікрофон і системне розпізнавання мови (голосовий запис)"
 if ! grep -q 'android.permission.RECORD_AUDIO' "$MF"; then
   perl -0pi -e 's#(<manifest[^>]*>)#$1\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />#' "$MF"

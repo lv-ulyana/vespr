@@ -27,6 +27,8 @@ dependencies:
   flutter_svg: ^2.0.10
   image_picker: ^1.1.2
   speech_to_text: ^7.0.0
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
 
 dev_dependencies:
   flutter_test:

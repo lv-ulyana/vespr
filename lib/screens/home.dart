@@ -7,6 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../data/catalog.dart';
 import '../data/models.dart';
 import '../data/store.dart';
+import '../logic/facts.dart';
+import '../logic/insights.dart';
 import '../logic/dates.dart';
 import '../logic/export.dart';
 import '../logic/stats.dart';
@@ -259,25 +261,15 @@ class HomeTab extends StatelessWidget {
     final monthEntries = s.entries.where((e) => monthKey(e.date) == month).toList();
     final limitHit = !p.premium && monthEntries.length >= freeEntriesPerMonth;
     final aw = awardsSummary(s);
+    final fact = factOfDay();
 
     String insight;
     var patterns = 0;
     if (s.entries.length < 3) {
       insight = fewText(3 - s.entries.length);
     } else {
-      final eff = effects(s.entries);
-      patterns = eff.length;
-      final f = formula(eff);
-      if (f.length == 3) {
-        insight = say('formula', {'t1': f[0].label.toLowerCase(), 't2': f[1].label.toLowerCase(), 't3': f[2].label.toLowerCase()});
-      } else if (eff.isEmpty) {
-        insight = 'Поки жодна звичка не вибивається. Записуй далі.';
-      } else {
-        final top = eff.first;
-        insight = top.delta > 0
-            ? say('tagUp', {'tag': top.label.toLowerCase(), 'd': d1(top.delta)}, top.id)
-            : say('tagDown', {'tag': top.label, 'd': d1(top.delta), 'n': top.nWith}, top.id);
-      }
+      patterns = effects(s.entries).length;
+      insight = insightOfDay(s.people, s.entries) ?? 'Поки жодна звичка не вибивається. Записуй далі, і мапа знайде твоє.';
     }
 
     final next = plannedMeetings(s.meetings);
@@ -312,7 +304,7 @@ class HomeTab extends StatelessWidget {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text('Твоя мапа каже', style: rw(12, color: const Color(0xB317161F), w: FontWeight.w600)),
                     const SizedBox(height: 10),
-                    Align(alignment: Alignment.centerLeft, child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 290), child: Text(insight, style: pr(25, color: K.bg, h: 1.2)))),
+                    Align(alignment: Alignment.centerLeft, child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 290), child: Text(insight, style: pr(insight.length > 64 ? 21 : 25, color: K.bg, h: 1.2)))),
                     const SizedBox(height: 18),
                     if (patterns > 0 || s.entries.length < 3)
                       Container(
@@ -529,7 +521,7 @@ class HomeTab extends StatelessWidget {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                       Row(children: [const Ico(Svgs.star4, size: 13, color: K.acc), const SizedBox(width: 6), Text('Факт дня', style: rw(11, color: K.muted2, w: FontWeight.w600))]),
                       Text.rich(
-                        TextSpan(text: 'Більшості жінок для оргазму потрібна ', children: [TextSpan(text: 'стимуляція клітора', style: rw(14, w: FontWeight.w500, h: 1.38))]),
+                        TextSpan(text: fact.plain, children: [TextSpan(text: fact.accent, style: rw(14, w: FontWeight.w500, h: 1.38))]),
                         style: rw(14, color: const Color(0xFFD7D3E0), w: FontWeight.w300, h: 1.38),
                       ),
                     ]),
