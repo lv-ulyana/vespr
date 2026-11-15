@@ -431,7 +431,7 @@ class _ConstellationState extends State<_Constellation> with TickerProviderState
     if (e != null) {
       final w = widget.entries.where((x) => _has(x, e)).map((x) => x.overall);
       final wo = widget.entries.where((x) => !_has(x, e)).map((x) => x.overall);
-      detail = '${niceLabel(e)}: «Як загалом?» в середньому ${fmt(avg(w))}, без цього ${fmt(avg(wo))}. ${e.level}, ${_recs(e.nWith)}.';
+      detail = '${niceLabel(e)}: «Як загалом?» в середньому ${fmt(avg(w))}, без цього ${fmt(avg(wo))}. ${e.level == 'Точно' ? 'Це вже точно' : e.level == 'Закономірність' ? 'Це закономірність' : 'Поки тільки схоже'}: ${_recs(w.length)} з цим, ${wo.length} без.';
     }
     return Container(
       decoration: BoxDecoration(
