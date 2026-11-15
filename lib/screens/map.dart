@@ -1146,7 +1146,7 @@ class _MapEarly extends StatelessWidget {
   const _MapEarly({required this.entries});
 
   /// Перші спостереження: тег, з яким оцінка найвища / найнижча (≥2 записи)
-  (String, String)? _obs(bool up) {
+  (int, String, double)? _obs(bool up) {
     if (entries.length < 3) return null;
     final all = avg(entries.map((e) => e.overall));
     String? bestId;
@@ -1166,7 +1166,7 @@ class _MapEarly extends StatelessWidget {
     }
     if (bestId == null || bestD.abs() < .3) return null;
     final noun = _nice[bestId]!.$2;
-    return up ? ('', noun) : ('$n', noun);
+    return (n, noun, bestD);
   }
 
   @override
@@ -1249,8 +1249,8 @@ class _MapEarly extends StatelessWidget {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(color: K.w(.025), borderRadius: BorderRadius.circular(30), border: Border.all(color: K.w(.06))),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
-                    if (up != null) _Obs(up: true, k: 'Що тебе вмикає', parts: [('Коли є ', false), (up.$2, true), (', тобі найкраще.', false)]),
-                    if (dn != null) _Obs(up: false, k: 'Що тебе вимикає', parts: [(cap(dn.$2), true), (' ${dn.$1 == '2' ? 'обидва рази' : '${dn.$1} рази'} знижував оцінку.', false)]),
+                    if (up != null) _Obs(up: true, k: 'Що тебе вмикає', parts: [(cap(up.$2), true), (': з цим вечір у середньому на ${fmt(up.$3)} вищий.', false)]),
+                    if (dn != null) _Obs(up: false, k: 'Що тебе вимикає', parts: [(cap(dn.$2), true), (dn.$1 == 2 ? ': обидва рази вечір був слабший.' : ': вечір слабший, і вже ${dn.$1} ${plural(dn.$1, 'раз', 'рази', 'разів')}.', false)]),
                   ], 6)),
                 ),
               ),
