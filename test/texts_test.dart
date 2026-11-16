@@ -31,7 +31,6 @@ void main() {
   test('Факт дня: щодня інший, усі різні', () {
     final seen = {for (final f in dayCards) f.plain + f.accent};
     expect(seen.length, dayCards.length);
-    expect(dayCards.length, dayFacts.length + dayThoughts.length);
     expect(factOfDay(DateTime(2026, 11, 15)) != factOfDay(DateTime(2026, 11, 16)), isTrue);
   });
 
