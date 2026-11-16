@@ -44,7 +44,7 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
-  bool adult = true;
+  bool adult = false; // вік підтверджує сама, без галочки за замовчуванням
   String lang = 'uk';
   late final breathe = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat();
 

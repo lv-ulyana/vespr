@@ -50,7 +50,6 @@ const _glyphs = {
 String glyphOf(String sign) => _glyphs[sign] ?? '✦';
 const _symFonts = ['Apple Symbols', 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Noto Sans Symbols'];
 
-const monthsShort = ['січ', 'лют', 'бер', 'квіт', 'трав', 'черв', 'лип', 'серп', 'вер', 'жовт', 'лист', 'груд'];
 
 /// Короткі назви прапорців для «пігулок» (повні — у каталозі)
 const _flagShort = {

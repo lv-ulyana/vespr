@@ -222,7 +222,7 @@ class _EntryFormState extends State<EntryForm> {
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         PAvatar(pid: personId),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(person == null ? 'З ким?' : '${person.name} · ${human(date).replaceAll('листопада', 'лист').replaceAll('жовтня', 'жовт')}', style: rw(12), overflow: TextOverflow.ellipsis)),
+                        Flexible(child: Text(person == null ? 'З ким?' : '${person.name} · ${weekdaysShort[parseIso(date).weekday]}, ${parseIso(date).day} ${monthsShort[parseIso(date).month - 1]}', style: rw(12), overflow: TextOverflow.ellipsis)),
                         if (prev == null) ...[const SizedBox(width: 4), const Ico(_chevDown, size: 11)],
                       ]),
                     ),
