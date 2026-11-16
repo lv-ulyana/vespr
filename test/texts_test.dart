@@ -21,8 +21,8 @@ void main() {
             children: [TextSpan(text: f.accent, style: const TextStyle(fontFamily: 'Raleway', fontSize: 14, height: 1.38, fontWeight: FontWeight.w500))],
           ),
         )..layout(maxWidth: w);
-        // картка 156 px заввишки: під підписом вміщається 5 рядків
-        const maxLines = 5;
+        // 5 рядків влазять як є; довша цитата трохи зменшується (FittedBox), але не дрібніше ~12 px
+        final maxLines = w > 130 ? 6 : 7;
         expect(tp.computeLineMetrics().length <= maxLines, isTrue, reason: '«${f.plain}${f.accent}» на ширині $w: ${tp.computeLineMetrics().length} рядків');
       }
     }
