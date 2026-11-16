@@ -573,7 +573,7 @@ class _EntryFormState extends State<EntryForm> {
               })),
         ]),
       ),
-      if (person != null && hadSex)
+      if (person != null && hadSex && person.gender != 'f')
         Press(
           onTap: () async {
             final v = await showSheet<int>(context, (_) => _SizeSheet(current: person.size));

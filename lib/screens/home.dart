@@ -403,7 +403,7 @@ class HomeTab extends StatelessWidget {
             ),
           ),
           label: 'Wrapped',
-          title: prevCount > 0 ? 'Твій ${monthsNom[prevMonthDate.month - 1]} готовий' : '${cap(monthsNom[now.month - 1])} поки збирається',
+          title: prevCount > 0 ? 'Твій ${monthsNom[prevMonthDate.month - 1]} готовий' : '${cap(monthsNom[now.month - 1])} ще триває',
           onTap: () => go(context, WrappedScreen(month: prevCount > 0 ? prevMonth : month)),
         ),
       ],

@@ -169,7 +169,7 @@ class _PinNewScreenState extends State<PinNewScreen> {
   @override
   Widget build(BuildContext context) {
     final title = step == 1 ? 'Придумай новий PIN' : step == 2 ? 'Повтори його' : 'Готово';
-    final sub = mismatch ? 'Не збіглось. Придумай ще раз' : step == 3 ? 'Новий PIN збережено. Записи на місці.' : step == 2 ? "Ще раз, щоб точно запам'ятати" : '4 цифри, які знаєш тільки ти';
+    final sub = mismatch ? 'Не збіглось. Придумай ще раз' : step == 3 ? (Store.read(context).entries.isEmpty ? 'PIN збережено. Тепер Vespr відкриватимеш тільки ти.' : 'Новий PIN збережено. Записи на місці.') : step == 2 ? "Ще раз, щоб точно запам'ятати" : '4 цифри, які знаєш тільки ти';
     return DFrame(minH: 640, 
       builder: (context, h) => Stack(children: [
         Positioned(left: -60, top: -80, child: EGlow(w: 510, h: 460, colors: [K.a(.16), const Color(0x0017161F)], stops: const [0, .7])),

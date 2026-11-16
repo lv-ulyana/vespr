@@ -284,7 +284,7 @@ class _GText extends StatelessWidget {
     [('Тут тільки ', false), ('ти', true)],
   ];
   static const _texts = [
-    'Після зустрічі 20 секунд голосом. Vespr сам знайде прапорці й заповнить запис.',
+    'Після зустрічі 20 секунд голосом. Vespr запише текстом і підкаже прапорці.',
     'Обери до 10 питань про секс і стільки ж про людину. Зірки за секунди.',
     'Після трьох записів Vespr покаже закономірності, яких ти не помічала.',
     'Секс окремо, характер окремо. Видно, хто в чому сильніший і з ким тобі краще.',
@@ -1667,7 +1667,8 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   Text('Без дати аркан не порахуємо, тільки знак', style: rw(12, color: K.muted2)),
                 ],
               ]),
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              // розмір — тільки для чоловіків
+              if (!f) Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
                   Text.rich(TextSpan(text: 'Розмір ', children: [if (prev == null) TextSpan(text: '· можна пізніше', style: rw(13, color: K.haze))]), style: lbl),
                   const Spacer(),
