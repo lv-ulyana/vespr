@@ -11,6 +11,7 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/astro.dart';
 import '../logic/dates.dart';
+import '../logic/stats.dart';
 import '../services/files.dart';
 import '../services/pin.dart';
 import '../ui/board.dart';
@@ -600,15 +601,28 @@ class _PaywallScreenState extends State<PaywallScreen> {
   List<Widget> _hero(AppStore s) {
     switch (widget.kind) {
       case PaywallKind.main:
+        // Є хоча б дві справжні закономірності — показуємо їх (назва прихована).
+        // Менше — текст з дизайну.
+        final eff = effects(s.entries);
+        final real = eff.length >= 2;
+        final n = real ? eff.length : 2;
         return [
           const SizedBox(height: 4),
-          const Center(child: _SpinRing(size: 118, child: Text('2', style: TextStyle(fontFamily: 'Prata', fontSize: 52, color: K.star, height: 1)))),
+          Center(child: _SpinRing(size: 118, child: Text('$n', style: const TextStyle(fontFamily: 'Prata', fontSize: 52, color: K.star, height: 1)))),
           const SizedBox(height: 16),
-          Text('Ми помітили 2 закономірності про тебе', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
+          Text('Ми помітили $n ${plural(n, 'закономірність', 'закономірності', 'закономірностей')} про тебе', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
           const SizedBox(height: 16),
-          _teaser('Про людей', 'Найкращі вечори в тебе з тими, хто', 'пише першим наступного ранку', 'І це точно не зовнішність.'),
-          const SizedBox(height: 8),
-          _teaser('Про тебе', 'Ти кінчаєш удвічі частіше, коли', "не п'єш і не поспішаєш", 'Сама б не здогадалась.'),
+          if (real)
+            ...gapped([
+              for (final e in eff.take(2))
+                _teaser(e.delta > 0 ? 'Що тебе вмикає' : 'Що тебе вимикає', '${e.delta > 0 ? 'Плюс' : 'Мінус'} ${fmt(e.delta.abs())} до вечора дає', '«${e.label}»',
+                    e.delta > 0 ? 'Сама б не здогадалась.' : 'Варто знати заздалегідь.'),
+            ], 8)
+          else ...[
+            _teaser('Про людей', 'Найкращі вечори в тебе з тими, хто', 'пише першим наступного ранку', 'І це точно не зовнішність.'),
+            const SizedBox(height: 8),
+            _teaser('Про тебе', 'Ти кінчаєш удвічі частіше, коли', "не п'єш і не поспішаєш", 'Сама б не здогадалась.'),
+          ],
         ];
       case PaywallKind.limit:
         final next = DateTime(DateTime.now().year, DateTime.now().month + 1, 1);
