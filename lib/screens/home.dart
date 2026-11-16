@@ -321,7 +321,7 @@ class HomeTab extends StatelessWidget {
                           Expanded(
                             child: Text(
                               s.entries.length < 3
-                                  ? 'з 3 записів до мапи'
+                                  ? 'з 3 записів до перших висновків'
                                   : '${plural(patterns, 'закономірність', 'закономірності', 'закономірностей')} про тебе',
                               style: rw(13, color: K.bg, w: FontWeight.w600),
                             ),

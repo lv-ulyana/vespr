@@ -638,14 +638,16 @@ class _MeetingFormState extends State<MeetingForm> {
                       if (context.mounted) Navigator.pop(context);
                     }),
               const SizedBox(height: 6),
-              if (prev == null)
-                Center(
-                  child: Press(
-                    onTap: !canSave ? null : () => openVoice(context, personId: personId, date: t, replace: true),
-                    child: SizedBox(height: 44, child: Center(child: Text('Зустріч уже була? Одразу записати', style: rw(13, color: K.muted, w: FontWeight.w500)))),
+              // «уже була» — тільки коли вибрано сьогодні чи минулий день
+              if (prev == null) ...[
+                if (date.compareTo(t) <= 0)
+                  Center(
+                    child: Press(
+                      onTap: !canSave ? null : () => openVoice(context, personId: personId, date: date, replace: true),
+                      child: SizedBox(height: 44, child: Center(child: Text('Зустріч уже була? Одразу записати', style: rw(13, color: K.muted, w: FontWeight.w500)))),
+                    ),
                   ),
-                )
-              else ...[
+              ] else ...[
                 if (date.compareTo(t) <= 0)
                   Center(
                     child: Press(

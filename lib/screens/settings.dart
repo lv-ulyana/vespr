@@ -349,16 +349,11 @@ class SettingsScreen extends StatelessWidget {
         ),
         // --- загальне ---
         labeled(
-          "Загальне і здоров'я",
+          'Загальне',
           Grp([
             GRow(icon: BS.cal, title: 'Моя дата', value: p.birth == null ? 'Додай' : toUA(p.birth), arrow: BS.chev, onTap: () => _dateSheet(context, s)),
             GRow(icon: BS.globe, title: 'Мова', value: p.lang == 'en' ? 'English' : 'Українська', arrow: BS.chev, onTap: () => _langSheet(context, s)),
             GRow(icon: BS.people, title: 'Зустрічаюсь', value: dating.label, arrow: BS.chev, onTap: () => _datingSheet(context, s)),
-            GRow(
-              icon: BS.heart,
-              title: 'Нагадувати про тести',
-              trailing: SwS(on: profOpt(p, 'tests'), label: 'Нагадувати про тести', onChanged: (v) => _setOpt(s, 'tests', v)),
-            ),
           ]),
         ),
         // --- документи ---
