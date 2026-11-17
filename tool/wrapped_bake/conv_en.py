@@ -40,7 +40,7 @@ for k in SL:
         b = x['box']; ocx = b[0] + b[2] / 2; ocy = b[1] + b[3] / 2
         if 'rays' in x['cls']: ocx, ocy = 195, 190
         rows.append(f"WL('{'en:' if changed else ''}{fn}', {lx:.1f}, {ly:.1f}, {w:.1f}, {h:.1f}, '{x['a']}', {int(x['d']*1000)}, {int(x['dur']*1000)}, {str(x['it']=='infinite').lower()}, {ocx:.1f}, {ocy:.1f})")
-    dart.append(f"  {k}: [\n    " + ",\n    ".join(rows) + ",\n  ],")
+    dart.append(f"  {k}: [\n    " + ",\n    ".join(rows) + ",\n  ]," if rows else f"  {k}: [],")
 fs = sorted(glob.glob(A + '*.webp'))
 h = hashlib.sha1(b''.join(open(f, 'rb').read() for f in fs)).hexdigest()[:8]
 for f in fs: os.rename(f, f[:-5] + '.' + h + '.webp')
