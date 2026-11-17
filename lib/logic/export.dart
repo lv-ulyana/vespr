@@ -5,6 +5,7 @@ import '../data/catalog.dart';
 import '../data/models.dart';
 import 'dates.dart';
 import 'stats.dart';
+import '../l10n/tr.dart';
 
 enum ExportPeriod { month, months3, year, all }
 
@@ -72,25 +73,25 @@ String meetingsCsv(DB db, TableOptions o, [DateTime? now]) {
     'Зелені прапорці', 'Червоні прапорці', if (o.sensitive) 'Критичні прапорці',
     'Що було', ...facts.map((f) => f.label), if (o.notes) 'Нотатка',
   ];
-  final rows = <List<Object?>>[header];
+  final rows = <List<Object?>>[header.map((h) => h is String ? tr(h) : h).toList()];
   for (final e in es) {
     final p = db.people.where((x) => x.id == e.personId);
     final rel = p.isEmpty ? '' : relLabel(p.first.rel);
-    List<String> fl(FlagKind k) => e.flags.where((f) => flagById(f)?.kind == k).map((f) => flagById(f)!.label).toList();
-    final tags = e.tags.where((t) => o.sensitive || !sensitiveTags.contains(t)).map(tagLabel).toList();
+    List<String> fl(FlagKind k) => e.flags.where((f) => flagById(f)?.kind == k).map((f) => tr(flagById(f)!.label)).toList();
+    final tags = e.tags.where((t) => o.sensitive || !sensitiveTags.contains(t)).map((t) => tr(tagLabel(t))).toList();
     rows.add([
       toUA(e.date),
-      weekdays[parseIso(e.date).weekday],
+      tr(weekdays[parseIso(e.date).weekday]),
       names[e.personId] ?? '—',
-      rel,
-      e.hadSex ? 'так' : 'ні',
+      tr(rel),
+      tr(e.hadSex ? 'так' : 'ні'),
       e.overall,
       ...qIds.where((id) => id != 'sx_overall').map((id) => e.ratings[id]),
       fl(FlagKind.g).join(', '),
       fl(FlagKind.r).join(', '),
       if (o.sensitive) fl(FlagKind.c).join(', '),
       tags.join(', '),
-      ...facts.map((f) => e.facts[f.id] == null ? '' : f.steps[e.facts[f.id]!]),
+      ...facts.map((f) => e.facts[f.id] == null ? '' : tr(f.steps[e.facts[f.id]!])),
       if (o.notes) e.note,
     ]);
   }
@@ -102,7 +103,7 @@ String peopleCsv(DB db, TableOptions o, [DateTime? now]) {
   final es = entriesInPeriod(db.entries, o.period, now);
   final names = nameMap(db.people, o.anon);
   final rows = <List<Object?>>[
-    ['Людина', 'Хто він', 'Статус', 'Причина', 'Зустрічей', 'Загалом', 'Секс', 'Кінчала', 'Зелені прапорці', 'Червоні прапорці', 'Перша зустріч', 'Остання зустріч'],
+    ['Людина', 'Хто він', 'Статус', 'Причина', 'Зустрічей', 'Загалом', 'Секс', 'Кінчала', 'Зелені прапорці', 'Червоні прапорці', 'Перша зустріч', 'Остання зустріч'].map(tr).toList(),
   ];
   final people = [...db.people]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
   for (final p in people) {
@@ -110,13 +111,13 @@ String peopleCsv(DB db, TableOptions o, [DateTime? now]) {
     if (st.n == 0) continue;
     rows.add([
       names[p.id],
-      relLabel(p.rel),
-      p.isPast ? 'минулі' : 'зараз',
-      p.isPast ? pastReasonLabel(p.pastReason) : '',
+      tr(relLabel(p.rel)),
+      tr(p.isPast ? 'минулі' : 'зараз'),
+      p.isPast ? tr(pastReasonLabel(p.pastReason)) : '',
       st.n,
       _num(st.overall),
       st.sexN > 0 ? _num(st.sex) : '',
-      st.orgN > 0 ? '${st.orgMe} з ${st.orgN}' : '',
+      st.orgN > 0 ? trf('{0} з {1}', [st.orgMe, st.orgN]) : '',
       st.green,
       st.red,
       toUA(st.first),
@@ -146,7 +147,7 @@ DateTime meetingStart(Meeting m) {
   return DateTime(d.year, d.month, d.day, int.tryParse(t[0]) ?? 20, int.tryParse(t.length > 1 ? t[1] : '0') ?? 0);
 }
 
-String meetingTitle(Meeting m, String name, bool quiet) => quiet ? quietTitle : 'Побачення: $name';
+String meetingTitle(Meeting m, String name, bool quiet) => quiet ? quietTitle : trf('Побачення: {0}', [name]);
 
 List<Meeting> plannedMeetings(List<Meeting> all, [DateTime? now]) {
   final t = iso(now ?? DateTime.now());

@@ -6,6 +6,10 @@ import 'dart:convert';
 import '../data/catalog.dart';
 import '../data/models.dart';
 import 'dates.dart';
+import '../l10n/en.dart';
+
+/// Українська назва + її англійський переклад (щоб читались і англійські таблиці з Vespr).
+List<String> _both(String s) => [s, if (enExact[s] != null) enExact[s]!];
 
 // ---------- Читання файлу ----------
 
@@ -130,21 +134,21 @@ final Map<String, String> _synonyms = () {
     }
   }
 
-  add('date', ['Дата', 'date', 'коли', 'день зустрічі', 'дата зустрічі']);
-  add('person', ['Людина', 'хто', 'з ким', "ім'я", 'імя', 'name', 'person', 'партнер', 'він']);
-  add('overall', ['Як загалом', 'загалом', 'оцінка', 'бал', 'rating', 'overall', 'score', 'зірки']);
-  add('sex', ['Був секс', 'секс', 'sex', 'було']);
-  add('rel', ['Хто він', 'тип', 'стосунки']);
-  add('note', ['Нотатка', 'нотатки', 'коментар', 'коментарі', 'note', 'notes', 'comment', 'опис']);
-  add('flags_g', ['Зелені прапорці', 'зелені', 'green flags']);
-  add('flags_r', ['Червоні прапорці', 'червоні', 'red flags']);
-  add('flags_c', ['Критичні прапорці', 'критичні']);
-  add('tags', ['Що було', 'теги', 'tags']);
+  add('date', ['Дата', 'date', 'day', 'when', 'коли', 'день зустрічі', 'дата зустрічі']);
+  add('person', ['Людина', 'хто', 'з ким', "ім'я", 'імя', 'name', 'person', 'who', 'partner', 'with', 'партнер', 'він']);
+  add('overall', ['Як загалом', 'загалом', 'оцінка', 'бал', 'rating', 'overall', 'score', 'stars', 'how was it overall', 'зірки']);
+  add('sex', ['Був секс', 'секс', 'sex', 'було', 'had sex']);
+  add('rel', ['Хто він', 'тип', 'стосунки', 'who he is', 'who she is', 'type', 'relationship']);
+  add('note', ['Нотатка', 'нотатки', 'коментар', 'коментарі', 'note', 'notes', 'comment', 'comments', 'description', 'опис']);
+  add('flags_g', ['Зелені прапорці', 'зелені', 'green flags', 'green']);
+  add('flags_r', ['Червоні прапорці', 'червоні', 'red flags', 'red']);
+  add('flags_c', ['Критичні прапорці', 'критичні', 'critical flags', 'critical']);
+  add('tags', ['Що було', 'теги', 'tags', 'what happened']);
   for (final q in allQuestions) {
-    if (q.id != 'sx_overall') add('q:${q.id}', [q.text]);
+    if (q.id != 'sx_overall') add('q:${q.id}', _both(q.text));
   }
   for (final f in facts) {
-    add('f:${f.id}', [f.label]);
+    add('f:${f.id}', _both(f.label));
   }
   return m;
 }();
@@ -240,8 +244,8 @@ int? parseRating(String raw) {
 bool? parseYesNo(String raw) {
   final s = raw.trim().toLowerCase();
   if (s.isEmpty) return null;
-  if (const ['так', 'та', 'yes', 'y', 'true', '+', '✓', '✔', 'x', 'х', 'був', 'було'].contains(s)) return true;
-  if (const ['ні', 'no', 'n', 'false', '-', '—', '0', 'не було', 'не був'].contains(s)) return false;
+  if (const ['так', 'та', 'yes', 'y', 'true', '+', '✓', '✔', 'x', 'х', 'був', 'було', 'had'].contains(s)) return true;
+  if (const ['ні', 'no', 'n', 'false', '-', '—', '0', 'не було', 'не був', 'none', 'nope'].contains(s)) return false;
   final v = double.tryParse(s.replaceAll(',', '.'));
   if (v != null) return v > 0;
   return null;
@@ -269,8 +273,8 @@ List<String> matchLabels(String raw, Map<String, String> byLabel) {
   return out.toSet().toList();
 }
 
-final Map<String, String> _tagByLabel = {for (final e in tagIndex.entries) _norm(e.value.label): e.key};
-final Map<String, String> _flagByLabel = {for (final f in flags) _norm(f.label): f.id};
+final Map<String, String> _tagByLabel = {for (final e in tagIndex.entries) for (final l in _both(e.value.label)) _norm(l): e.key};
+final Map<String, String> _flagByLabel = {for (final f in flags) for (final l in _both(f.label)) _norm(l): f.id};
 
 // ---------- План імпорту ----------
 
@@ -334,7 +338,7 @@ CsvImportPlan planCsvImport(CsvTable t, List<String?> mapping, DB db, {required 
     var pid = byName[name.toLowerCase()];
     if (pid == null) {
       final relRaw = _norm(cell(r, 'rel'));
-      final rel = rels.where((x) => _norm(x.label) == relRaw).map((x) => x.id).firstOrNull ?? 'date';
+      final rel = rels.where((x) => _both(x.label).any((l) => _norm(l) == relRaw)).map((x) => x.id).firstOrNull ?? 'date';
       final p = Person(id: newId(), name: name, rel: rel, createdAt: stamp);
       newPeople.add(p);
       pid = p.id;

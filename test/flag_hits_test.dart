@@ -16,4 +16,12 @@ void main() {
     // ті самі прапорці, що й у звичайних підказках
     expect(h.map((x) => x.flagId).toSet(), suggestFlags(t).toSet());
   });
+
+  test('flagHits: англійська', () {
+    const t = "he didn't push, asked if I was comfortable, walked me home. but he was on his phone half the night and was late";
+    final ids = flagHits(t).map((x) => x.flagId).toSet();
+    expect(ids, containsAll({'flag_g_no', 'flag_g_asks', 'flag_g_walk', 'flag_r_phone', 'flag_r_late'}));
+    expect(ids.contains('flag_r_push'), isFalse);
+    expect(ids, suggestFlags(t).toSet());
+  });
 }

@@ -1240,7 +1240,8 @@ class DocScreen extends StatelessWidget {
   final LegalDoc doc;
   const DocScreen({super.key, required this.doc});
 
-  List<InlineSpan> _spans(String t) {
+  List<InlineSpan> _spans(String src) {
+    final t = tr(src);
     final out = <InlineSpan>[];
     final re = RegExp('⟦(.*?)⟧');
     var i = 0;
@@ -1417,7 +1418,7 @@ class _DeleteAllScreenState extends State<DeleteAllScreen> {
   @override
   Widget build(BuildContext context) {
     final s = Store.of(context);
-    final ok = txt.text.trim().toUpperCase() == 'ВИДАЛИТИ';
+    final ok = txt.text.trim().toUpperCase() == tr('ВИДАЛИТИ');
     final ne = s.entries.length, np = s.people.length;
 
     Widget li(String svg, String? big, String text) => Padding(

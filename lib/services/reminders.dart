@@ -7,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../data/models.dart';
+import '../l10n/tr.dart';
 
 class Reminders {
   static final _p = FlutterLocalNotificationsPlugin();
@@ -62,15 +63,15 @@ class Reminders {
     if (!await _init()) return;
     try {
       await _p.cancelAll();
-      const details = NotificationDetails(
-        android: AndroidNotificationDetails('meetings', 'Зустрічі', channelDescription: 'Нагадування за годину до зустрічі', importance: Importance.defaultImportance, priority: Priority.defaultPriority),
-        iOS: DarwinNotificationDetails(),
+      final details = NotificationDetails(
+        android: AndroidNotificationDetails('meetings', tr('Зустрічі'), channelDescription: tr('Нагадування за годину до зустрічі'), importance: Importance.defaultImportance, priority: Priority.defaultPriority),
+        iOS: const DarwinNotificationDetails(),
       );
       for (final (i, x) in take.indexed) {
         await _p.zonedSchedule(
           i,
           'Vespr',
-          'Через годину зустріч, о ${x.$2.time}.',
+          trf('Через годину зустріч, о {0}.', [x.$2.time]),
           tz.TZDateTime.from(x.$1.toUtc(), tz.UTC),
           details,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

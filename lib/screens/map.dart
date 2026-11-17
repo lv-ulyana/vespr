@@ -1101,7 +1101,7 @@ void _shareSheet(BuildContext context, {required double idx, required List<Effec
     final t = text();
     Navigator.pop(ctx);
     try {
-      await Share.share(t);
+      await Share.share(tr(t));
     } catch (_) {
       await Clipboard.setData(ClipboardData(text: t));
       if (context.mounted) dToast(context, 'Скопійовано');

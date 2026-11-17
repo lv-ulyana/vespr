@@ -118,9 +118,12 @@ class _VoiceScreenState extends State<VoiceScreen> with SingleTickerProviderStat
   Future<String> _locale() async {
     try {
       final ls = await stt!.locales();
-      final uk = ls.where((l) => l.localeId.toLowerCase().startsWith('uk')).firstOrNull;
-      if (uk != null) return uk.localeId;
+      final want = isEn ? 'en' : 'uk';
+      final hit = ls.where((l) => l.localeId.toLowerCase().startsWith(want)).toList();
+      final best = hit.where((l) => l.localeId.toLowerCase().replaceAll('-', '_') == (isEn ? 'en_us' : 'uk_ua')).firstOrNull ?? hit.firstOrNull;
+      if (best != null) return best.localeId;
     } catch (_) {}
+    if (isEn) return kIsWeb ? 'en-US' : 'en_US';
     return kIsWeb ? 'uk-UA' : 'uk_UA';
   }
 

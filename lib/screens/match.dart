@@ -53,7 +53,7 @@ void openMatch(BuildContext context, Person p) {
 
 /// Текст з акцентом *…*
 Widget _rich(String t, TextStyle base, Color acc) {
-  final parts = t.split('*');
+  final parts = tr(t).split('*');
   return Text.rich(TextSpan(children: [
     for (var i = 0; i < parts.length; i++) TextSpan(text: parts[i], style: i.isOdd ? base.copyWith(color: acc, fontWeight: FontWeight.w500) : null),
   ]), style: base);

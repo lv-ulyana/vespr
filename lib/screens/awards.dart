@@ -169,7 +169,7 @@ class _AwardsTabState extends State<AwardsTab> {
                           final t = 'Нова нагорода у Vespr: «${a.d.name}»${a.d.th.length > 1 ? ', рівень ${a.lv}' : ''}.';
                           Navigator.pop(ctx);
                           try {
-                            await Share.share(t);
+                            await Share.share(tr(t));
                           } catch (_) {
                             await Clipboard.setData(ClipboardData(text: t));
                             if (context.mounted) dToast(context, 'Скопійовано');

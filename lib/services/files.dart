@@ -14,6 +14,7 @@ import '../data/catalog.dart';
 import '../data/models.dart';
 import '../logic/export.dart';
 import 'download_stub.dart' if (dart.library.js_interop) 'download_web.dart';
+import '../l10n/tr.dart';
 
 /// Записує текстовий файл у тимчасову папку і відкриває системне «Поділитися»:
 /// Google Диск, Таблиці, Календар, Telegram, Файли — куди вона сама обере.
@@ -56,7 +57,7 @@ Future<void> shareBytesFile(String name, List<int> bytes, String mime) async {
 Future<bool> addMeetingToPhoneCalendar(Meeting m, String name, CalendarOptions o) async {
   if (kIsWeb) {
     final one = DB(profile: Profile(), people: [Person(id: m.personId, name: name, createdAt: '')], entries: [], meetings: [m]);
-    await shareTextFile('vespr-${m.date}.ics', buildIcs(one, o), 'text/calendar', subject: 'Vespr: зустріч');
+    await shareTextFile('vespr-${m.date}.ics', buildIcs(one, o), 'text/calendar', subject: tr('Vespr: зустріч'));
     return true;
   }
   final start = meetingStart(m);
@@ -87,7 +88,7 @@ Future<String> exportBackup(DB db, String password) async {
     'salt': base64.encode(salt), 'nonce': base64.encode(box.nonce), 'mac': base64.encode(box.mac.bytes), 'data': base64.encode(box.cipherText),
   });
   final name = 'vespr-${fileStamp()}.vespr';
-  await shareTextFile(name, payload, 'application/octet-stream', subject: 'Копія Vespr');
+  await shareTextFile(name, payload, 'application/octet-stream', subject: tr('Копія Vespr'));
   return name;
 }
 
