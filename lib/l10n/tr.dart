@@ -70,7 +70,12 @@ String trf(String uk, List<Object?> args) {
   return tr(s);
 }
 
-String _translate(String s) => _try(s) ?? _fallback(s);
+String _translate(String s) {
+  final r = _try(s);
+  if (r == null) return _fallback(s);
+  // українські лапки в англійському тексті → англійські
+  return r.replaceAll('«', '“').replaceAll('»', '”');
+}
 
 final _busy = <String>{};
 final _good = <String, String>{};
