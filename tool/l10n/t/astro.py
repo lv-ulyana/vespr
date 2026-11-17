@@ -18,7 +18,7 @@ T = {
  'Тобі добре без драм і поспіху, коли є час і красива атмосфера.': 'You thrive without drama or rushing, with time and a beautiful setting.', 'Диявол': 'The Devil',
  'Пристрасть, спокуса, сила бажання.': 'Passion, temptation, the power of desire.', 'Тебе тягне до інтенсивного. Важливо, щоб це було взаємно.': 'You’re drawn to intensity. It matters that it’s mutual.',
  'Вежа': 'The Tower', 'Раптові прориви.': 'Sudden breakthroughs.', 'Почуття в тебе спалахують швидко і яскраво.': 'Your feelings flare up fast and bright.', 'Зірка': 'The Star',
- 'Натхнення і віра.': 'Inspiration and faith.', 'Тобі потрібна людина, з якою хочеться мріяти.': 'You need someone you want to dream with.', 'Місяць': 'The Moon',
+ 'Натхнення і віра.': 'Inspiration and faith.', 'Тобі потрібна людина, з якою хочеться мріяти.': 'You need someone you want to dream with.', 'Місяць\u2060': 'The Moon', 'Місяць': 'Month',
  'Емоції, фантазії, підсвідоме.': 'Emotions, fantasies, the subconscious.', 'Багато відчуваєш і не завжди кажеш уголос.': 'You feel a lot and don’t always say it out loud.', 'Сонце': 'The Sun',
  'Радість, тепло, відкритість.': 'Joy, warmth, openness.', 'Любиш легкість і сміх поруч.': 'You love ease and laughter around you.', 'Суд': 'Judgement',
  'Пробудження, другий шанс.': 'Awakening, a second chance.', 'Ти часто переосмислюєш минулі історії.': 'You often rethink past stories.', 'Світ': 'The World',
