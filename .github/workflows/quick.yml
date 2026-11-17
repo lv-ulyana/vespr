@@ -1,0 +1,31 @@
+# Швидка перевірка проміжних правок: пуш у гілку wip → аналіз + усі тести (разом із версткою
+# і англійською), без збірки й деплою. Основна гілка main і далі збирається повністю (build.yml).
+name: quick
+
+on:
+  push:
+    branches: [wip]
+
+concurrency:
+  group: quick
+  cancel-in-progress: true
+
+jobs:
+  quick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Тести (+ верстка всіх екранів і Wrapped, укр і англ)
+        run: LAYOUT=1 flutter test
+      - name: Чого бракує в англійській
+        if: always()
+        run: |
+          for f in build/en_missing.txt build/en_missing_wrapped.txt; do
+            [ -f "$f" ] && { echo "== $f"; sort -u "$f"; } || true
+          done
