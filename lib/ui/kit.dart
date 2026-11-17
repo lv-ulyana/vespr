@@ -310,7 +310,7 @@ class Field extends StatelessWidget {
           inputFormatters: formatters,
           style: T.body(16, C.text, FontWeight.w500),
           decoration: InputDecoration(
-            hintText: tr(hint),
+            hintText: hint == null ? null : tr(hint!),
             hintStyle: T.body(14, C.haze, FontWeight.w500),
             filled: true,
             fillColor: const Color(0x08F1EEF2),
