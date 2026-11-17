@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
@@ -14,6 +14,8 @@ import '../logic/dates.dart';
 import '../logic/stats.dart';
 import '../services/files.dart';
 import '../services/pin.dart';
+import '../services/purchases.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go, Screen, Header, H1, Txt, Field, Btn, VCard;
@@ -270,6 +272,28 @@ class SettingsScreen extends StatelessWidget {
             ]),
           ),
         ),
+        // --- демо: вийти з прикладу ---
+        if ((p.counters['demo'] ?? 0) == 1)
+          labeled(
+            'Приклад',
+            Grp([
+              GRow(
+                icon: BS.restore,
+                title: 'Почати своє',
+                sub: 'Стерти вигадані дані й налаштувати під себе',
+                arrow: BS.chev,
+                onTap: () async {
+                  final lang = p.lang;
+                  Navigator.of(context).popUntil((r) => r.isFirst);
+                  await s.wipe();
+                  await s.updateProfile((x) {
+                    x.lang = lang;
+                    x.counters['langSet'] = 1;
+                  });
+                },
+              ),
+            ]),
+          ),
         // --- підписка ---
         labeled(
           'Підписка',
@@ -277,17 +301,11 @@ class SettingsScreen extends StatelessWidget {
             GRow(
               icon: _icStar,
               title: premium ? 'Premium' : 'Безкоштовний план',
-              value: premium ? 'тестовий' : '${_monthCount(s)} з $freeEntriesPerMonth записів',
+              value: premium ? premiumPlanLabel(p) : '${_monthCount(s)} з $freeEntriesPerMonth записів',
               arrow: BS.chev,
               onTap: () => go(context, const SubscriptionScreen()),
             ),
-            GRow(icon: BS.restore, title: 'Відновити покупки', onTap: () => dToast(context, 'Активних покупок не знайдено')),
-            GRow(
-              icon: BS.card,
-              title: 'Тестовий Premium',
-              sub: 'Поки нема оплати в магазині',
-              trailing: SwS(on: premium, label: 'Тестовий Premium', onChanged: (v) => s.updateProfile((x) => x.premium = v)),
-            ),
+            GRow(icon: BS.restore, title: 'Відновити покупки', onTap: () => restorePurchases(context)),
           ]),
         ),
         // --- записи ---
@@ -524,28 +542,47 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   String plan = 'y';
+  bool _bought = false;
   static const _plans = [
     ('y', 'Рік', '−52%', '\$39,99 одним платежем', '\$3,33'),
     ('m', 'Місяць', '', 'Можна скасувати будь-коли', '\$6,99'),
   ];
 
-  void _buy(AppStore s) => showSheet(
+  Future<void> _buy(AppStore s) async {
+    if (!Purchases.available) {
+      showSheet(
         context,
         (ctx) => Sheet(children: [
-          sheetTitle('Оплата ще не підключена'),
-          sheetText("Оплата через App Store і Google Play з'явиться в першій збірці для магазинів. Поки можна ввімкнути тестовий Premium: усе відкриється без оплати."),
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Cta('Увімкнути тестовий Premium', onTap: () async {
-              await s.updateProfile((x) => x.premium = true);
-              if (!ctx.mounted) return;
-              Navigator.pop(ctx);
-              if (mounted) Navigator.of(context).maybePop();
-            }),
-          ),
+          sheetTitle('Premium — в апці'),
+          sheetText('Це веб-версія для показу. Оформити Premium можна в апці Vespr для iPhone, оплата через App Store.'),
           sheetCancel(ctx),
         ]),
       );
+      return;
+    }
+    final err = await Purchases.buy(plan == 'y');
+    if (err != null && mounted) dToast(context, err);
+  }
+
+  bool _wasPremium = false;
+  @override
+  void initState() {
+    super.initState();
+    Purchases.message.value = null;
+    Purchases.message.addListener(_onMsg);
+  }
+
+  void _onMsg() {
+    final m = Purchases.message.value;
+    if (m != null && mounted) dToast(context, m);
+    Purchases.message.value = null;
+  }
+
+  @override
+  void dispose() {
+    Purchases.message.removeListener(_onMsg);
+    super.dispose();
+  }
 
   Widget _teaser(String tag, String lead, String hidden, String? sub) => Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
@@ -603,15 +640,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
     switch (widget.kind) {
       case PaywallKind.main:
         // Є хоча б дві справжні закономірності — показуємо їх (назва прихована).
-        // Менше — текст з дизайну.
+        // Менше — чесно кажемо, що саме мапа порахує (без вигаданих фактів, Apple 2.3.1).
         final eff = effects(s.entries);
         final real = eff.length >= 2;
-        final n = real ? eff.length : 2;
+        final n = eff.length;
         return [
           const SizedBox(height: 4),
-          Center(child: _SpinRing(size: 118, child: Text('$n', style: const TextStyle(fontFamily: 'Prata', fontSize: 52, color: K.star, height: 1)))),
+          Center(child: _SpinRing(size: 118, child: real ? Text('$n', style: const TextStyle(fontFamily: 'Prata', fontSize: 52, color: K.star, height: 1)) : const Ico(Svgs.star4, size: 40, color: K.star))),
           const SizedBox(height: 16),
-          Text('Ми помітили $n ${plural(n, 'закономірність', 'закономірності', 'закономірностей')} про тебе', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
+          Text(real ? 'Ми помітили $n ${plural(n, 'закономірність', 'закономірності', 'закономірностей')} про тебе' : 'Дізнайся, що тебе справді заводить', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
           const SizedBox(height: 16),
           if (real)
             ...gapped([
@@ -620,9 +657,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     e.delta > 0 ? 'Сама б не здогадалась.' : 'Варто знати заздалегідь.'),
             ], 8)
           else ...[
-            _teaser('Про людей', 'Найкращі вечори в тебе з тими, хто', 'пише першим наступного ранку', 'І це точно не зовнішність.'),
+            _teaser('Про тебе', 'Мапа порахує з твоїх же оцінок, що піднімає вечір, а що', 'тихо його вбиває', 'Цифрами, а не здогадками.'),
             const SizedBox(height: 8),
-            _teaser('Про тебе', 'Ти кінчаєш удвічі частіше, коли', "не п'єш і не поспішаєш", 'Сама б не здогадалась.'),
+            _teaser('Про людей', 'Порівняння покаже, з ким тобі насправді краще і', 'в чому саме', 'Навіть якщо серце каже інше.'),
           ],
         ];
       case PaywallKind.limit:
@@ -711,9 +748,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
           const SizedBox(height: 18),
           Text(nm.isEmpty ? 'Твій метч уже пораховано' : 'Твій метч з ${instrCase(nm)} уже пораховано', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
           const SizedBox(height: 16),
-          _teaser('Стосунки', 'Він думає про тебе частіше, ніж зізнається. Особливо', 'коли дрочить у душі', null),
+          _teaser('Стосунки', 'Ваш аркан пари: що вас тримає разом і', 'де буде іскрити', null),
           const SizedBox(height: 8),
-          _teaser('Секс', 'Найбільше його заводить,', 'коли ти береш у рот і не поспішаєш', null),
+          _teaser('Секс', 'Як ваші стихії зводяться в ліжку і', 'що варто спробувати', null),
         ];
     }
   }
@@ -722,12 +759,28 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget build(BuildContext context) {
     final s = Store.of(context);
     final y = plan == 'y';
-    final legal = 'Підписка продовжується автоматично: ${y ? '\$39,99 на рік' : '\$6,99 на місяць'}. Скасувати можна в App Store щонайменше за 24 години до кінця періоду.';
+    // оплата пройшла — закриваємо пейвол
+    if (s.profile.premium && !_wasPremium && Purchases.busy.value == false && _bought) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        dToast(context, 'Premium увімкнено. Дякуємо!');
+        Navigator.of(context).maybePop();
+      });
+    }
+    final price = y ? Purchases.price(Purchases.yearly, '\$39,99') : Purchases.price(Purchases.monthly, '\$6,99');
+    final legal = 'Оплата спишеться з твого Apple ID після підтвердження. Підписка продовжується автоматично: $price ${y ? 'на рік' : 'на місяць'}, якщо не скасувати щонайменше за 24 години до кінця періоду. Керувати і скасувати — в налаштуваннях App Store.';
     final cta = switch (widget.kind) { PaywallKind.main => 'Відкрити закономірності', PaywallKind.limit => 'Записувати без ліміту', PaywallKind.match => 'Відкрити метч' };
     final next = DateTime(DateTime.now().year, DateTime.now().month + 1, 1);
     final skip = switch (widget.kind) { PaywallKind.main => 'Продовжити безкоштовно', PaywallKind.limit => 'Почекаю до ${monthsGen[next.month - 1]}', PaywallKind.match => 'Повернутись' };
 
-    Widget planBtn((String, String, String, String, String) p) {
+    Widget planBtn((String, String, String, String, String) p0) {
+      // ціни з App Store, коли вже завантажились (у валюті людини)
+      var p = p0;
+      final pd = Purchases.products[p0.$1 == 'y' ? Purchases.yearly : Purchases.monthly];
+      if (pd != null) {
+        final per = p0.$1 == 'y' ? '${pd.currencySymbol}${(pd.rawPrice / 12).toStringAsFixed(2).replaceAll('.', ',')}' : pd.price;
+        p = (p0.$1, p0.$2, p0.$3, p0.$1 == 'y' ? '${pd.price} одним платежем' : p0.$4, per);
+      }
       final on = plan == p.$1;
       return Semantics(
         selected: on,
@@ -803,7 +856,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     IconBtn(svg: BS.close, label: 'Закрити', onTap: () => Navigator.of(context).maybePop()),
                     const Spacer(),
                     Press(
-                      onTap: () => dToast(context, 'Активних покупок не знайдено'),
+                      onTap: () => restorePurchases(context),
                       child: SizedBox(height: 44, child: Center(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text('Відновити покупки', style: rw(13, color: K.soft, w: FontWeight.w600))))),
                     ),
                   ]),
@@ -816,7 +869,19 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   const SizedBox(height: 12),
                   for (final p in _plans) ...[planBtn(p), const SizedBox(height: 8)],
                   const SizedBox(height: 4),
-                  _ShineCta(text: s.profile.premium ? 'У тебе вже Premium' : cta, onTap: s.profile.premium ? null : () => _buy(s)),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: Purchases.busy,
+                    builder: (context, busy, _) => _ShineCta(
+                      text: s.profile.premium ? 'У тебе вже Premium' : busy ? 'Чекаємо App Store…' : cta,
+                      onTap: s.profile.premium || busy
+                          ? null
+                          : () {
+                              _wasPremium = s.profile.premium;
+                              _bought = true;
+                              _buy(s);
+                            },
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Text(legal, textAlign: TextAlign.center, style: rw(10.5, color: K.muted2, h: 1.45)),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -992,6 +1057,14 @@ class SubscriptionScreen extends StatelessWidget {
         Expanded(child: Text(t, style: rw(size, color: const Color(0xFFE6E2EB)))),
       ]);
 
+  /// Орієнтовна дата кінця поточного періоду (з останньої транзакції)
+  String? _until(AppStore s) {
+    final ms = (s.profile.counters['premUntil'] ?? 0) - const Duration(days: 3).inMilliseconds;
+    if (ms <= 0) return null;
+    final d = DateTime.fromMillisecondsSinceEpoch(ms);
+    return '${d.day} ${monthsGen[d.month - 1]}';
+  }
+
   Widget _bi(Color bg, Color fg) => Container(
         width: 42, height: 42,
         decoration: BoxDecoration(shape: BoxShape.circle, color: bg),
@@ -1004,7 +1077,7 @@ class SubscriptionScreen extends StatelessWidget {
     final s = Store.of(context);
     final premium = s.profile.premium;
     final restore = Press(
-      onTap: () => dToast(context, 'Активних покупок не знайдено'),
+      onTap: () => restorePurchases(context),
       child: SizedBox(height: 44, child: Center(child: Text('Відновити покупки', style: rw(15, color: K.soft, w: FontWeight.w500)))),
     );
 
@@ -1050,7 +1123,7 @@ class SubscriptionScreen extends StatelessWidget {
                     child: Text('Premium', style: pr(38, h: 1.05)),
                   ),
                   const SizedBox(height: 4),
-                  Text('Тестовий доступ · без оплати', style: rw(13, color: K.soft2)),
+                  Text(s.profile.counters['premPlan'] == 1 ? 'Місячна підписка' : s.profile.counters['premPlan'] == 12 ? 'Річна підписка' : 'Підписка', style: rw(13, color: K.soft2)),
                   const SizedBox(height: 14),
                   Container(
                     padding: const EdgeInsets.only(top: 10),
@@ -1058,7 +1131,7 @@ class SubscriptionScreen extends StatelessWidget {
                     child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                       Image.asset('assets/img/logo.webp', width: 62, semanticLabel: 'Vespr'),
                       const Spacer(),
-                      Text('поки ввімкнено', style: rw(11, color: K.muted)),
+                      Text(_until(s) == null ? 'продовжується автоматично' : 'оплачено до ${_until(s)}', style: rw(11, color: K.muted)),
                     ]),
                   ),
                 ]),
@@ -1080,8 +1153,8 @@ class SubscriptionScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), color: K.w(.03), border: Border.all(color: K.w(.07))),
         child: Column(children: [
-          for (final kv in const [('Наступне списання', 'немає'), ('Продовження', 'вручну'), ('Як увімкнено', 'тестовий перемикач')]) ...[
-            if (kv.$1 != 'Наступне списання') Container(height: 1, color: K.w(.06)),
+          for (final (i, kv) in [('План', s.profile.counters['premPlan'] == 1 ? 'Місяць' : s.profile.counters['premPlan'] == 12 ? 'Рік' : '—'), ('Продовження', 'автоматично'), ('Де керувати', 'App Store')].indexed) ...[
+            if (i > 0) Container(height: 1, color: K.w(.06)),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Row(children: [
@@ -1185,7 +1258,7 @@ class SubscriptionScreen extends StatelessWidget {
       bottom: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (premium)
           Press(
-            onTap: () => s.updateProfile((x) => x.premium = false),
+            onTap: openStoreSubscriptions,
             child: Container(
               height: 54,
               padding: const EdgeInsets.fromLTRB(24, 0, 6, 0),
@@ -1195,7 +1268,7 @@ class SubscriptionScreen extends StatelessWidget {
                 boxShadow: [BoxShadow(color: K.w(.4), blurRadius: 30, offset: const Offset(0, 14), spreadRadius: -18)],
               ),
               child: Row(children: [
-                Expanded(child: Text('Вимкнути тестовий Premium', style: rw(15, color: K.bg, w: FontWeight.w700))),
+                Expanded(child: Text('Керувати в App Store', style: rw(15, color: K.bg, w: FontWeight.w700))),
                 _bi(K.bg.withValues(alpha: .08), K.bg),
               ]),
             ),
@@ -1236,6 +1309,30 @@ class SubscriptionScreen extends StatelessWidget {
 
 // =====================================================================
 // Документи
+
+/// Назва плану для рядка в налаштуваннях
+String premiumPlanLabel(Profile p) => switch (p.counters['premPlan']) { 12 => 'рік', 1 => 'місяць', _ => 'активний' };
+
+/// «Відновити покупки»: питаємо App Store і кажемо чесно, що знайшли
+Future<void> restorePurchases(BuildContext context) async {
+  if (!Purchases.available) {
+    dToast(context, 'Покупки відновлюються в апці для iPhone');
+    return;
+  }
+  dToast(context, 'Перевіряємо покупки в App Store…');
+  final ok = await Purchases.restore();
+  if (!context.mounted) return;
+  dToast(context, ok ? 'Premium відновлено' : 'На цьому Apple ID активної підписки нема');
+}
+
+/// Сторінка керування підписками App Store
+Future<void> openStoreSubscriptions() async {
+  final u = defaultTargetPlatform == TargetPlatform.android ? Uri.parse('https://play.google.com/store/account/subscriptions') : Uri.parse('https://apps.apple.com/account/subscriptions');
+  try {
+    await launchUrl(u, mode: LaunchMode.externalApplication);
+  } catch (_) {}
+}
+
 // =====================================================================
 class DocScreen extends StatelessWidget {
   final LegalDoc doc;

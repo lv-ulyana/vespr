@@ -10,6 +10,7 @@ import 'screens/onboarding.dart';
 import 'screens/pin_screens.dart';
 import 'screens/shell.dart';
 import 'services/pin.dart';
+import 'services/purchases.dart';
 import 'ui/d.dart' show appNav;
 import 'ui/theme.dart';
 
@@ -18,6 +19,8 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   final store = AppStore();
   await store.load();
+  // підписка: слухаємо App Store (у вебі нічого не робить)
+  Purchases.init(store);
   // перший запуск: мова як на телефоні (українська або російська → українська, решта → англійська)
   if (!store.profile.onboarded && (store.profile.counters['langSet'] ?? 0) == 0) {
     final dev = WidgetsBinding.instance.platformDispatcher.locale.languageCode;

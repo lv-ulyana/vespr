@@ -19,7 +19,7 @@ class Profile {
   String dating; // men | women | all
   bool pinEnabled;
   bool onboarded;
-  bool premium; // тестовий перемикач, поки нема оплати
+  bool premium; // активна підписка (див. services/purchases.dart; строк — counters['premUntil'])
   String lang; // uk | en (англійська ще не перекладена)
   String appIcon; // dark | light
   List<String> sexQs;

@@ -42,6 +42,7 @@ jobs:
       - run: python3 tool/web_tweaks.py
       - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
       - run: python3 tool/web_cachebust.py
+      - run: python3 tool/legal_pages.py build/web
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web

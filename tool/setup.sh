@@ -81,21 +81,102 @@ if ! grep -q 'android.speech.RecognitionService' "$MF"; then
   perl -0pi -e 's#<queries>#<queries>\n        <intent>\n            <action android:name="android.speech.RecognitionService" />\n        </intent>#' "$MF"
 fi
 
-echo "› iOS: тексти дозволів (Face ID, календар, фото, мікрофон)"
+echo "› iOS: тільки iPhone (без iPad)"
+perl -pi -e 's/TARGETED_DEVICE_FAMILY = "1,2";/TARGETED_DEVICE_FAMILY = 1;/g' ios/Runner.xcodeproj/project.pbxproj
+
+echo "› iOS: тексти дозволів — англійською в Info.plist, українською в uk.lproj"
 PL=ios/Runner/Info.plist
-add() { /usr/libexec/PlistBuddy -c "Add :$1 string '$2'" "$PL" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :$1 '$2'" "$PL"; }
+add() { /usr/libexec/PlistBuddy -c "Add :$1 string $2" "$PL" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :$1 $2" "$PL"; }
+# ключ | англійською | українською
+PERMS=(
+  "NSFaceIDUsageDescription|Vespr opens with Face ID so only you can see your records.|Vespr відкривається за Face ID, щоб записи бачила тільки ти."
+  "NSCalendarsUsageDescription|To add dates to your calendar and bring in the events you choose.|Щоб додати зустрічі в календар і перенести з нього ті, які ти обереш."
+  "NSCalendarsWriteOnlyAccessUsageDescription|To add your planned dates to your calendar.|Щоб додати заплановані зустрічі у твій календар."
+  "NSCalendarsFullAccessUsageDescription|To bring the calendar events you choose into Vespr. Your calendar itself isn’t changed.|Щоб перенести у Vespr події з календаря, які ти обереш. Сам календар не змінюємо."
+  "NSPhotoLibraryUsageDescription|To add a photo of a person. It stays on this phone only.|Щоб додати фото людини. Воно лишається тільки на цьому телефоні."
+  "NSMicrophoneUsageDescription|To record by voice how a date went. The audio isn’t saved, only the text.|Щоб записати голосом, як пройшла зустріч. Звук не зберігається, лише текст."
+  "NSSpeechRecognitionUsageDescription|To turn your voice into the text of a note. The audio isn’t saved.|Щоб перетворити твій голос на текст нотатки. Звук не зберігається."
+  "NSContactsUsageDescription|Vespr never asks for your contacts. The calendar module can technically read event attendees, so Apple requires this line.|Vespr не просить доступу до контактів. Календарний модуль технічно вміє читати учасників подій, тому Apple вимагає цей рядок."
+)
+mkdir -p ios/Runner/en.lproj ios/Runner/uk.lproj
+: > ios/Runner/en.lproj/InfoPlist.strings
+: > ios/Runner/uk.lproj/InfoPlist.strings
+for row in "${PERMS[@]}"; do
+  IFS='|' read -r key en uk <<< "$row"
+  [ -x /usr/libexec/PlistBuddy ] && add "$key" "\"$en\""
+  printf '"%s" = "%s";\n' "$key" "$en" >> ios/Runner/en.lproj/InfoPlist.strings
+  printf '"%s" = "%s";\n' "$key" "$uk" >> ios/Runner/uk.lproj/InfoPlist.strings
+done
 if [ -x /usr/libexec/PlistBuddy ]; then
-  add NSFaceIDUsageDescription "Vespr відкривається за Face ID, щоб записи бачила тільки ти."
-  add NSCalendarsUsageDescription "Щоб додати зустрічі в календар і перенести з нього ті, які ти обереш."
-  add NSCalendarsWriteOnlyAccessUsageDescription "Щоб додати заплановані зустрічі у твій календар."
-  add NSCalendarsFullAccessUsageDescription "Щоб перенести у Vespr події з календаря, які ти обереш. Сам календар не змінюємо."
-  add NSPhotoLibraryUsageDescription "Щоб додати фото людини. Воно лишається тільки на цьому телефоні."
-  add NSMicrophoneUsageDescription "Щоб записати голосом, як пройшла зустріч. Звук не зберігається, лише текст."
-  add NSSpeechRecognitionUsageDescription "Щоб перетворити твій голос на текст нотатки. Звук не зберігається."
-  add NSContactsUsageDescription "Календар може запитати контакти для запрошень. Vespr їх не читає."
-  add CFBundleDisplayName "Vespr"
+  add CFBundleDisplayName Vespr
+  /usr/libexec/PlistBuddy -c "Delete :CFBundleLocalizations" "$PL" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c "Add :CFBundleLocalizations array" -c "Add :CFBundleLocalizations:0 string en" -c "Add :CFBundleLocalizations:1 string uk" "$PL"
 else
-  echo "  (PlistBuddy нема — це не Mac. Для iOS додай ці ключі в ios/Runner/Info.plist вручну, див. README)"
+  echo "  (PlistBuddy нема — це не Mac. iOS налаштовується тільки на Mac)"
+fi
+
+echo "› iOS: маніфест приватності (PrivacyInfo.xcprivacy)"
+cat > ios/Runner/PrivacyInfo.xcprivacy <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Vespr не відстежує і нічого не збирає: усе лишається на телефоні -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<!-- налаштування й записи у UserDefaults (shared_preferences) — тільки для самої апки -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array><string>CA92.1</string></array>
+		</dict>
+		<!-- дати файлів у папці апки (резервна копія, експорт) -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array><string>C617.1</string></array>
+		</dict>
+	</array>
+</dict>
+</plist>
+XML
+
+echo "› iOS: додаю маніфест і переклади дозволів у проєкт Xcode"
+RB='
+require "xcodeproj"
+p = Xcodeproj::Project.open("ios/Runner.xcodeproj")
+t = p.targets.find { |x| x.name == "Runner" }
+g = p.main_group["Runner"]
+res = t.resources_build_phase
+unless g.files.any? { |f| f.path == "PrivacyInfo.xcprivacy" }
+  res.add_file_reference(g.new_reference("PrivacyInfo.xcprivacy"))
+end
+vg = g.children.find { |c| c.display_name == "InfoPlist.strings" } || g.new_variant_group("InfoPlist.strings")
+%w[en uk].each do |l|
+  path = "#{l}.lproj/InfoPlist.strings"
+  next if vg.files.any? { |f| f.path == path }
+  r = vg.new_reference(path)
+  r.name = l
+end
+res.add_file_reference(vg) unless res.files_references.include?(vg)
+regions = p.root_object.known_regions
+%w[en uk].each { |l| regions << l unless regions.include?(l) }
+p.save
+'
+if [ "$(uname)" != Darwin ]; then
+  echo "  (не Mac — пропускаю)"
+elif ruby -e 'require "xcodeproj"' 2>/dev/null || gem install --user-install xcodeproj >/dev/null 2>&1; then
+  ruby -e "$RB" || echo "  ! Не вийшло автоматично. У Xcode перетягни ios/Runner/PrivacyInfo.xcprivacy та папки en.lproj і uk.lproj у групу Runner."
+else
+  echo "  ! Нема інструмента xcodeproj. У Xcode перетягни ios/Runner/PrivacyInfo.xcprivacy та папки en.lproj і uk.lproj у групу Runner."
 fi
 
 echo "› Залежності"

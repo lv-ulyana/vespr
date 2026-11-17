@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../data/catalog.dart';
+import '../data/demo.dart';
 import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/astro.dart';
@@ -155,6 +156,15 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                           go(context, const GuideScreen());
                         }
                       : null),
+                  const SizedBox(height: 6),
+                  // Приклад з вигаданими даними: щоб одразу побачити мапу, Wrapped і порівняння (і для рецензента App Store)
+                  Press(
+                    onTap: adult ? () => loadDemo(context, lang) : () => dToast(context, 'Спершу підтверди, що тобі є 18'),
+                    child: SizedBox(
+                      height: 40,
+                      child: Center(child: Text('Подивитись на прикладі', style: rw(14, color: adult ? K.soft : K.muted2, w: FontWeight.w500))),
+                    ),
+                  ),
                 ]),
               ),
             ),
@@ -1802,3 +1812,18 @@ class _SizeSlider extends StatelessWidget {
 }
 
 const _icPen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
+
+/// Демо: вигадані люди й записи, без Premium. Вийти — Налаштування → «Почати своє».
+Future<void> loadDemo(BuildContext context, String lang) async {
+  final s = Store.read(context);
+  setLang(lang);
+  final d = demoDb();
+  d.profile
+    ..lang = lang
+    ..premium = false
+    ..counters['langSet'] = 1
+    ..counters['demo'] = 1;
+  await s.replaceAll(d);
+  final c = appNav.currentContext;
+  if (c != null && c.mounted) dToast(c, 'Це вигадані дані. Почати своє — в Налаштуваннях');
+}
