@@ -49,7 +49,7 @@ List<_Tpl> get _templates => _tpls ??= () {
           if (i < idx.length) b.write('(?<g${idx[i]}>[\\s\\S]*?)');
         }
         b.write(r'$');
-        xs.add(_Tpl(RegExp(b.toString()), en, parts.join().length));
+        xs.add(_Tpl(RegExp(b.toString()), en, parts.join().replaceAll(RegExp(r'[\s.,:;!?«»“”—·()\-]'), '').length));
       });
       xs.sort((a, b) => b.lits.compareTo(a.lits));
       return xs;
@@ -132,27 +132,9 @@ String? _try0(String s) {
       if (r != null) return r.toUpperCase();
     }
   }
-  // шаблони: вставки мають перекластися або бути іменами/числами
-  for (final tp in _templates) {
-    final mm = tp.re.firstMatch(s);
-    if (mm == null) continue;
-    var out = tp.en;
-    var good = true;
-    for (final name in mm.groupNames) {
-      final src = mm.namedGroup(name) ?? '';
-      if (src == s) {
-        good = false;
-        break;
-      }
-      final tv = _try(src) ?? (_isName(src) ? src : null);
-      if (tv == null) {
-        good = false;
-        break;
-      }
-      out = out.replaceAll('{${name.substring(1)}}', tv);
-    }
-    if (good) return out;
-  }
+  // шаблони (довгі); короткі на кшталт «у {0}» — наостанок
+  final tl = _tplPass(s, false);
+  if (tl != null) return tl;
   // кілька рядків, кілька речень
   for (final re in [RegExp(r'\n'), RegExp(r'(?<=[.!?…])\s+')]) {
     if (!re.hasMatch(s)) continue;
@@ -184,8 +166,10 @@ String? _try0(String s) {
     if (core != null) return core + pm.group(2)!;
   }
   // перелік через роздільники
-  for (final sep in const [' ✦ ', ' · ', ' — ', ' + ', ' / ', '; ', ', ', ': ', ' і ', ' та ', ' й ']) {
+  for (final sep in const [' ✦ ', ' · ', ' — ', ' + ', ' / ', '; ', ', ', ': ', ' і ', ' та ', ' й ', ' ']) {
     if (!s.contains(sep)) continue;
+    // по пробілах — лише короткі рядки: фрази з кількох слів («у пʼятницю 19:30»)
+    if (sep == ' ' && s.split(' ').length > 6) continue;
     // частини самі можуть містити роздільник («Вдень, увечері, Бар, клуб»): шукаємо розбиття, де все перекладається
     final parts = s.split(sep);
     final n = parts.length;
@@ -218,11 +202,38 @@ String? _try0(String s) {
     });
     if (good) return out;
   }
+  final ts = _tplPass(s, true);
+  if (ts != null) return ts;
   // з малої: «провів, викликав таксі» → як «Провів, …» (наостанок, щоб «нд» не стало «Нд» з календаря)
   final f0 = s[0];
   if (f0 != f0.toUpperCase() && _cyr.hasMatch(f0)) {
     final up = _try(_cap(s));
     if (up != null && up.isNotEmpty && !_lowerKeep.hasMatch(up)) return up[0].toLowerCase() + up.substring(1);
+  }
+  return null;
+}
+
+String? _tplPass(String s, bool short) {
+  for (final tp in _templates) {
+    if ((tp.lits < 3) != short) continue;
+    final mm = tp.re.firstMatch(s);
+    if (mm == null) continue;
+    var out = tp.en;
+    var good = true;
+    for (final name in mm.groupNames) {
+      final src = mm.namedGroup(name) ?? '';
+      if (src == s) {
+        good = false;
+        break;
+      }
+      final tv = _try(src) ?? (_isName(src) ? src : null);
+      if (tv == null) {
+        good = false;
+        break;
+      }
+      out = out.replaceAll('{${name.substring(1)}}', tv);
+    }
+    if (good) return out;
   }
   return null;
 }
