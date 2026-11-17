@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/tr.dart' show setTrNames;
 import 'catalog.dart';
 import 'models.dart';
 
@@ -42,10 +43,12 @@ class AppStore extends ChangeNotifier {
         await _prefs.setString('$_key-broken', raw);
       }
     }
+    setTrNames(people.map((p) => p.name));
     Reminders.sync(meetings);
   }
 
   Future<void> _save() async {
+    setTrNames(people.map((p) => p.name));
     notifyListeners();
     Reminders.sync(meetings);
     await _prefs.setString(_key, jsonEncode(db.toJson()));

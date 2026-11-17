@@ -39,3 +39,5 @@ T.update({
 W.update({'червоних': 'red', 'зелених': 'green', 'червоний': 'red', 'зелений': 'green', 'прапорець': 'flag', 'прапорці': 'flags', 'прапорців': 'flags',
  'людина': 'person', 'людини': 'people', 'людей': 'people', 'питанням': 'question', 'питаннями': 'questions', 'питання': 'questions',
  'церемонія': 'ceremony', 'відкрито': 'opened', 'майже': 'almost', 'справа': 'case'})
+T.update({'тільки для тебе': 'just for you',
+ 'Рахунок {0}:{1}, не на твою користь.': 'Score {0}:{1}, not in your favor.', 'Рахунок {0}:{1}, на твою користь.': 'Score {0}:{1} in your favor.'})
