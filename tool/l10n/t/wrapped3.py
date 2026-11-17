@@ -21,3 +21,21 @@ T = {
 }
 W = {'лип': 'Jul', 'сер': 'Aug', 'вер': 'Sep', 'жов': 'Oct', 'лис': 'Nov', 'гру': 'Dec', 'січ': 'Jan', 'кві': 'Apr', 'тра': 'May', 'чер': 'Jun',
      'складніше': 'harder', 'легко': 'easy', 'непросто': 'tricky', 'умовно': 'on probation'}
+T.update({
+ 'сидить у телефоні': "is on his phone", 'запізнюється': 'runs late', 'згадує колишню': 'brings up his ex', 'говорить тільки про себе': 'only talks about himself',
+ 'рахує копійки': 'counts every penny', 'підколює': 'makes digs', 'перебирає': 'drinks too much', 'ревнує': 'gets jealous', 'зникає': 'disappears', 'бреше': 'lies', 'тисне': 'pushes',
+ 'Без прелюдії тебе вимикає.': 'No foreplay turns you off.',
+ 'Глибина і самостійність.': 'Depth and independence.',
+ 'Вдавала {0} рази з {1}.': 'Faked it {0} times out of {1}.', 'Вдавала {0} раз з {1}.': 'Faked it {0} time out of {1}.', 'Вдавала {0} разів з {1}.': 'Faked it {0} times out of {1}.',
+ 'Станіславський аплодує стоячи.': 'Stanislavski is giving a standing ovation.',
+ 'Не пиши мені': 'Don’t text me', 'Секретно': 'Top secret', 'тільки для дівчат': 'girls only',
+ 'зірки кажуть: складніше': 'the stars say: harder', 'зірки кажуть: легко': 'the stars say: easy',
+ 'ще {0} до повного Wrapped': '{0} more to the full Wrapped',
+ 'Тверезий секс': 'Sober sex', 'тверезий секс': 'sober sex',
+ 'згадував\nколишню': 'brought up\nhis ex', 'сидів\nу телефоні': 'on his\nphone',
+ 'на {0}': 'for {0}',
+ '«Келих-два»': '“A glass or two”',
+})
+W.update({'червоних': 'red', 'зелених': 'green', 'червоний': 'red', 'зелений': 'green', 'прапорець': 'flag', 'прапорці': 'flags', 'прапорців': 'flags',
+ 'людина': 'person', 'людини': 'people', 'людей': 'people', 'питанням': 'question', 'питаннями': 'questions', 'питання': 'questions',
+ 'церемонія': 'ceremony', 'відкрито': 'opened', 'майже': 'almost', 'справа': 'case'})

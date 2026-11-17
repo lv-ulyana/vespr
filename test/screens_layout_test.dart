@@ -185,7 +185,14 @@ void main() {
               void cy(RenderObject r) {
                 if (r is RenderParagraph) {
                   final t = r.text.toPlainText();
-                  if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t) && t != 'Українська') missing.add(t.replaceAll('\n', '⏎'));
+                  if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t) && t != 'Українська') {
+                    final pieces = <String>[];
+                    r.text.visitChildren((x) {
+                      if (x is TextSpan && x.text != null) pieces.add(x.text!);
+                      return true;
+                    });
+                    missing.add('$tag: ${pieces.join('¦').replaceAll('\n', '⏎')}');
+                  }
                 }
                 r.visitChildren(cy);
               }

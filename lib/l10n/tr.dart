@@ -168,16 +168,26 @@ String? _try0(String s) {
   // перелік через роздільники
   for (final sep in const [' ✦ ', ' · ', ' — ', ' + ', ' / ', '; ', ', ', ': ', ' і ', ' та ', ' й ']) {
     if (!s.contains(sep)) continue;
+    // жадібно: «Вдень, увечері, Бар, клуб» — частини самі можуть містити роздільник
     final parts = s.split(sep);
     final out = <String>[];
     var good = true;
-    for (final p in parts) {
-      final r = _try(p) ?? (_isName(p) ? p : null);
+    var i = 0;
+    while (i < parts.length) {
+      String? r;
+      var j = parts.length;
+      for (; j > i; j--) {
+        if (i == 0 && j == parts.length) continue;
+        final seg = parts.sublist(i, j).join(sep);
+        r = _try(seg) ?? (j == i + 1 && _isName(seg) ? seg : null);
+        if (r != null) break;
+      }
       if (r == null) {
         good = false;
         break;
       }
       out.add(r);
+      i = j;
     }
     if (good) return out.join(const {' і ': ' and ', ' та ': ' and ', ' й ': ' and '}[sep] ?? sep);
   }

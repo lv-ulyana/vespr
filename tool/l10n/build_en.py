@@ -8,6 +8,10 @@ for f in sorted(glob.glob(os.path.join(HERE, 't/*.py'))):
         (tpl if re.search(r'\{\d+\}', k) else exact)[k] = v
     words.update(d.get('W', {}))
 # пункти списків у документах показуються без «• » — додаємо й такі ключі
+# ключі з пробілами по краях — ще й обрізані (речення ріжуться по пробілах)
+for d in (exact, tpl):
+    for k, v in list(d.items()):
+        if k.strip() != k and k.strip(): d.setdefault(k.strip(), v.strip())
 # «звіт про|виживання» показується двома шматками — додаємо й шматки
 for k, v in list(exact.items()):
     if '|' in k and k.count('|') == v.count('|'):
