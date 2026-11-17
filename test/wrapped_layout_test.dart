@@ -129,7 +129,7 @@ void main() {
           low(key.currentContext!.findRenderObject()!);
           // «Без імен»: жодне ім'я людини не має потрапити на слайд
           if (safe) {
-            final names = {for (final p in db.people) p.name, 'Архітектор', 'Марк', 'Д.', 'Mark', 'The Architect', 'Lana'};
+            final names = {for (final p in db.people) p.name, 'Архітектор', 'Марк', 'Д.', 'Mark', 'The Architect', 'Architect', 'Lana'};
             const l = "А-Яа-яІіЇїЄєҐґ'ʼA-Za-z";
             void nm(RenderObject r) {
               if (r is RenderParagraph) {

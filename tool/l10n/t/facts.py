@@ -72,7 +72,7 @@ for n, w in (('запис', 'entry'), ('записи', 'entries'), ('запис�
 T['Ще 1 запис, і скажемо щось точне.'] = 'One more entry and we can say something real.'
 T['Ще 1 запис до перших висновків.'] = 'One more entry until the first insights.'
 # демо
-T.update({'Архітектор': 'The Architect', 'Креслить на серветках': 'Sketches on napkins', 'Марк': 'Mark', 'Д.': 'D.', 'Ляна': 'Lana',
+T.update({'Архітектор': 'Architect', 'Креслить на серветках': 'Sketches on napkins', 'Марк': 'Mark', 'Д.': 'D.', 'Ляна': 'Lana',
  'Довго гуляли, потім у нього': 'Long walk, then his place', 'Весь вечір у телефоні': 'On his phone all night',
  'Запізнився на 40 хвилин': '40 minutes late', 'Найкращий вечір місяця': 'Best night of the month'})
 T.update({'Сьогодні': 'Today', 'Завтра': 'Tomorrow'})

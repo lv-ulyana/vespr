@@ -12,7 +12,7 @@ T = {
  'Скільки дав, стільки отримав — це про тебе.': 'Give as much as you get: that’s you.', 'Відлюдник': 'The Hermit', 'Глибина і самостійність.': 'Depth and independence.',
  'Тобі треба простір, навіть коли закохана.': 'You need space, even when you’re in love.', 'Колесо Фортуни': 'Wheel of Fortune', 'Зміни, удача, цикли.': 'Change, luck, cycles.',
  'Твої історії часто починаються випадково.': 'Your stories often start by chance.', 'Сила': 'Strength', 'Пристрасть під контролем.': 'Passion under control.',
- "Ніжна сила: м'яко, але чітко про своє.": 'Gentle strength: soft, but clear about what you want.', 'Повішений': 'The Hanged Man', 'Інший погляд, пауза.': 'A different view, a pause.',
+ "Ніжна сила: м'яко, але чітко про своє.": 'Gentle strength: soft, but clear about what you want.', 'Повішений': 'Hanged Man', 'Інший погляд, пауза.': 'A different view, a pause.',
  'Іноді чекаєш довше, ніж варто.': 'Sometimes you wait longer than you should.', 'Смерть': 'Death', 'Трансформація і чисті фінали.': 'Transformation and clean endings.',
  'Вмієш закривати двері, коли треба.': 'You know how to close a door when it’s time.', 'Помірність': 'Temperance', 'Енергія гармонії і балансу.': 'Harmony and balance.',
  'Тобі добре без драм і поспіху, коли є час і красива атмосфера.': 'You thrive without drama or rushing, with time and a beautiful setting.', 'Диявол': 'The Devil',

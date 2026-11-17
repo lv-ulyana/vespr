@@ -8,7 +8,7 @@ DB demoDb([DateTime? now]) {
   final n = now ?? DateTime.now();
   String d(int daysAgo) => isoDate(n.subtract(Duration(days: daysAgo)));
   final people = [
-    Person(id: 'p_arch', name: isEn ? 'The Architect' : 'Архітектор', rel: 'rel', birth: '1995-10-03', met: 0, want: 2, notes: isEn ? 'Draws on napkins' : 'Креслить на серветках', createdAt: d(62)),
+    Person(id: 'p_arch', name: isEn ? 'Architect' : 'Архітектор', rel: 'rel', birth: '1995-10-03', met: 0, want: 2, notes: isEn ? 'Draws on napkins' : 'Креслить на серветках', createdAt: d(62)),
     Person(id: 'p_mark', name: isEn ? 'Mark' : 'Марк', rel: 'fling', signOnly: 7, met: 3, createdAt: d(61)),
     Person(id: 'p_d', name: isEn ? 'D.' : 'Д.', rel: 'date', status: 'past', pastReason: 'gone', pastAt: d(20), createdAt: d(60)),
   ];

@@ -41,3 +41,5 @@ W.update({'червоних': 'red', 'зелених': 'green', 'червони�
  'церемонія': 'ceremony', 'відкрито': 'opened', 'майже': 'almost', 'справа': 'case'})
 T.update({'тільки для тебе': 'just for you',
  'Рахунок {0}:{1}, не на твою користь.': 'Score {0}:{1}, not in your favor.', 'Рахунок {0}:{1}, на твою користь.': 'Score {0}:{1} in your favor.'})
+T.update({'у понеділок': 'on Mon', 'у вівторок': 'on Tue', 'у середу': 'on Wed', 'у четвер': 'on Thu', 'у пʼятницю': 'on Fri', 'у суботу': 'on Sat', 'у неділю': 'on Sun',
+ 'Що було': 'Details', 'Поважає твої межі?': 'Respects limits?'})
