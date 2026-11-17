@@ -6,6 +6,7 @@ import 'achievements.dart';
 import 'astro.dart';
 import 'dates.dart';
 import 'stats.dart';
+import '../l10n/tr.dart';
 
 const freeSlides = 3;
 
@@ -90,7 +91,7 @@ const _sxShort = {
   'sx_lead': 'Вести самій',
 };
 
-String _grn(int v) => v >= 1000 ? '${v ~/ 1000} ${(v % 1000).toString().padLeft(3, '0')}' : '$v';
+String _grn(int v) => isEn ? '\$${v >= 1000 ? '${v ~/ 1000},${(v % 1000).toString().padLeft(3, '0')}' : '$v'}' : v >= 1000 ? '${v ~/ 1000} ${(v % 1000).toString().padLeft(3, '0')}' : '$v';
 String _times(int n) => '$n ${plural(n, 'раз', 'рази', 'разів')}';
 String _shortDate(String d) {
   final x = parseIso(d);
@@ -472,7 +473,7 @@ Wrapped buildWrapped(String month, DB db, {bool novelty = true}) {
   // 12. Бюджет: f_budget — категорії, тому суми приблизні (середина діапазону)
   final bud = es.where((e) => e.facts['f_budget'] != null).toList();
   if (bud.length >= 2) {
-    const mid = [0, 150, 900, 2000];
+    final mid = isEn ? const [0, 5, 25, 60] : const [0, 150, 900, 2000];
     final rest = bud.where((e) => (e.facts['f_budget'] ?? 0) >= 2).toList();
     final cafe = bud.where((e) => e.facts['f_budget'] == 1).toList();
     final restSum = rest.fold<int>(0, (s, e) => s + mid[e.facts['f_budget']!.clamp(0, 3)]);

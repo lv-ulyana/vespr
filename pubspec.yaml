@@ -41,6 +41,7 @@ flutter:
     - assets/img/ach/
     - assets/img/places/
     - assets/wrapped/
+    - assets/wrapped_en/
   fonts:
     - family: Zodiac
       fonts:

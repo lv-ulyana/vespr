@@ -15,6 +15,7 @@ import '../ui/kit.dart' show go;
 import 'settings.dart' show PaywallScreen;
 import 'wrapped_anim.dart';
 import '../l10n/tr.dart';
+import '../logic/wrapped_art.dart';
 
 part 'wrapped_more.dart';
 
@@ -107,9 +108,9 @@ class _WrappedScreenState extends State<WrappedScreen> {
     _cached = true;
     // усі фони одразу, щоб текст не з'являвся поверх старого слайда
     for (var k = 0; k < _th.length; k++) {
-      precacheImage(AssetImage(wAsset('s${k.toString().padLeft(2, '0')}.webp')), context);
-      for (final l in wLayers[k] ?? const <WL>[]) {
-        precacheImage(AssetImage(wAsset(l.file)), context);
+      precacheImage(AssetImage(wBase(k)), context);
+      for (final l in wLayersOf(k)) {
+        precacheImage(AssetImage(wArt(l.file)), context);
       }
     }
   }
@@ -306,7 +307,7 @@ class _Locked extends StatelessWidget {
   const _Locked({required this.s, required this.left});
   @override
   Widget build(BuildContext context) => Stack(children: [
-        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset(wAsset('s${s.art.toString().padLeft(2, '0')}.webp'), fit: BoxFit.cover))),
+        Positioned.fill(child: ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14), child: Image.asset(wBase(s.art), fit: BoxFit.cover))),
         Positioned.fill(child: Container(color: const Color(0xB30E0D1F))),
         Positioned(
           left: 24, right: 24, bottom: 150,
@@ -459,7 +460,7 @@ class _Slide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final img = wAsset('s${s.art.toString().padLeft(2, '0')}.webp');
+    final img = wBase(s.art);
     final logo = dark ? 'assets/img/logo.webp' : 'assets/img/logo_dark.webp';
     final ov = <Widget>[];
     final body = <Widget>[];
@@ -764,8 +765,8 @@ class _Slide extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text.rich(TextSpan(children: [
               TextSpan(text: s.a, style: cg(72, FontWeight.w500, Colors.white, h: 1, ls: -.72)),
-              const WidgetSpan(child: SizedBox(width: 6)),
-              TextSpan(text: 'грн', style: cg(26, FontWeight.w500, _rose, it: true, h: 1)),
+              if (!isEn) const WidgetSpan(child: SizedBox(width: 6)),
+              if (!isEn) TextSpan(text: 'грн', style: cg(26, FontWeight.w500, _rose, it: true, h: 1)),
             ])),
           )),
         ));

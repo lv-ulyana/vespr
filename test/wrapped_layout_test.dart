@@ -10,6 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vespr/data/demo.dart';
 import 'package:vespr/data/models.dart';
+import 'package:vespr/l10n/tr.dart' show setLang;
 import 'package:vespr/logic/wrapped.dart';
 import 'package:vespr/screens/wrapped.dart';
 
@@ -70,17 +71,18 @@ void main() {
     if (shots) Directory('build/shots').createSync(recursive: true);
 
     final now = DateTime(2026, 11, 13);
-    final variants = [
-      ('safe', demoDb(now), true),
-      ('names', demoDb(now), false),
-      ('long', _longNames(demoDb(now)), false),
-    ];
+    // en — англійська: ще й збираємо рядки без перекладу
+    final variants = [('safe', true), ('names', false), ('long', false), ('en_safe', true), ('en_names', false)];
+    final missing = <String>{};
     final issues = <Issue>[];
     final errors = <String>[];
     final old = FlutterError.onError;
     FlutterError.onError = (d) => errors.add(d.exceptionAsString().split('\n').first);
     try {
-      for (final (tag, db, safe) in variants) {
+      for (final (tag, safe) in variants) {
+        final en = tag.startsWith('en');
+        setLang(en ? 'en' : 'uk');
+        final db = tag == 'long' ? _longNames(demoDb(now)) : demoDb(now);
         final w = buildWrapped('2026-10', db);
         for (final (gal, s) in [...w.slides.map((x) => (false, x)), ..._gallery().map((x) => (true, x))]) {
           final key = GlobalKey();
@@ -105,6 +107,16 @@ void main() {
             issues.add(Issue('$name: $e'));
           }
           issues.addAll(scanText(key.currentContext!.findRenderObject()!, name));
+          if (en) {
+            void cy(RenderObject r) {
+              if (r is RenderParagraph) {
+                final t = r.text.toPlainText().trim();
+                if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t)) missing.add('${s.k.name}: ${t.replaceAll('\n', '⏎')}');
+              }
+              r.visitChildren(cy);
+            }
+            cy(key.currentContext!.findRenderObject()!);
+          }
           // у переглядачі з 772 по низу кнопки «Без імен / Поділитися / ×» — текст туди не має залазити
           void low(RenderObject r) {
             if (r is RenderParagraph && r.hasSize) {
@@ -117,7 +129,7 @@ void main() {
           low(key.currentContext!.findRenderObject()!);
           // «Без імен»: жодне ім'я людини не має потрапити на слайд
           if (safe) {
-            final names = {for (final p in db.people) p.name, 'Архітектор', 'Марк', 'Д.'};
+            final names = {for (final p in db.people) p.name, 'Архітектор', 'Марк', 'Д.', 'Mark', 'The Architect', 'Lana'};
             const l = "А-Яа-яІіЇїЄєҐґ'ʼA-Za-z";
             void nm(RenderObject r) {
               if (r is RenderParagraph) {
@@ -142,6 +154,12 @@ void main() {
       }
     } finally {
       FlutterError.onError = old;
+      setLang('uk');
+    }
+    if (missing.isNotEmpty) {
+      Directory('build').createSync(recursive: true);
+      File('build/en_missing_wrapped.txt').writeAsStringSync(missing.join('\n'));
+      issues.add(Issue('англійська у Wrapped: ${missing.length} рядків без перекладу (build/en_missing_wrapped.txt)'));
     }
     if (issues.isNotEmpty) {
       // ignore: avoid_print

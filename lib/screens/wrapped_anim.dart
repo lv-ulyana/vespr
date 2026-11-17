@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../logic/wrapped_layers.dart';
+import '../logic/wrapped_art.dart';
 
 /// Анімації слайдів Wrapped — ті самі keyframes, що в макеті:
 /// wrStc / wrPop (стікер вискакує з обертом), wrUp / wrRise / wrNtf (виїжджає знизу),
@@ -144,16 +145,16 @@ const _layerShift = {'s11_00.webp': Offset(0, -80)};
 
 /// Анімовані шари слайда, вирізані з макета; above — тільки ті, що над текстом
 List<Widget> wrappedLayers(int slide, {bool above = false}) => [
-      for (final l in (wLayers[slide] ?? const <WL>[]).where((l) => _aboveBody.contains(l.file) == above))
+      for (final l in wLayersOf(slide).where((l) => _aboveBody.contains(wPlain(l.file)) == above))
         Positioned(
-          left: l.x + (_layerShift[l.file]?.dx ?? 0), top: l.y + (_layerShift[l.file]?.dy ?? 0), width: l.w, height: l.h,
+          left: l.x + (_layerShift[wPlain(l.file)]?.dx ?? 0), top: l.y + (_layerShift[wPlain(l.file)]?.dy ?? 0), width: l.w, height: l.h,
           child: WAnim(
             l.anim,
             delay: l.delay,
             dur: l.dur,
             loop: l.loop,
             origin: Offset(l.ox - l.x, l.oy - l.y),
-            child: Image.asset(wAsset(l.file), fit: BoxFit.fill, gaplessPlayback: true),
+            child: Image.asset(wArt(l.file), fit: BoxFit.fill, gaplessPlayback: true),
           ),
         ),
     ];

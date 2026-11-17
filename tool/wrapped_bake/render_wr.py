@@ -36,6 +36,9 @@ with sync_playwright() as pw:
         if os.environ.get('MORE'): code=code.replace("safe: false }","safe: true }",1)
         pg.evaluate('([t,c])=>window.__run(t,c)',[body,code])
         pg.wait_for_timeout(500)
+        if os.environ.get('ENMAP'):
+            pg.evaluate(open(str(pathlib.Path(__file__).parent/'en_apply.js')).read(), json.load(open(os.environ['ENMAP'])))
+            pg.wait_for_timeout(200)
         if os.environ.get('MORE'):
             MM={int(a):int(b) for a,b in (x.split(':') for x in os.environ['MORE'].split(','))}
             pg.evaluate('''([j])=>{const els=[...document.querySelectorAll('.sl')];const keep=els[j];
@@ -64,6 +67,9 @@ with sync_playwright() as pw:
             pg.screenshot(path=str(OUT/f'live{k:02d}.png'))
         if MODE=='tree': print('=== SLIDE',k); print(pg.evaluate(open(str(P/'render/tree.js')).read()))
         if MODE=='js':
+            if os.environ.get('HIDEJS'):
+                h=HIDE.get(k,'')
+                pg.add_style_tag(content=(h[1:] if h.startswith('!') else h+' .top,.body,.prog,.ctl,.tap{visibility:hidden!important}')); pg.wait_for_timeout(150)
             print('==',k, pg.evaluate(open(os.environ['JSF']).read()))
         if MODE=='krects':
             q=pg.evaluate('''()=>[...document.querySelectorAll('.sl .kcard,.sl .krow,.sl .kpill,.sl .kstamp,.sl .kx,.sl [class*=d15] ')].map(e=>{const r=e.getBoundingClientRect();const cs=getComputedStyle(e);return [e.className.toString().slice(0,20),Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height),cs.transform==='none'?'':cs.transform.slice(0,40),cs.backgroundColor,cs.borderRadius,(e.innerText||'').replace(/\s+/g,' ').slice(0,40)]})''')
@@ -76,7 +82,7 @@ with sync_playwright() as pw:
             pg.add_style_tag(content=(h[1:] if h.startswith('!') else h+' .top,.body,.prog,.ctl,.tap{visibility:hidden!important}'))
             pg.wait_for_timeout(150)
             info=pg.evaluate(open(str(P/'render/layers.js')).read())
-            LD=P/'layers'; LD.mkdir(exist_ok=True)
+            LD=pathlib.Path(os.environ.get('LAYD', str(P/'layers'))); LD.mkdir(exist_ok=True)
             for j,L in enumerate(info):
                 pg.evaluate('([j])=>{document.querySelectorAll("[data-l]").forEach(e=>e.removeAttribute("data-l"));window.__L[j].setAttribute("data-l","1")}',[j])
                 css=pg.add_style_tag(content='.sl.sl.sl{background:transparent!important}html,body,#root,.root{background:transparent!important} .sl.sl::after,.sl.sl::before{display:none!important} .sl .body{display:none!important} .sl *:not([data-l]):not([data-l] *){visibility:hidden!important} [data-l]{visibility:visible!important} [data-inf],[data-inf] *{animation:none!important}')

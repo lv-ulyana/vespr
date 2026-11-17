@@ -32,6 +32,7 @@ jobs:
           mkdir -p out && cp -r build/shots out/ 2>/dev/null || true
           cp layout.txt out/
           cp build/en_missing.txt out/ 2>/dev/null || true
+          cp build/en_missing_wrapped.txt out/ 2>/dev/null || true
           cd out
           git init -q -b shots
           git config user.name "github-actions"
