@@ -15,7 +15,7 @@ import 'package:vespr/data/demo.dart';
 import 'package:vespr/data/legal.dart';
 import 'package:vespr/data/models.dart';
 import 'package:vespr/data/store.dart';
-import 'package:vespr/l10n/tr.dart' show setLang;
+import 'package:vespr/l10n/tr.dart' show setLang, isEn;
 import 'package:vespr/screens/calendar.dart';
 import 'package:vespr/screens/compare.dart';
 import 'package:vespr/screens/match.dart';
@@ -47,9 +47,9 @@ List<(String, Widget)> _screens(DB db) => [
       ('awards', const Shell(initial: 3)),
       ('calendar', const CalendarScreen()),
       ('meeting_new', const MeetingForm()),
-      if (db.people.isNotEmpty) ('voice', const VoiceScreen(demoText: 'він не тиснув, сам спитав, чи мені комфортно, потім провів до хати. але піввечора сидів у телефоні')),
-      if (db.people.isNotEmpty) ('voice_long', const VoiceScreen(demoText: 'було дивно. спершу запізнився на пів години, потім весь час згадував колишню і рахував кожну копійку, а ще перебив мене разів десять. але провів додому і не тиснув. ніби старався, але я не знаю. мабуть, другого побачення не буде, хоча секс був норм, він питав, чи мені комфортно, і був уважний')),
-      if (db.people.isNotEmpty) ('voice_before', const VoiceScreen(before: true, demoText: 'хочу нарешті спокійно поговорити, без телефонів')),
+      if (db.people.isNotEmpty) ('voice', VoiceScreen(demoText: isEn ? "he didn't push, asked if I was comfortable, then walked me home. but he was on his phone half the night" : 'він не тиснув, сам спитав, чи мені комфортно, потім провів до хати. але піввечора сидів у телефоні')),
+      if (db.people.isNotEmpty) ('voice_long', VoiceScreen(demoText: isEn ? "it was weird. first he was half an hour late, then kept bringing up his ex and counting every penny, and interrupted me like ten times. but he walked me home and didn't push. he kind of tried, but i don't know. probably no second date, although the sex was fine, he asked if i was comfortable and was attentive" : 'було дивно. спершу запізнився на пів години, потім весь час згадував колишню і рахував кожну копійку, а ще перебив мене разів десять. але провів додому і не тиснув. ніби старався, але я не знаю. мабуть, другого побачення не буде, хоча секс був норм, він питав, чи мені комфортно, і був уважний')),
+      if (db.people.isNotEmpty) ('voice_before', VoiceScreen(before: true, demoText: isEn ? 'i finally want a calm talk, no phones' : 'хочу нарешті спокійно поговорити, без телефонів')),
       ('entry_new', const EntryForm()),
       if (db.entries.isNotEmpty) ('entry_view', EntryView(entryId: db.entries.last.id)),
       if (db.entries.isNotEmpty) ('entry_edit', EntryForm(entryId: db.entries.last.id)),
@@ -67,7 +67,7 @@ List<(String, Widget)> _screens(DB db) => [
       ('questions', const QuestionsScreen()),
       ('paywall', const PaywallScreen()),
       ('paywall_limit', const PaywallScreen(kind: PaywallKind.limit)),
-      ('paywall_match', const PaywallScreen(kind: PaywallKind.match, name: 'Марк')),
+      ('paywall_match', PaywallScreen(kind: PaywallKind.match, name: isEn ? 'Mark' : 'Марк')),
       ('subscription', const SubscriptionScreen()),
       ('privacy', const DocScreen(doc: privacyDoc)),
       ('terms', const DocScreen(doc: termsDoc)),
@@ -185,7 +185,7 @@ void main() {
               void cy(RenderObject r) {
                 if (r is RenderParagraph) {
                   final t = r.text.toPlainText();
-                  if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t)) missing.add(t.replaceAll('\n', '⏎'));
+                  if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t) && t != 'Українська') missing.add(t.replaceAll('\n', '⏎'));
                 }
                 r.visitChildren(cy);
               }

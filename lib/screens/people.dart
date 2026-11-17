@@ -67,6 +67,7 @@ String _meets(int n) => '$n ${plural(n, 'зустріч', 'зустрічі', '�
 
 /// Знахідний відмінок для прізвиська: «Архітектора», «Марка», «Олю». Не впевнені — лишаємо як є.
 String accus(String name, String gender) {
+  if (isEn) return name;
   final parts = name.trim().split(' ');
   if (parts.isEmpty || parts.first.isEmpty) return name;
   var w = parts.first;

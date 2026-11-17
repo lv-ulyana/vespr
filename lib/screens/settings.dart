@@ -38,6 +38,7 @@ String _monthCount(AppStore s) {
 /// Орудний відмінок для імені: «з Архітектором», «з Марком», «з Олею».
 String instrCase(String n) {
   final t = n.trim();
+  if (isEn) return t.isEmpty ? 'him' : t;
   if (t.isEmpty) return 'ним';
   final last = t[t.length - 1].toLowerCase();
   final base = t.substring(0, t.length - 1);

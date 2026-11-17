@@ -77,3 +77,12 @@ T.update({'Архітектор': 'The Architect', 'Креслить на сер
  'Запізнився на 40 хвилин': '40 minutes late', 'Найкращий вечір місяця': 'Best night of the month'})
 T.update({'Сьогодні': 'Today', 'Завтра': 'Tomorrow'})
 T['Моя мапа у Vespr'] = 'My map on Vespr'
+T.update({
+ 'Ти {0} + він {1} · {2}': 'You {0} + him {1} · {2}',
+ 'Ти {0} + вона {1} · {2}': 'You {0} + her {1} · {2}',
+ 'Плюс {0} до вечора дає': 'Adds {0} to the night:',
+ 'Мінус {0} до вечора дає': 'Takes {0} off the night:',
+ 'він': 'him', 'вона': 'her',
+ '— він вийшов з чату —': '— he left the chat —',
+ '{0}\nяк людина': '{0}\nas a person',
+})

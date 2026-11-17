@@ -7,6 +7,9 @@ for f in sorted(glob.glob(os.path.join(HERE, 't/*.py'))):
     for k, v in d.get('T', {}).items():
         (tpl if re.search(r'\{\d+\}', k) else exact)[k] = v
     words.update(d.get('W', {}))
+# пункти списків у документах показуються без «• » — додаємо й такі ключі
+for k, v in list(exact.items()):
+    if k.startswith('• ') and v.startswith('• '): exact.setdefault(k[2:], v[2:])
 def q(s): return "'" + s.replace('\\', '\\\\').replace("'", "\\'").replace('$', '\\$').replace('\n', '\\n') + "'"
 out = ['// Згенеровано tool/l10n/build_en.py — не правити вручну, правити переклади в tool/l10n/t/*.py', '// ignore_for_file: lines_longer_than_80_chars', '']
 for name, d in (('enExact', exact), ('enTpl', tpl), ('enWords', words)):
