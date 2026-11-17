@@ -21,6 +21,7 @@ void setLang(String l) {
   if (l == _lang) return;
   _lang = l;
   _cache.clear();
+  _good.clear();
 }
 
 final _cyr = RegExp('[А-Яа-яІіЇїЄєҐґ]');
@@ -70,18 +71,54 @@ String trf(String uk, List<Object?> args) {
 
 String _translate(String s) => _try(s) ?? _fallback(s);
 
-/// Чи можна лишити шматок як є: перекладено повністю, або це одне ім'я з великої (Марк, Оля).
-bool _ok(String src, String out) => !_cyr.hasMatch(out) || (out == src && RegExp(r"^[А-ЯІЇЄҐ][А-Яа-яІіЇїЄєҐґʼ'’.\-]*$").hasMatch(src.trim()));
+final _busy = <String>{};
+final _good = <String, String>{};
 
-/// Повний переклад або null.
+/// Ім'я з великої (Марк, Олександр-Максиміліан, Костянтин Вікторович) — лишаємо як є
+bool _isName(String s) {
+  final ws = s.trim().split(RegExp(r'\s+'));
+  return ws.length <= 3 && ws.every((x) => RegExp(r"^[А-ЯІЇЄҐ][а-яіїєґʼ'’\-А-ЯІЇЄҐ]*\.?$").hasMatch(x));
+}
+
+String _cap(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+
+/// Повний переклад (без українських слів, крім імен) або null.
 String? _try(String s) {
+  if (!_cyr.hasMatch(s)) return s;
+  final g = _good[s];
+  if (g != null) return g;
+  if (!_busy.add(s)) return null;
+  try {
+    final r = _try0(s);
+    if (r != null) _good[s] = r;
+    return r;
+  } finally {
+    _busy.remove(s);
+  }
+}
+
+String? _try0(String s) {
   final ex = enExact[s];
   if (ex != null) return ex;
   final t = s.trim();
-  if (t.isEmpty) return s;
   if (t != s) {
-    final e2 = _try(t);
-    if (e2 != null) return s.replaceFirst(t, e2);
+    final r = _try(t);
+    return r == null ? null : s.replaceFirst(t, r);
+  }
+  // ВЕЛИКИМИ: перекладаємо як звичайний текст і знову робимо великими
+  if (s == s.toUpperCase() && s != s.toLowerCase()) {
+    final low = s.toLowerCase();
+    final title = low.replaceAllMapped(RegExp(r"(^|[\s·(«“—\-]+)([а-яіїєґa-z])"), (x) => '${x.group(1)}${x.group(2)!.toUpperCase()}');
+    for (final c in [low, _cap(low), title]) {
+      final r = _try(c);
+      if (r != null) return r.toUpperCase();
+    }
+  }
+  // з малої: «провів, викликав таксі» → як «Провів, …»
+  final f0 = s[0];
+  if (f0 != f0.toUpperCase() && _cyr.hasMatch(f0)) {
+    final up = _try(_cap(s));
+    if (up != null && up.isNotEmpty && !_lowerKeep.hasMatch(up)) return up[0].toLowerCase() + up.substring(1);
   }
   // шаблони: вставки мають перекластися або бути іменами/числами
   for (final tp in _templates) {
@@ -91,8 +128,12 @@ String? _try(String s) {
     var good = true;
     for (final name in mm.groupNames) {
       final src = mm.namedGroup(name) ?? '';
-      final tv = tr(src);
-      if (!_ok(src, tv) && src.trim().split(RegExp(r'\s+')).length > 2) {
+      if (src == s) {
+        good = false;
+        break;
+      }
+      final tv = _try(src) ?? (_isName(src) ? src : null);
+      if (tv == null) {
         good = false;
         break;
       }
@@ -100,28 +141,23 @@ String? _try(String s) {
     }
     if (good) return out;
   }
-  if (s.contains('\n')) {
-    final ls = s.split('\n');
-    final out = ls.map(tr).toList();
-    return out.join('\n');
-  }
-  // регістр: «провів, викликав таксі» → як «Провів, …»; «ДІВА · ЗЕМЛЯ» → як «Діва · Земля»
-  final f0 = t[0];
-  if (t == s && f0 != f0.toUpperCase() && _cyr.hasMatch(f0)) {
-    final up = _try(f0.toUpperCase() + s.substring(1));
-    if (up != null && up.isNotEmpty && !_lowerKeep.hasMatch(up)) return up[0].toLowerCase() + up.substring(1);
-  }
-  if (t == s && s == s.toUpperCase() && s != s.toLowerCase()) {
-    final low = s.toLowerCase();
-    final title = low.replaceAllMapped(RegExp(r"(^|[\s·(«“—-]+)([а-яіїєґa-z])"), (x) => '${x.group(1)}${x.group(2)!.toUpperCase()}');
-    final r = _try(title) ?? _try(low[0].toUpperCase() + low.substring(1));
-    if (r != null) return r.toUpperCase();
-  }
-  // кілька речень: кожне окремо
-  final sent = s.split(RegExp(r'(?<=[.!?…])\s+'));
-  if (sent.length > 1) {
-    final out = sent.map(_try).toList();
-    if (out.every((x) => x != null)) return out.join(' ');
+  // кілька рядків, кілька речень
+  for (final re in [RegExp(r'\n'), RegExp(r'(?<=[.!?…])\s+')]) {
+    if (!re.hasMatch(s)) continue;
+    final seps = re.allMatches(s).map((m) => m.group(0)!).toList();
+    final parts = s.split(re);
+    final out = StringBuffer();
+    var good = true;
+    for (var i = 0; i < parts.length; i++) {
+      final r = _try(parts[i]) ?? (_isName(parts[i]) ? parts[i] : null);
+      if (r == null) {
+        good = false;
+        break;
+      }
+      out.write(r);
+      if (i < seps.length) out.write(seps[i]);
+    }
+    if (good) return out.toString();
   }
   // хвостова пунктуація: «У нього…», «Кава:»
   final pm = RegExp(r'^([\s\S]*?)([.…:;!?,]+)$').firstMatch(s);
@@ -129,28 +165,33 @@ String? _try(String s) {
     final core = _try(pm.group(1)!);
     if (core != null) return core + pm.group(2)!;
   }
-  // перелік через роздільники: «Пізно, після 22:00, Ресторан», «Mark · пт, 13 лист»
-  for (final sep in const [' · ', ' — ', ' + ', ' / ', '; ', ', ', ' і ', ' та ', ' й ']) {
+  // перелік через роздільники
+  for (final sep in const [' ✦ ', ' · ', ' — ', ' + ', ' / ', '; ', ', ', ': ', ' і ', ' та ', ' й ']) {
     if (!s.contains(sep)) continue;
     final parts = s.split(sep);
     final out = <String>[];
     var good = true;
     for (final p in parts) {
-      final tv = tr(p);
-      if (!_ok(p, tv)) {
+      final r = _try(p) ?? (_isName(p) ? p : null);
+      if (r == null) {
         good = false;
         break;
       }
-      out.add(tv);
+      out.add(r);
     }
     if (good) return out.join(const {' і ': ' and ', ' та ': ' and ', ' й ': ' and '}[sep] ?? sep);
   }
   // короткі рядки — по словах (дати, «3 рази», «пн, 16 лист»), тільки якщо перекладено все
   final words = s.split(RegExp(r'\s+')).where((x) => x.isNotEmpty).length;
   if (words <= 5) {
-    final out = s.replaceAllMapped(RegExp(r"[А-Яа-яІіЇїЄєҐґʼ'’]+"), (x) => enWords[x.group(0)!] ?? enWords[x.group(0)!.toLowerCase()] ?? enExact[x.group(0)!] ?? x.group(0)!);
-    final rest = RegExp(r"[А-Яа-яІіЇїЄєҐґʼ'’]+").allMatches(out).map((x) => x.group(0)!);
-    if (rest.every((x) => _ok(x, x))) return out;
+    var good = true;
+    final out = s.replaceAllMapped(RegExp(r"[А-Яа-яІіЇїЄєҐґʼ'’]+"), (x) {
+      final w0 = x.group(0)!;
+      final r = enWords[w0] ?? enWords[w0.toLowerCase()] ?? enExact[w0];
+      if (r == null && !_isName(w0)) good = false;
+      return r ?? w0;
+    });
+    if (good) return out;
   }
   return null;
 }

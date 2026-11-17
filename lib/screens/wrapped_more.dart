@@ -415,13 +415,13 @@ extension _More on _Slide {
                 const SizedBox(height: 6),
                 Text(safe ? s.who.first.safe.replaceAll(RegExp(r'^(Він|Вона) '), '') : s.who.first.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: _e(ws(13, FontWeight.w600, _pink, h: 1.2))),
                 const SizedBox(height: 10),
-                Row(children: gapped([
+                Wrap(spacing: 12, runSpacing: 6, children: [
                   for (final t in g)
                     Text.rich(TextSpan(children: [
                       TextSpan(text: '✓ ', style: _e(ws(12, FontWeight.w700, _pink, h: 1))),
                       TextSpan(text: t, style: _e(ws(12, FontWeight.w500, Colors.white.withValues(alpha: .85), h: 1))),
                     ])),
-                ], 12, horizontal: true)),
+                ]),
               ]),
             ]),
           ), w: 338, d: 5));
