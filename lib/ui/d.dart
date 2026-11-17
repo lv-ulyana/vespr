@@ -3,9 +3,10 @@
 // Екрани малюються в системі координат макета (ширина 390) і масштабуються під екран.
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../l10n/tr.dart';
 
 /// Навігатор апки (для переходів з-під екрана блокування)
 final appNav = GlobalKey<NavigatorState>();
@@ -170,7 +171,7 @@ class _PressState extends State<Press> {
   Widget build(BuildContext context) => Semantics(
         button: true,
         enabled: widget.onTap != null,
-        label: widget.label,
+        label: widget.label == null ? null : tr(widget.label!),
         child: MouseRegion(
           cursor: widget.onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
           child: GestureDetector(
@@ -465,7 +466,7 @@ class _DInputState extends State<DInput> {
             decoration: InputDecoration(
               isCollapsed: true,
               border: InputBorder.none,
-              hintText: widget.hint,
+              hintText: widget.hint == null ? null : tr(widget.hint!),
               hintStyle: rw(14, color: K.haze, w: FontWeight.w500),
               contentPadding: widget.lines > 1 ? const EdgeInsets.fromLTRB(16, 16, 16, 16) : EdgeInsets.symmetric(horizontal: widget.align == TextAlign.left ? 16 : 0),
             ),

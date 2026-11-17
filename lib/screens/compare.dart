@@ -1,7 +1,7 @@
 // Порівняння двох людей за дошками ComparePick / CompareSex / ComparePersona / CompareStars:
 // шапка з двома людьми, вкладки «Секс · Він · Зірки», дзеркальні смужки по питаннях
 // і картка «Висновок». Цифри тільки з записів; де в когось нема відповідей — «мало даних».
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/catalog.dart';
 import '../data/models.dart';
@@ -16,6 +16,7 @@ import '../ui/kit.dart' show go;
 import 'entry.dart' show PAvatar;
 import 'match.dart' show openMatch;
 import 'settings.dart' show PaywallScreen;
+import '../l10n/tr.dart';
 
 const _lilac = Color(0xFFD7D3E0);
 const _star = 'M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z';

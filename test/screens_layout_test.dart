@@ -15,6 +15,7 @@ import 'package:vespr/data/demo.dart';
 import 'package:vespr/data/legal.dart';
 import 'package:vespr/data/models.dart';
 import 'package:vespr/data/store.dart';
+import 'package:vespr/l10n/tr.dart' show setLang;
 import 'package:vespr/screens/calendar.dart';
 import 'package:vespr/screens/compare.dart';
 import 'package:vespr/screens/match.dart';
@@ -84,7 +85,10 @@ List<(String, Widget)> _screens(DB db) => [
     ];
 
 DB _variant(String v, DateTime now) {
+  // en — англійська версія з повними демо-даними
+  setLang(v == 'en' ? 'en' : 'uk');
   final d = demoDb(now);
+  if (v == 'en') d.profile.lang = 'en';
   if (v == 'early') d.entries.removeRange(3, d.entries.length);
   if (v == 'photo') {
     // справжні фото у двох людей (беремо будь-які квадратні JPEG з асетів)
@@ -111,6 +115,7 @@ void main() {
 
     final now = DateTime.now();
     final issues = <Issue>[];
+    final missing = <String>{};
     final errors = <String>[];
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
@@ -125,7 +130,7 @@ void main() {
     };
     try {
       // 390×844 — макет; 375×667 — низький екран (iPhone SE), там найчастіше налазить
-      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty', 'photo']), (Size(375, 667), ['full']), (Size(320, 568), ['full'])]) {
+      for (final (sz, vs) in const [(Size(390, 844), ['full', 'early', 'empty', 'photo', 'en']), (Size(375, 667), ['full', 'en']), (Size(320, 568), ['full', 'en'])]) {
       tester.view.physicalSize = sz;
       final px = sz.height < 600 ? 'xs_' : (sz.height < 700 ? 'se_' : '');
       for (final v in vs) {
@@ -138,7 +143,7 @@ void main() {
         for (final (name, screen) in _screens(store.db)) {
           // екрани, що не залежать від даних, перевіряємо один раз
           const dataFree = {'welcome', 'guide', 'about_you', 'setup', 'privacy', 'terms', 'pin_new', 'pin_lock', 'paywall', 'paywall_limit', 'paywall_match', 'subscription', 'delete_all', 'backup_export', 'backup_import', 'import', 'import_calendar', 'questions'};
-          if (v != 'full' && dataFree.contains(name)) continue;
+          if (v != 'full' && v != 'en' && dataFree.contains(name)) continue;
           const withPhoto = {'home', 'people', 'calendar', 'meeting_new', 'person_view', 'person_view2', 'person_edit', 'compare_stars', 'match'};
           if (v == 'photo' && !withPhoto.contains(name)) continue;
           final tagV = '$px$v';
@@ -175,6 +180,17 @@ void main() {
             }
             errors.clear();
             issues.addAll(scanText(key.currentContext!.findRenderObject()!, tag, width: sz.width));
+            // англійська: жодного українського тексту на екрані
+            if (v == 'en') {
+              void cy(RenderObject r) {
+                if (r is RenderParagraph) {
+                  final t = r.text.toPlainText();
+                  if (RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(t)) missing.add(t.replaceAll('\n', '⏎'));
+                }
+                r.visitChildren(cy);
+              }
+              cy(key.currentContext!.findRenderObject()!);
+            }
             if (shots) {
               await tester.runAsync(() async {
                 final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
@@ -204,6 +220,11 @@ void main() {
       await tester.pump(const Duration(seconds: 30));
     } finally {
       FlutterError.onError = old;
+    }
+    setLang('uk');
+    if (missing.isNotEmpty) {
+      File('build/en_missing.txt').writeAsStringSync(missing.join('\n'));
+      issues.add(Issue('англійська: ${missing.length} рядків без перекладу (build/en_missing.txt)'));
     }
     if (issues.isNotEmpty) {
       // ignore: avoid_print

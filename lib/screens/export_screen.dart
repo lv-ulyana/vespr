@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/catalog.dart';
 import '../data/store.dart';
@@ -10,6 +10,7 @@ import '../ui/board.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'calendar.dart';
+import '../l10n/tr.dart';
 
 /// Експорт: записи або люди в таблицю (CSV), зустрічі в календар (ICS / календар телефону).
 /// Безкоштовно для всіх: це її дані. Дизайн: дошка «13. Експорт».

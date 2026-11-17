@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -19,6 +19,7 @@ import '../ui/kit.dart' show go, goReplace;
 import 'entry.dart' show EntryForm, PAvatar;
 import 'onboarding.dart' show AddPersonScreen;
 import 'settings.dart' show PaywallKind, PaywallScreen;
+import '../l10n/tr.dart';
 
 const freeVoicePerMonth = 3;
 const _icClose = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>';

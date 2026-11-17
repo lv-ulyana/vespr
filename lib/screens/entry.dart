@@ -1,5 +1,5 @@
 // Запис зустрічі один в один з дошками «Entry», «EntryView», «EntryActions», «EntryDate», «EntryMove».
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/catalog.dart';
 import '../data/models.dart';
@@ -12,6 +12,7 @@ import '../ui/photo.dart';
 import '../ui/kit.dart' show go, goReplace;
 import 'onboarding.dart' show AddPersonScreen;
 import 'settings.dart' show PaywallKind, PaywallScreen, QuestionsScreen;
+import '../l10n/tr.dart';
 
 export '../ui/photo.dart' show PAvatar, PPhoto, seedOf, photoBytes, blurPhotos, pickPersonPhoto, hasPhoto;
 
@@ -516,7 +517,7 @@ class _EntryFormState extends State<EntryForm> {
           cursorColor: K.acc,
           style: rw(14, h: 1.5),
           textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(isCollapsed: true, border: InputBorder.none, hintText: "Що хочеш запам'ятати про цей вечір", hintStyle: rw(14, color: K.haze, w: FontWeight.w500)),
+          decoration: InputDecoration(isCollapsed: true, border: InputBorder.none, hintText: tr("Що хочеш запам'ятати про цей вечір"), hintStyle: rw(14, color: K.haze, w: FontWeight.w500)),
         ),
       ),
       if (suggestFlags(note.text).any((id) => !flagIds.contains(id))) ...[

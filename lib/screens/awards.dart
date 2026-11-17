@@ -1,7 +1,7 @@
 // «Нагороди»: перенесено з дошок Achievements і AchievementCard.
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -9,6 +9,7 @@ import '../data/store.dart';
 import '../logic/achievements.dart';
 import '../logic/dates.dart';
 import '../ui/d.dart';
+import '../l10n/tr.dart';
 
 /// Дата першого відкриття рівня: зберігаємо в лічильниках як РРРРММДД
 String _gotKey(Ach a) => 'got:${a.d.id}:${a.lv}';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/catalog.dart';
 import '../data/models.dart';
@@ -10,6 +10,7 @@ import '../ui/kit.dart' show go;
 import 'entry.dart';
 import 'export_screen.dart';
 import 'import_screen.dart';
+import '../l10n/tr.dart';
 
 /// Усі записи таблицею. Фільтр по людині, сортування за датою чи оцінкою, тап — відкрити запис.
 /// Дизайн: дошка «14.1 Усі записи таблицею».

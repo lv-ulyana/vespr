@@ -3,7 +3,7 @@
 // твердження про нього з його аркана, перевірене середньою з твоїх записів.
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/rendering.dart';
 
 import '../data/models.dart';
@@ -17,6 +17,7 @@ import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'entry.dart' show PAvatar;
 import 'settings.dart' show PaywallScreen, PaywallKind;
+import '../l10n/tr.dart';
 
 const _starPath = 'M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z';
 final _icShare = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v13M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>';

@@ -1,7 +1,7 @@
 // Головна один в один з дошками «Home», «HomeEmpty», «HomeLimit».
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../data/catalog.dart';
@@ -22,6 +22,7 @@ import 'entry.dart';
 import 'onboarding.dart';
 import 'settings.dart';
 import 'wrapped.dart' show WrappedScreen;
+import '../l10n/tr.dart';
 
 /// «сьогодні», «завтра», «у суботу» (до тижня), інакше «14.11»
 String _when(String d) {

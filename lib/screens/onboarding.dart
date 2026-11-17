@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -17,6 +17,7 @@ import '../ui/kit.dart' show go, goReplace;
 import 'entry.dart' show PAvatar, PPhoto, pickPersonPhoto;
 import 'pin_screens.dart';
 import 'settings.dart' show PaywallKind, PaywallScreen;
+import '../l10n/tr.dart';
 
 /// Завершення онбордингу: позначаємо і повертаємось на корінь (там уже головна)
 Future<void> finishOnboarding(BuildContext context) async {
@@ -59,7 +60,11 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
     return Press(
       onTap: () {
         setState(() => lang = id);
-        if (id == 'en') dToast(context, 'Англійська буде пізніше, поки українською');
+        // мова міняється одразу, щоб вітання вже було потрібною мовою
+        Store.read(context).updateProfile((p) {
+          p.lang = id;
+          p.counters['langSet'] = 1;
+        });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/rendering.dart';
 
 import '../data/store.dart';
@@ -14,6 +14,7 @@ import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'settings.dart' show PaywallScreen;
 import 'wrapped_anim.dart';
+import '../l10n/tr.dart';
 
 part 'wrapped_more.dart';
 
@@ -82,7 +83,7 @@ final _icMore = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy=
 const _rot8 = -8 * math.pi / 180;
 
 double _textW(String t, TextStyle st) {
-  final tp = TextPainter(text: TextSpan(text: t, style: st), textDirection: TextDirection.ltr, maxLines: 1)..layout();
+  final tp = TextPainter(text: TextSpan(text: tr(t), style: st), textDirection: TextDirection.ltr, maxLines: 1)..layout();
   return tp.width;
 }
 

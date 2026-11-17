@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/models.dart';
 import '../data/store.dart';
@@ -10,6 +10,7 @@ import '../services/files.dart';
 import '../services/phone_calendar.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
+import '../l10n/tr.dart';
 
 /// Імпорт: записи з таблиці (CSV) або зустрічі з календаря (телефон чи файл .ics).
 /// Ліміт безкоштовної версії на імпорт не діє: це її старі дані. Дизайн: дошки «14.2» і «14.3».

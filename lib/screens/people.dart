@@ -3,7 +3,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
 import '../data/catalog.dart';
@@ -19,6 +19,7 @@ import 'compare.dart' show openCompare;
 import 'match.dart' show openMatch;
 import 'entry.dart' show EntryForm, EntryView, PAvatar, PPhoto, blurPhotos, entryTitle, hasPhoto;
 import 'onboarding.dart' show AddPersonScreen;
+import '../l10n/tr.dart';
 
 // ---------- Іконки з дошок ----------
 const _icSearch = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
@@ -1471,7 +1472,7 @@ class _NoDateCard extends StatelessWidget {
             },
             cursorColor: K.acc,
             style: pr(16),
-            decoration: InputDecoration(isCollapsed: true, border: InputBorder.none, hintText: hint, hintStyle: rw(13, color: K.haze, w: FontWeight.w500)),
+            decoration: InputDecoration(isCollapsed: true, border: InputBorder.none, hintText: tr(hint), hintStyle: rw(13, color: K.haze, w: FontWeight.w500)),
           ),
         );
     return Container(

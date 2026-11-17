@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import 'd.dart';
+import '../l10n/tr.dart';
 
 /// Спільні шматки дошок «Налаштування», «Експорт», «Імпорт», «Таблиця», «Підписка».
 /// Класи з макета: .gl .grp .row .ic .val .sw .tabs .opt .chip .note .ghost .xopt .xbtn.

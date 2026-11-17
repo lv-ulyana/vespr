@@ -1,5 +1,5 @@
 // «Календар» і «Нова зустріч»: перенесено з дошок Calendar і MeetingNew.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../services/reminders.dart';
 import '../data/catalog.dart';
@@ -14,6 +14,7 @@ import 'voice.dart' show openVoice;
 import 'entry.dart' show EntryForm, EntryView, MonthGrid, PAvatar, entryTitle;
 import 'export_screen.dart';
 import 'onboarding.dart' show AddPersonScreen;
+import '../l10n/tr.dart';
 
 const _icPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>';
 const _icPrev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 6l-6 6 6 6"/></svg>';

@@ -3,7 +3,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -19,6 +19,7 @@ import '../ui/kit.dart' show go;
 import 'people.dart' show flagShort;
 import 'awards.dart' show nearestAwardLine;
 import 'settings.dart' show PaywallScreen;
+import '../l10n/tr.dart';
 
 const _freeFactors = 2;
 const _full = 6; // скільки записів до повної мапи
@@ -574,7 +575,7 @@ class _SkyPainter extends CustomPainter {
           ..color = K.star);
       }
       final tp = TextPainter(
-        text: TextSpan(text: niceLabel(e), style: rw(11, w: FontWeight.w600, color: i == sel ? K.star : (pos ? const Color(0xFFD7D3E0) : K.haze))),
+        text: TextSpan(text: tr(niceLabel(e)), style: rw(11, w: FontWeight.w600, color: i == sel ? K.star : (pos ? const Color(0xFFD7D3E0) : K.haze))),
         textDirection: TextDirection.ltr,
       )..layout();
       // підпис праворуч або ліворуч, щоб не вилазив за край
@@ -1063,7 +1064,7 @@ class _RadarPainter extends CustomPainter {
       final lo = pt(i, 112);
       final tp = TextPainter(
         text: TextSpan(children: [
-          TextSpan(text: '${items[i].$1}\n', style: rw(11, w: FontWeight.w500, color: i == weak ? K.accSoft : K.muted)),
+          TextSpan(text: '${tr(items[i].$1)}\n', style: rw(11, w: FontWeight.w500, color: i == weak ? K.accSoft : K.muted)),
           TextSpan(text: fmt(items[i].$2), style: rw(11, w: i == weak ? FontWeight.w600 : FontWeight.w500, color: i == weak ? K.accSoft : K.star)),
         ]),
         textAlign: lo.dx < ctr.dx - 5 ? TextAlign.right : lo.dx > ctr.dx + 5 ? TextAlign.left : TextAlign.center,

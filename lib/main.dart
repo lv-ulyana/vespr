@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'data/demo.dart';
+import 'l10n/tr.dart' show setLang;
 import 'data/store.dart';
 import 'screens/onboarding.dart';
 import 'screens/pin_screens.dart';
@@ -17,10 +18,21 @@ Future<void> main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   final store = AppStore();
   await store.load();
+  // перший запуск: мова як на телефоні (українська або російська → українська, решта → англійська)
+  if (!store.profile.onboarded && (store.profile.counters['langSet'] ?? 0) == 0) {
+    final dev = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    store.profile.lang = (dev == 'uk' || dev == 'ru') ? 'uk' : 'en';
+  }
   // Веб-версія для показу: ?demo=1 — вигадані дані, ?reset=1 — почати з нуля (онбординг)
   if (kIsWeb) {
     final q = Uri.base.queryParameters;
     if (q['reset'] == '1') await store.wipe();
+    final ql = q['lang'];
+    if (ql == 'en' || ql == 'uk') {
+      store.profile.lang = ql!;
+      store.profile.counters['langSet'] = 1;
+    }
+    setLang(store.profile.lang);
     if (q['demo'] == '1' && !store.profile.onboarded) await store.replaceAll(demoDb());
     // ?demo=early — тільки 3 записи, щоб побачити «перші спостереження»
     if (q['demo'] == 'early' && !store.profile.onboarded) {
@@ -28,25 +40,34 @@ Future<void> main() async {
       d.entries.removeRange(3, d.entries.length);
       await store.replaceAll(d);
     }
+    // демо перезаписує профіль — мову з посилання повертаємо
+    if (ql == 'en' || ql == 'uk') store.profile.lang = ql!;
   }
+  setLang(store.profile.lang);
   runApp(Store(store: store, child: const VesprApp()));
 }
 
 class VesprApp extends StatelessWidget {
   const VesprApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) {
+    final lang = Store.of(context).profile.lang;
+    setLang(lang);
+    return MaterialApp(
+        // зміна мови перебудовує весь інтерфейс
+        key: ValueKey('app-$lang'),
         title: 'Vespr',
         navigatorKey: appNav,
         debugShowCheckedModeBanner: false,
         theme: vesprTheme(),
-        locale: const Locale('uk'),
+        locale: Locale(lang),
         supportedLocales: const [Locale('uk'), Locale('en')],
         localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         // Блокування лежить поверх усієї навігації, тож закриває будь-який відкритий екран
         builder: (context, child) => LockLayer(child: child ?? const SizedBox()),
         home: const Root(),
       );
+  }
 }
 
 class Root extends StatelessWidget {

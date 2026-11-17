@@ -2,13 +2,14 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../data/store.dart';
 import '../services/pin.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
 import 'settings.dart' show DeleteAllScreen;
+import '../l10n/tr.dart';
 
 const _pinLen = 4;
 

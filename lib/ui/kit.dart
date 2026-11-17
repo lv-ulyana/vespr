@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
 import 'theme.dart';
+import '../l10n/tr.dart';
 
 void tapFx() => HapticFeedback.selectionClick();
 
@@ -309,7 +310,7 @@ class Field extends StatelessWidget {
           inputFormatters: formatters,
           style: T.body(16, C.text, FontWeight.w500),
           decoration: InputDecoration(
-            hintText: hint,
+            hintText: tr(hint),
             hintStyle: T.body(14, C.haze, FontWeight.w500),
             filled: true,
             fillColor: const Color(0x08F1EEF2),

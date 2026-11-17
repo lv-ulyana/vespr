@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 
 import '../data/catalog.dart';
@@ -24,6 +24,7 @@ import 'map.dart' show MyArcanaScreen;
 import 'pin_screens.dart';
 import 'table_screen.dart';
 import 'wrapped.dart' show WrappedArchiveScreen;
+import '../l10n/tr.dart';
 
 /// Перемикачі без окремого поля в профілі живуть у counters під ключем opt:… (1 — увімкнено).
 /// Усі за замовчуванням увімкнені, крім «Розмивати фото».
@@ -70,7 +71,6 @@ class SettingsScreen extends StatelessWidget {
               onTap: () {
                 s.updateProfile((x) => x.lang = l.$1);
                 Navigator.pop(ctx);
-                if (l.$1 == 'en') dToast(context, 'Англійська ще перекладається');
               },
             ),
           sheetCancel(ctx),
