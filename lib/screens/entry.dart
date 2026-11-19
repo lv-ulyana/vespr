@@ -183,7 +183,9 @@ class _EntryFormState extends State<EntryForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, Store.of(context).person(personId)?.gender, _gBody);
+
+  Widget _gBody(BuildContext context) {
     final s = Store.of(context);
     final p = s.profile;
     final person = s.person(personId);
@@ -315,7 +317,7 @@ class _EntryFormState extends State<EntryForm> {
           Expanded(child: Text(text, style: rw(14, h: 1.35))),
           const SizedBox(width: 10),
           Semantics(
-            label: text,
+            label: tr(text),
             value: value == 0 ? 'без оцінки' : '$value з 5',
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               for (var v = 1; v <= 5; v++)
@@ -831,7 +833,7 @@ class _EntryViewState extends State<EntryView> {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 decoration: BoxDecoration(border: i == 0 ? null : Border(top: BorderSide(color: K.w(.06)))),
-                child: Row(children: [Expanded(child: Text(rows[i].$1, style: rw(14))), const SizedBox(width: 12), Semantics(label: '${rows[i].$2} з 5', child: _stars(rows[i].$2))]),
+                child: Row(children: [Expanded(child: Text(rows[i].$1, style: rw(14))), const SizedBox(width: 12), Semantics(label: tr('${rows[i].$2} з 5'), child: _stars(rows[i].$2))]),
               ),
           ]),
         ),
@@ -893,7 +895,9 @@ class _EntryViewState extends State<EntryView> {
   void _undoToast(String text, Future<void> Function() undo, {OverlayState? overlay}) => undoToast(context, text, undo, overlay: overlay);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, Store.of(context).person(Store.of(context).entry(widget.entryId)?.personId ?? '')?.gender, _gBody);
+
+  Widget _gBody(BuildContext context) {
     final s = Store.of(context);
     final e = s.entry(widget.entryId);
     if (e == null) return DFrame(builder: (_, __) => const SizedBox());

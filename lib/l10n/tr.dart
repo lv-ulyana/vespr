@@ -13,6 +13,7 @@ import 'package:flutter/material.dart' as m;
 import 'package:flutter/widgets.dart' as w;
 
 import 'en.dart';
+import 'fem.dart';
 
 String _lang = 'uk';
 String get appLang => _lang;
@@ -73,8 +74,8 @@ String trf(String uk, List<Object?> args) {
 String _translate(String s) {
   final r = _try(s);
   if (r == null) return _fallback(s);
-  // українські лапки в англійському тексті → англійські
-  return r.replaceAll('«', '“').replaceAll('»', '”');
+  // українські лапки → англійські; дати в американському порядку: «16 Oct» → «Oct 16», «16 November 2026» → «November 16, 2026»
+  return _usDates(r.replaceAll('«', '“').replaceAll('»', '”'));
 }
 
 final _busy = <String>{};
@@ -243,9 +244,60 @@ String? _tplPass(String s, bool short) {
   return null;
 }
 
+final _dateRe = RegExp(r'\b(\d{1,2}) (January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b( (\d{4})\b)?');
+String _usDates(String s) => s.replaceAllMapped(_dateRe, (m) => '${m.group(2)} ${m.group(1)}${m.group(4) != null ? ', ${m.group(4)}' : ''}');
+
 String _fallback(String s) {
   if (kDebugMode) debugPrint('[tr] нема перекладу: $s');
   return s;
+}
+
+// ---------------------------------------------------------------------------
+// Рід: тексти про людину-жінку отримують жіночі форми. Межі — GenderScope над екраном
+// (картка людини, запис, метч, Wrapped); за замовчуванням — з профілю («зустрічаюсь з жінками»).
+// Словник фраз — fem.dart (генерує tool/l10n/build_en.py з tool/l10n/fem.py).
+
+class GenderScope extends w.InheritedWidget {
+  /// true — вона, false — він
+  final bool fem;
+  const GenderScope({super.key, required this.fem, required super.child});
+
+  static bool isFem(w.BuildContext c) => c.dependOnInheritedWidgetOfExactType<GenderScope>()?.fem ?? false;
+
+  /// Обгортка для екрана про людину: рід людини, а якщо невідомий — як вище по дереву
+  static w.Widget wrap(w.BuildContext c, String? gender, w.WidgetBuilder b) =>
+      GenderScope(fem: gender == null ? isFem(c) : gender == 'f', child: w.Builder(builder: b));
+
+  @override
+  bool updateShouldNotify(GenderScope old) => old.fem != fem;
+}
+
+final _femMap = {for (final p in femUkPairs) p.$1: p.$2};
+final _femRe = RegExp("(?<![А-Яа-яІіЇїЄєҐґʼ'’])(" + femUkPairs.map((p) => RegExp.escape(p.$1)).join('|') + ")(?![А-Яа-яІіЇїЄєҐґʼ'’])");
+final _femCache = <String, String>{};
+
+/// Жіночі форми в українському тексті (до перекладу)
+String femUk(String s) {
+  if (!_cyr.hasMatch(s)) return s;
+  return _femCache[s] ??= s.replaceAllMapped(_femRe, (m) => _femMap[m.group(1)!] ?? m.group(1)!);
+}
+
+w.InlineSpan _femSpan(w.InlineSpan sp) {
+  if (sp is w.TextSpan) {
+    return w.TextSpan(
+      text: sp.text == null ? null : femUk(sp.text!),
+      style: sp.style,
+      recognizer: sp.recognizer,
+      mouseCursor: sp.mouseCursor,
+      onEnter: sp.onEnter,
+      onExit: sp.onExit,
+      semanticsLabel: sp.semanticsLabel,
+      locale: sp.locale,
+      spellOut: sp.spellOut,
+      children: sp.children?.map(_femSpan).toList(),
+    );
+  }
+  return sp;
 }
 
 w.InlineSpan _trSpan(w.InlineSpan sp) {
@@ -327,13 +379,16 @@ class Text extends w.StatelessWidget {
 
   @override
   w.Widget build(w.BuildContext context) {
-    final sl = semanticsLabel == null ? null : (translate ? tr(semanticsLabel!) : semanticsLabel);
+    // про жінку — жіночі форми («Провела», «у неї»), далі переклад
+    final fem = translate && GenderScope.isFem(context);
+    String t(String x) => tr(fem ? femUk(x) : x);
+    final sl = semanticsLabel == null ? null : (translate ? t(semanticsLabel!) : semanticsLabel);
     if (data != null) {
-      return w.Text(translate ? tr(data!) : data!,
+      return w.Text(translate ? t(data!) : data!,
           style: style, strutStyle: strutStyle, textAlign: textAlign, textDirection: textDirection, locale: locale, softWrap: softWrap, overflow: overflow,
           textScaler: textScaler, maxLines: maxLines, semanticsLabel: sl, textWidthBasis: textWidthBasis, textHeightBehavior: textHeightBehavior, selectionColor: selectionColor);
     }
-    return w.Text.rich(translate ? _trSpan(textSpan!) : textSpan!,
+    return w.Text.rich(translate ? _trSpan(fem ? _femSpan(textSpan!) : textSpan!) : textSpan!,
         style: style, strutStyle: strutStyle, textAlign: textAlign, textDirection: textDirection, locale: locale, softWrap: softWrap, overflow: overflow,
         textScaler: textScaler, maxLines: maxLines, semanticsLabel: sl, textWidthBasis: textWidthBasis, textHeightBehavior: textHeightBehavior, selectionColor: selectionColor);
   }

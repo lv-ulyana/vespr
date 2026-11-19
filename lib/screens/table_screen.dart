@@ -112,7 +112,7 @@ class _Grid extends StatelessWidget {
       child: Align(alignment: right ? Alignment.centerRight : Alignment.centerLeft, child: label),
     );
     if (by == null) return cell;
-    return Semantics(button: true, label: 'Сортувати: $t', child: InkWell(onTap: () => onSort(by), child: cell));
+    return Semantics(button: true, label: tr('Сортувати: $t'), child: InkWell(onTap: () => onSort(by), child: cell));
   }
 
   Widget _cell(String t, {bool num = false, bool muted = false, VoidCallback? onTap}) => InkWell(

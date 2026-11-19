@@ -241,7 +241,7 @@ class StepBars extends StatelessWidget {
   const StepBars(this.n, {super.key, this.of = 3});
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Крок $n з $of',
+        label: tr('Крок $n з $of'),
         child: Row(mainAxisSize: MainAxisSize.min, children: gapped([
           for (var i = 1; i <= of; i++)
             AnimatedContainer(duration: const Duration(milliseconds: 400), width: 28, height: 3, decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: i <= n ? K.acc : K.w(.14))),
@@ -326,7 +326,7 @@ class Sw extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         toggled: on,
-        label: label,
+        label: tr(label),
         child: Press(
           onTap: () => onChanged(!on),
           scale: 1,
@@ -448,7 +448,7 @@ class _DInputState extends State<DInput> {
         radius: widget.radius,
         top: widget.lines > 1,
         child: Semantics(
-          label: widget.label,
+          label: tr(widget.label),
           child: TextField(
             controller: widget.controller,
             focusNode: f,

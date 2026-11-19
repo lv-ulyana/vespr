@@ -209,7 +209,7 @@ class _CompareScreenState extends State<CompareScreen> {
       Expanded(child: Center(child: Text('Порівняння', style: rw(15, w: FontWeight.w700)))),
       Semantics(
         button: true,
-        label: 'Змінити людей',
+        label: tr('Змінити людей'),
         child: Press(onTap: _pick, child: Container(width: 44, height: 44, decoration: const BoxDecoration(shape: BoxShape.circle, color: K.hour), alignment: Alignment.center, child: Ico(_icSwap, size: 19))),
       ),
     ]);

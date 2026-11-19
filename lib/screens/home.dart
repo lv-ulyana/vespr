@@ -152,7 +152,7 @@ class HomeTab extends StatelessWidget {
                   Positioned(
                     left: 22, right: 22, bottom: 20,
                     child: Semantics(
-                      label: '0 з 3 записів',
+                      label: tr('0 з 3 записів'),
                       child: Row(children: [
                         for (var i = 0; i < 3; i++) ...[
                           if (i > 0) ...[const SizedBox(width: 8), Container(width: 14, height: 1, color: K.w(.15)), const SizedBox(width: 8)],
@@ -594,7 +594,7 @@ class _DayRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final v = entries.isEmpty ? 0 : entries.map((e) => e.overall).reduce(math.max);
     return Semantics(
-      label: '$label${v > 0 ? ', оцінка $v' : ''}',
+      label: tr('$label${v > 0 ? ', оцінка $v' : ''}'),
       child: Column(children: [
         Text(label, style: rw(11, color: today ? K.star : K.muted2, w: today ? FontWeight.w700 : FontWeight.w400)),
         const SizedBox(height: 6),

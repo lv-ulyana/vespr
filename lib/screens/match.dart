@@ -135,7 +135,9 @@ class _MatchScreenState extends State<MatchScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, Store.of(context).person(widget.personId)?.gender, _gBody);
+
+  Widget _gBody(BuildContext context) {
     final s = Store.of(context);
     final p = s.people.where((x) => x.id == widget.personId).firstOrNull;
     final me = astroOf(s.profile.birth);
@@ -410,7 +412,7 @@ class _MatchScreenState extends State<MatchScreen> {
               Row(children: [
                 BackBtn(onTap: () => Navigator.maybePop(context)),
                 Expanded(child: Center(child: Text('Ваш метч', style: rw(15, w: FontWeight.w700)))),
-                Semantics(button: true, label: 'Поділитися', child: Press(onTap: _shareSheet, child: Container(width: 44, height: 44, decoration: const BoxDecoration(shape: BoxShape.circle, color: K.hour), alignment: Alignment.center, child: Ico(_icShare, size: 19)))),
+                Semantics(button: true, label: tr('Поділитися'), child: Press(onTap: _shareSheet, child: Container(width: 44, height: 44, decoration: const BoxDecoration(shape: BoxShape.circle, color: K.hour), alignment: Alignment.center, child: Ico(_icShare, size: 19)))),
               ]),
               RepaintBoundary(key: shot, child: ColoredBox(color: K.bg, child: Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: hero))),
               if (relCard != null) Padding(padding: const EdgeInsets.only(top: 8), child: relCard),

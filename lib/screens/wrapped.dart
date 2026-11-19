@@ -181,8 +181,25 @@ class _WrappedScreenState extends State<WrappedScreen> {
     );
   }
 
+  /// Рід для текстів Wrapped: більшість людей, з якими були записи цього місяця
+  String? _monthGender(BuildContext context) {
+    final s = Store.of(context);
+    var f = 0, m = 0;
+    for (final id in s.entries.where((e) => e.date.startsWith(widget.month)).map((e) => e.personId).toSet()) {
+      final g = s.person(id)?.gender;
+      if (g == 'f') {
+        f++;
+      } else if (g != null) {
+        m++;
+      }
+    }
+    return f == 0 && m == 0 ? null : (f > m ? 'f' : 'm');
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, _monthGender(context), _gBody);
+
+  Widget _gBody(BuildContext context) {
     final st = Store.of(context);
     final w = buildWrapped(widget.month, st.db);
     final idx = i.clamp(0, w.slides.length - 1).toInt();
@@ -277,7 +294,7 @@ class _WrappedScreenState extends State<WrappedScreen> {
             const SizedBox(width: 8),
             Semantics(
               button: true,
-              label: 'Закрити',
+              label: tr('Закрити'),
               child: Press(
                 onTap: () => Navigator.maybePop(context),
                 child: Container(
@@ -535,7 +552,11 @@ class _Slide extends StatelessWidget {
                   height: 38,
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x2EFFFFFF)))),
                   child: Row(children: [
-                    SizedBox(width: 98, child: Text(r.label, maxLines: 1, style: ws(12, FontWeight.w500, Colors.white))),
+                    SizedBox(
+                      width: 112,
+                      // довша англійська дата («Low · Wed, Oct 21») — трохи зменшуємо, а не обрізаємо
+                      child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(r.label, maxLines: 1, style: ws(12, FontWeight.w500, Colors.white))),
+                    ),
                     Expanded(child: Text(r.who != null ? r.who!.show(safe) : (r.sub ?? ''), overflow: TextOverflow.ellipsis, style: r.who != null && safe ? ws(12, FontWeight.w500, Colors.white) : ws(15, FontWeight.w700, Colors.white))),
                     _pill(r.value, r.kind == 3 ? _yel : _pink, _ink),
                   ]),

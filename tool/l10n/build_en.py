@@ -18,6 +18,13 @@ for k, v in list(exact.items()):
         for a, b in zip(k.split('|'), v.split('|')): exact.setdefault(a, b)
 for k, v in list(exact.items()):
     if k.startswith('• ') and v.startswith('• '): exact.setdefault(k[2:], v[2:])
+# жіночі варіанти: «Провів» → «Провела» (Walked me home), «Сидів у телефоні» → «Сиділа…» (Glued to her phone)
+sys.path.insert(0, HERE)
+from fem import FEM, fem_uk, fem_en
+for d in (exact, tpl):
+    for k, v in list(d.items()):
+        fk = fem_uk(k)
+        if fk != k and fk not in d: d[fk] = fem_en(v)
 def q(s): return "'" + s.replace('\\', '\\\\').replace("'", "\\'").replace('$', '\\$').replace('\n', '\\n') + "'"
 out = ['// Згенеровано tool/l10n/build_en.py — не правити вручну, правити переклади в tool/l10n/t/*.py', '// ignore_for_file: lines_longer_than_80_chars', '']
 for name, d in (('enExact', exact), ('enTpl', tpl), ('enWords', words)):
@@ -25,4 +32,8 @@ for name, d in (('enExact', exact), ('enTpl', tpl), ('enWords', words)):
     for k in sorted(d): out.append('  %s: %s,' % (q(k), q(d[k])))
     out.append('};\n')
 open(os.path.join(ROOT, 'lib/l10n/en.dart'), 'w').write('\n'.join(out))
+fo = ['// Згенеровано tool/l10n/build_en.py з tool/l10n/fem.py — не правити вручну', '// Жіночі форми для текстів про людину (GenderScope у tr.dart). Довші фрази першими.', '', 'const femUkPairs = <(String, String)>[']
+for a, b in FEM: fo.append('  (%s, %s),' % (q(a), q(b)))
+fo.append('];\n')
+open(os.path.join(ROOT, 'lib/l10n/fem.dart'), 'w').write('\n'.join(fo))
 print(len(exact), len(tpl), len(words))

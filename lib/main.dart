@@ -67,7 +67,8 @@ class VesprApp extends StatelessWidget {
         supportedLocales: const [Locale('uk'), Locale('en')],
         localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         // Блокування лежить поверх усієї навігації, тож закриває будь-який відкритий екран
-        builder: (context, child) => LockLayer(child: child ?? const SizedBox()),
+        // рід за замовчуванням: «зустрічаюсь з жінками» → тексти про «неї»
+        builder: (context, child) => GenderScope(fem: Store.of(context).profile.dating == 'women', child: LockLayer(child: child ?? const SizedBox())),
         home: const Root(),
       );
   }

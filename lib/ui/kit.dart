@@ -66,7 +66,7 @@ class RoundIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
-        label: label,
+        label: tr(label),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
@@ -218,7 +218,7 @@ class Rating extends StatelessWidget {
             padding: EdgeInsets.only(right: n < 5 ? 8 : 0),
             child: Semantics(
               button: true,
-              label: 'Оцінка $n',
+              label: tr('Оцінка $n'),
               selected: n <= value,
               child: GestureDetector(
                 onTap: () { tapFx(); onChange(value == n ? 0 : n); },

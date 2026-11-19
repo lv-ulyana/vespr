@@ -169,7 +169,7 @@ class _Glyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         glyphOf(sign),
-        semanticsLabel: sign,
+        semanticsLabel: tr(sign),
         style: TextStyle(fontFamily: 'Zodiac', fontSize: size, height: 1, color: color, fontFamilyFallback: _symFonts, decoration: TextDecoration.none),
       );
 }
@@ -982,7 +982,9 @@ class _PersonViewState extends State<PersonView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, Store.of(context).person(widget.personId)?.gender, _gBody);
+
+  Widget _gBody(BuildContext context) {
     final s = Store.of(context);
     final p = s.person(widget.personId);
     if (p == null) {

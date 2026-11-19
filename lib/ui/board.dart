@@ -123,7 +123,7 @@ class SwS extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         toggled: on,
-        label: label,
+        label: tr(label),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {

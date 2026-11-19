@@ -568,7 +568,7 @@ class _GMap extends StatelessWidget {
                     Text('3 місяці', style: rw(12, color: K.muted2)),
                   ]),
                   const SizedBox(height: 10),
-                  SvgPicture.string(_chartSvg, width: 318, height: 132, semanticsLabel: 'Графік задоволення росте від 2,5 до 4,6'),
+                  SvgPicture.string(_chartSvg, width: 318, height: 132, semanticsLabel: tr('Графік задоволення росте від 2,5 до 4,6')),
                   const SizedBox(height: 4),
                   Row(children: [Text('серпень', style: rw(11, color: K.muted2)), const Spacer(), Text('4,6 зараз', style: rw(11, w: FontWeight.w700))]),
                 ]),
@@ -1065,7 +1065,7 @@ class _AboutYouState extends State<AboutYou> with SingleTickerProviderStateMixin
         child: Opacity(
           opacity: 0,
           child: Semantics(
-            label: 'Дата народження, день місяць рік',
+            label: tr('Дата народження, день місяць рік'),
             child: TextField(
               controller: dt,
               focusNode: fdt,
@@ -1527,7 +1527,9 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GenderScope.wrap(context, gender, _gBody);
+
+  Widget _gBody(BuildContext context) {
     final b = unknown ? null : birth;
     final a = b == null ? null : astroOf(b);
     final f = gender == 'f';
@@ -1784,7 +1786,7 @@ class _SizeSlider extends StatelessWidget {
         final x = v == null ? null : l + span * v / 3;
         return Semantics(
           slider: true,
-          label: 'Розмір',
+          label: tr('Розмір'),
           value: v == null ? 'не вказано' : '${v + 1} з 4',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,

@@ -49,3 +49,4 @@ T = {
  'Це вигадані дані. Почати своє — в Налаштуваннях': 'This is made-up data. Start your own in Settings',
  'Приклад': 'Example', 'Почати своє': 'Start my own', 'Стерти вигадані дані й налаштувати під себе': 'Erase the example and set it up for you',
 }
+T.update({'є запис': 'has a record', 'заплановано': 'planned'})

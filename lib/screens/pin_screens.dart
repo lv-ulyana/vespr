@@ -61,7 +61,7 @@ class DDots extends StatelessWidget {
   const DDots(this.n, {super.key, this.error = false, this.all = false});
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Введено цифр: $n з $_pinLen',
+        label: tr('Введено цифр: $n з $_pinLen'),
         child: Row(mainAxisSize: MainAxisSize.min, children: gapped([
           for (var i = 0; i < _pinLen; i++)
             AnimatedScale(

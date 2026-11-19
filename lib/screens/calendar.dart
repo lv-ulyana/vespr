@@ -204,7 +204,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           return Semantics(
                             button: true,
                             selected: on,
-                            label: '${day.day} ${monthsGen[day.month - 1]}${e ? ', є запис' : ''}${p ? ', заплановано' : ''}',
+                            label: tr('${day.day} ${monthsGen[day.month - 1]}${e ? ', є запис' : ''}${p ? ', заплановано' : ''}'),
                             child: Press(
                               scale: .94,
                               onTap: () => setState(() {
