@@ -448,7 +448,7 @@ class _DInputState extends State<DInput> {
         radius: widget.radius,
         top: widget.lines > 1,
         child: Semantics(
-          label: tr(widget.label),
+          label: widget.label == null ? null : tr(widget.label!),
           child: TextField(
             controller: widget.controller,
             focusNode: f,

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'data/demo.dart';
-import 'l10n/tr.dart' show setLang;
+import 'l10n/tr.dart' show setLang, GenderScope;
 import 'data/store.dart';
 import 'screens/onboarding.dart';
 import 'screens/pin_screens.dart';
