@@ -32,7 +32,7 @@ T = {
  'Коли «{0}», «Як загалом?» у середньому на {1} вище. Це твій найсильніший зелений прапорець.': 'With “{0}”, “Overall?” is {1} higher on average. That’s your strongest green flag.',
  'Ганьба': 'Shame', 'Слава': 'Fame', 'Поки жодного зеленого прапорця': 'No green flags yet', 'Поки жодного червоного прапорця': 'No red flags yet',
  'Познач у записі, що він зробив добре: провів, питав про межі, слухав. Тут з’явиться той, хто робить це найчастіше.': 'Mark what he did well in a record: walked you home, asked about boundaries, listened. Whoever does it most will show up here.',
- 'Тут з’являться ті, хто сидів у телефоні, запізнювався чи говорив тільки про себе. Поки таких немає.': 'Those glued to their phone, late, or only talking about themselves will show up here. None so far.',
+ 'Тут з’являться ті, що сиділи в телефоні, запізнювались чи говорили тільки про себе. Поки таких немає.': 'Those glued to their phone, late, or only talking about themselves will show up here. None so far.',
  'Рейтинг': 'Ranking', 'на зустріч': 'per date', 'Найчастіше': 'Most often', 'Лідер слави': 'Fame leader', 'Лідер ганьби': 'Shame leader',
  'вона': 'she', 'вона зникне': 'she’ll disappear', 'він зникне': 'he’ll disappear', 'прапорець': 'flag', 'прапорці': 'flags', 'прапорців': 'flags',
 }
