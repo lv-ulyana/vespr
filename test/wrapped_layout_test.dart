@@ -145,7 +145,7 @@ void main() {
           if (shots) {
             await tester.runAsync(() async {
               final b = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-              final img = await b.toImage(pixelRatio: 1);
+              final img = await b.toImage(pixelRatio: double.tryParse(Platform.environment['SHOT_SCALE'] ?? '') ?? 1);
               final png = await img.toByteData(format: ui.ImageByteFormat.png);
               File('build/shots/$name.png').writeAsBytesSync(png!.buffer.asUint8List());
             });
