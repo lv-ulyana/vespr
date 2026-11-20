@@ -238,6 +238,8 @@ class _EntryFormState extends State<EntryForm> {
           const SizedBox(height: 16),
           titleAcc([('Як ', false), ('пройшло', true), ('?', false)], 34),
           const SizedBox(height: 14),
+          // голосове «до зустрічі» чекає відповіді → «Вийшло» рахується в нагороду «Сказала і зробила»
+          if (prev == null && (person?.wish?.trim().isNotEmpty ?? false)) ...[_wishCard(s, person!.wish!.trim()), const SizedBox(height: 12)],
           // таби
           Container(
             padding: const EdgeInsets.all(3),
@@ -284,6 +286,41 @@ class _EntryFormState extends State<EntryForm> {
         ]),
       ),
     );
+  }
+
+  Widget _wishCard(AppStore s, String wish) => Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+        decoration: BoxDecoration(color: K.hour, borderRadius: BorderRadius.circular(18), border: Border.all(color: K.w(.07))),
+        child: Row(children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              Text('До зустрічі ти хотіла', style: rw(11, color: K.accSoft, w: FontWeight.w600)),
+              const SizedBox(height: 3),
+              Text('«$wish»', translate: false, style: rw(13, h: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+            ]),
+          ),
+          const SizedBox(width: 10),
+          _wishBtn('Вийшло', true, () => _answerWish(s, true)),
+          const SizedBox(width: 6),
+          _wishBtn('Ні', false, () => _answerWish(s, false)),
+        ]),
+      );
+
+  Widget _wishBtn(String label, bool main, VoidCallback onTap) => Press(
+        onTap: onTap,
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: main ? K.acc : Colors.transparent, borderRadius: BorderRadius.circular(999), border: main ? null : Border.all(color: K.w(.16))),
+          child: Text(label, style: rw(13, color: main ? K.bg : K.star, w: FontWeight.w600)),
+        ),
+      );
+
+  Future<void> _answerWish(AppStore s, bool ok) async {
+    await s.updatePerson(personId, (p) => p.wish = null);
+    if (ok) await s.updateProfile((p) => p.counters['saiddone'] = (p.counters['saiddone'] ?? 0) + 1);
+    if (mounted) dToast(context, ok ? 'Сказала і зробила' : 'Нічого, наступного разу');
   }
 
   Widget _cta(String text, VoidCallback? onTap, {String? hint}) => Press(

@@ -87,6 +87,7 @@ class Person {
   String? pastAt;
   final String createdAt;
   String? photo; // base64 JPEG до 360 px, тільки на телефоні
+  String? wish; // останнє голосове «до зустрічі», ще без відповіді «Вийшло / Не вийшло»
 
   Person({
     required this.id,
@@ -104,6 +105,7 @@ class Person {
     this.pastAt,
     required this.createdAt,
     this.photo,
+    this.wish,
   });
 
   bool get isPast => status == 'past';
@@ -111,7 +113,7 @@ class Person {
   Map<String, dynamic> toJson() => {
         'id': id, 'name': name, 'gender': gender, 'rel': rel, 'birth': birth, 'signOnly': signOnly, 'size': size,
         'met': met, 'want': want, 'notes': notes, 'status': status, 'pastReason': pastReason,
-        'pastAt': pastAt, 'createdAt': createdAt, if (photo != null) 'photo': photo,
+        'pastAt': pastAt, 'createdAt': createdAt, if (photo != null) 'photo': photo, if (wish != null) 'wish': wish,
       };
 
   factory Person.fromJson(Map<String, dynamic> j) => Person(
@@ -130,6 +132,7 @@ class Person {
         pastAt: _str(j['pastAt']),
         createdAt: _str(j['createdAt']) ?? '',
         photo: _str(j['photo']),
+        wish: _str(j['wish']),
       );
 }
 
