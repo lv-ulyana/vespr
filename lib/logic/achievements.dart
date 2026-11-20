@@ -31,7 +31,7 @@ const achDefs = <AchDef>[
   AchDef('love', 'Хтось тут закохався', '5 зустрічей з однією людиною за 2 тижні.', false, [5], ('зустріч', 'зустрічі', 'зустрічей')),
   AchDef('oscar', 'Оскар', 'Позначила «Вдавала» в записі.', true, [1, 3, 5]),
   AchDef('happy', 'Хеппі-енд', 'Кінчала. Позначено в записі.', false, [1, 5, 10]),
-  AchDef('saiddone', 'Сказала і зробила', 'Бажання «до зустрічі» позначене «Вийшло».', false, [1, 5, 10]),
+  AchDef('saiddone', 'Сказала вголос', 'Записи голосом. Не тримай у собі.', false, [1, 10, 25], ('запис', 'записи', 'записів')),
   AchDef('green', 'Зелене світло', 'Зустріч з 3+ зеленими прапорцями.', false, [3, 5, 10], ('зустріч', 'зустрічі', 'зустрічей')),
   AchDef('clean', 'Чиста історія', '5 зустрічей поспіль без червоних прапорців.', false, [5], ('зустріч', 'зустрічі', 'зустрічей')),
   AchDef('gentleman', 'Кавалер', 'Провів, заплатив і прийшов вчасно в одну зустріч.', false, [1]),
@@ -152,7 +152,8 @@ List<Ach> computeAchievements(DB db, {String? todayIso}) {
   v['love'] = byPerson.values.map((m) => _window(m.map((e) => e.date).toList(), 14)).fold(0, math.max);
   v['oscar'] = es.where((e) => e.tags.contains('o_fake')).length;
   v['happy'] = es.where((e) => e.tags.contains('o_me') || e.tags.contains('o_multi')).length;
-  v['saiddone'] = c['saiddone'] ?? 0;
+  // голосові записи: лічильники по місяцях 'voice:YYYY-MM' (рахуються в voice.dart)
+  v['saiddone'] = c.entries.where((e) => e.key.startsWith('voice:')).fold(0, (sum, e) => sum + e.value);
   v['green'] = es.where((e) => e.flags.where(_green).length >= 3).length;
   v['clean'] = _streak(es, (e) => !e.flags.any(_red));
   v['gentleman'] = es.where((e) => e.flags.contains('flag_g_walk') && e.flags.contains('flag_g_paid') && e.flags.contains('flag_g_ontime')).length;

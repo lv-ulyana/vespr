@@ -11,7 +11,7 @@ T = {
  'Ніч з продовженням': 'One night that stayed', '«Одна ніч» переросла в 4+ зустрічі. Відкривається після «Спортивного інтересу».': '“One night” turned into 4+ dates. Unlocks after “Just for sport”.',
  'Колишній — теж людина': 'Exes are people too', 'Додала когось з типом «Колишній».': 'Added someone as an “Ex”.', 'Остання сповідь': 'Last confession', 'Запис о 3-й ночі.': 'A record at 3 a.m.',
  'Хтось тут закохався': 'Someone’s in love', '5 зустрічей з однією людиною за 2 тижні.': '5 dates with one person in 2 weeks.', 'Оскар': 'Oscar', 'Позначила «Вдавала» в записі.': 'Marked “Faked it” in a record.',
- 'Хеппі-енд': 'Happy ending', 'Кінчала. Позначено в записі.': 'Came. Noted in a record.', 'Сказала і зробила': 'Said and done', 'Бажання «до зустрічі» позначене «Вийшло».': 'A “before the date” wish marked “Done”.',
+ 'Хеппі-енд': 'Happy ending', 'Кінчала. Позначено в записі.': 'Came. Noted in a record.', 'Сказала вголос': 'Said it out loud', 'Записи голосом. Не тримай у собі.': 'Records by voice. Don’t keep it in.',
  'Зелене світло': 'Green light', 'Зустріч з 3+ зеленими прапорцями.': 'A date with 3+ green flags.', 'Чиста історія': 'Clean record', '5 зустрічей поспіль без червоних прапорців.': '5 dates in a row with no red flags.',
  'Кавалер': 'Gentleman', 'Провів, заплатив і прийшов вчасно в одну зустріч.': 'Walked you home, paid and was on time, all in one date.', 'Гарячий тиждень': 'Hot week',
  '5 записів за тиждень, 8 за два, 12 за місяць.': '5 records in a week, 8 in two, 12 in a month.', 'Повернення героїні': 'The heroine returns', 'Запис після 30+ днів тиші.': 'A record after 30+ quiet days.',
