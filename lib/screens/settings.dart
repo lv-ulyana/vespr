@@ -1341,11 +1341,14 @@ class DocScreen extends StatelessWidget {
   List<InlineSpan> _spans(String src) {
     final t = tr(src);
     final out = <InlineSpan>[];
-    final re = RegExp('⟦(.*?)⟧');
+    // ⟦…⟧ — плейсхолдер (акцентом), **…** — важливе (жирним)
+    final re = RegExp(r'⟦(.*?)⟧|\*\*(.*?)\*\*');
     var i = 0;
     for (final m in re.allMatches(t)) {
       if (m.start > i) out.add(TextSpan(text: t.substring(i, m.start)));
-      out.add(TextSpan(text: m.group(1), style: TextStyle(color: K.accSoft, backgroundColor: K.a(.1))));
+      out.add(m.group(1) != null
+          ? TextSpan(text: m.group(1), style: TextStyle(color: K.accSoft, backgroundColor: K.a(.1)))
+          : TextSpan(text: m.group(2), style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFF1EEF2))));
       i = m.end;
     }
     if (i < t.length) out.add(TextSpan(text: t.substring(i)));

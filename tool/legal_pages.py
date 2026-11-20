@@ -35,6 +35,7 @@ def fmt(s):
     # внутрішня примітка про можливий ШІ — не для публічної сторінки
     s = re.sub(r'\s*⟦\[(якщо додамо ШІ|if we add AI)[^⟧]*⟧', '', s)
     s = html.escape(s)
+    s = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', s)
     return re.sub(r'⟦(.*?)⟧', r'<mark>\1</mark>', s)
 
 CSS = '''body{margin:0;background:#16141c;color:#e6e2eb;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
