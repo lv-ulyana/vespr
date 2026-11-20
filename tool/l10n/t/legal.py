@@ -157,4 +157,5 @@ T.update({
  'Застосовне право і контакти': 'Governing law and contact',
  'Ці Умови регулюються законодавством ⟦[країна]⟧. З питань щодо Умов пишіть на ⟦[email]⟧.': 'These Terms are governed by the laws of ⟦[country]⟧. For questions about the Terms, write to ⟦[email]⟧.',
  'Якщо ви імпортуєте події з календаря телефону, Vespr лише читає їх за обраний період на пристрої й нічого в календарі не змінює. Додати зустріч у календар можна тільки вручну, через системне вікно.': 'If you import events from your phone’s calendar, Vespr only reads them for the period you choose, on the device, and changes nothing in the calendar. A date can be added to the calendar only manually, through the system dialog.',
+ '• Безкоштовна версія має обмеження: 5 записів і 3 голосові записи на місяць, до 3 активних людей, перші 3 слайди Wrapped і 2 закономірності на мапі. Метч і порівняння доступні лише в Premium.': '• The free version has limits: 5 records and 3 voice notes a month, up to 3 active people, the first 3 Wrapped slides and 2 patterns on the map. Match and Compare are Premium only.',
 })
