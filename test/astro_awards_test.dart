@@ -8,7 +8,9 @@ import 'package:vespr/logic/achievements.dart';
 import 'package:vespr/logic/arcana_more.dart';
 import 'package:vespr/logic/astro.dart';
 import 'package:vespr/logic/dates.dart';
+import 'package:vespr/l10n/tr.dart';
 import 'package:vespr/logic/match_texts.dart';
+import 'package:vespr/logic/sign_texts.dart';
 
 int _n = 0;
 Entry en(String p, String date, int overall, {bool sex = true, List<String> tags = const [], List<String> flags = const [], String? at}) => Entry(
@@ -57,6 +59,31 @@ void main() {
       }
       expect(signs.map((s) => zodiacGlyph(signs.indexOf(s))).toSet().length, 12);
     });
+    test('аспект для кожної з 144 пар: легкість збігається з тегом «Легко/Складніше», тексти є', () {
+      expect(aspects.length, 7);
+      for (var i = 0; i < 12; i++) {
+        for (var j = 0; j < 12; j++) {
+          final a = aspectOf(i, j);
+          expect(aspectOf(j, i), same(a), reason: 'симетрія');
+          expect(a.easy, zodiacEase(i, j) == 'Легко', reason: '${signs[i].name}+${signs[j].name}: ${a.name}');
+          for (final t in [a.name, a.rel, a.sex, a.risk]) {
+            expect(t.trim(), isNotEmpty);
+          }
+        }
+      }
+      expect(aspectOf(3, 3).name, 'Один знак'); // Овен + Овен
+      expect(aspectOf(3, 7).name, 'Тригон'); // Овен + Лев
+      expect(aspectOf(3, 9).name, 'Опозиція'); // Овен + Терези
+      expect(aspectOf(3, 0).name, 'Квадрат'); // Овен + Козеріг
+    });
+    test('у кожного знака є суть, кохання, ліжко й тінь', () {
+      expect(signTexts.length, 12);
+      for (var i = 0; i < 12; i++) {
+        for (final t in [signTexts[i].core, signTexts[i].love, signTexts[i].bed, signTexts[i].shadow]) {
+          expect(t.split('. ').length, greaterThanOrEqualTo(2), reason: '${signs[i].name}: розписано, а не одне речення');
+        }
+      }
+    });
   });
 
   group('Аркани', () {
@@ -81,13 +108,32 @@ void main() {
       expect(bedClaims.length, 23);
       for (var i = 1; i <= 22; i++) {
         expect(roman[i], isNotEmpty);
-        for (final t in [arcana[i].name, arcana[i].core, arcana[i].love, arcanaMore[i].plus, arcanaMore[i].minus, arcanaMore[i].bed, pairTexts[i].rel, pairTexts[i].sex, pairTexts[i].risk, bedClaims[i].claim, bedClaims[i].qLabel]) {
+        for (final t in [arcana[i].name, arcana[i].core, arcana[i].love, arcanaMore[i].plus, arcanaMore[i].minus, arcanaMore[i].bed, arcanaMore[i].love, pairTexts[i].rel, pairTexts[i].sex, pairTexts[i].risk, bedClaims[i].claim, bedClaims[i].qLabel]) {
           expect(t.trim(), isNotEmpty, reason: 'аркан $i');
         }
-        // «у ліжку» перевіряється справжнім питанням із записів
-        expect(sexQuestions.any((q) => q.id == bedClaims[i].q), isTrue, reason: 'аркан $i: ${bedClaims[i].q}');
+        // «у ліжку» перевіряється питанням, яке є в записі завжди або за замовчуванням
+        final q = sexQuestions.firstWhere((q) => q.id == bedClaims[i].q);
+        expect(q.always || q.def, isTrue, reason: 'аркан $i: ${bedClaims[i].q}');
+        // текст пари не суперечить тегу «Легко/Складніше»
+        final pair = '${pairTexts[i].rel} ${pairTexts[i].sex} ${pairTexts[i].risk}'.toLowerCase();
+        expect(pair.contains(easyArcana.contains(i) ? 'складний аркан' : 'легкий аркан'), isFalse, reason: 'аркан пари $i');
       }
       expect(arcana.skip(1).map((a) => a.name).toSet().length, 22);
+      expect(sexQuestions.firstWhere((q) => q.id == BedClaim.fallback).always, isTrue);
+    });
+    test('усі довгі тексти мають англійський переклад', () {
+      setLang('en');
+      final all = [
+        for (var i = 1; i <= 22; i++) ...[arcanaMore[i].plus, arcanaMore[i].minus, arcanaMore[i].bed, arcanaMore[i].love, pairTexts[i].rel, pairTexts[i].sex, pairTexts[i].risk, bedClaims[i].claim],
+        for (final s in signTexts) ...[s.core, s.love, s.bed, s.shadow],
+        for (final a in aspects) ...[a.name, a.rel, a.sex, a.risk],
+        for (var i = 0; i < 12; i++)
+          for (var j = 0; j < 12; j++) elementsText(signs[i].el, signs[j].el),
+      ];
+      for (final t in all) {
+        expect(RegExp('[А-Яа-яІіЇїЄєҐґ]').hasMatch(tr(t)), isFalse, reason: t);
+      }
+      setLang('uk');
     });
   });
 

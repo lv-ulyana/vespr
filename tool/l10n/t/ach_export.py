@@ -8,7 +8,7 @@ T = {
  'Перенесла в минулі з причиною «Він зник».': 'Moved someone to the past with “He vanished”.', 'Ну а раптом': 'But what if',
  'Знову зустрілась з тим, кого оцінила на 1–2.': 'Met again with someone you rated 1–2.', 'Червоний — мій колір': 'Red is my color',
  'Червоних прапорців більше, ніж зелених, а оцінка 4+.': 'More red flags than green, yet rated 4+.', 'Спортивний інтерес': 'Just for sport', 'Три «Одна ніч» за місяць.': 'Three “One night”s in a month.',
- 'Ніч з продовженням': 'One night that stayed', '«Одна ніч» переросла в 4+ зустрічі. Відкривається після «Спортивного інтересу».': '“One night” turned into 4+ dates. Unlocks after “Just for sport”.',
+ 'Ніч з продовженням': 'One night that stayed', '«Одна ніч» переросла в 4+ зустрічі.': '“One night” turned into 4+ dates.',
  'Колишній — теж людина': 'Exes are people too', 'Додала когось з типом «Колишній».': 'Added someone as an “Ex”.', 'Остання сповідь': 'Last confession', 'Запис о 3-й ночі.': 'A record at 3 a.m.',
  'Хтось тут закохався': 'Someone’s in love', '5 зустрічей з однією людиною за 2 тижні.': '5 dates with one person in 2 weeks.', 'Оскар': 'Oscar', 'Позначила «Вдавала» в записі.': 'Marked “Faked it” in a record.',
  'Хеппі-енд': 'Happy ending', 'Кінчала. Позначено в записі.': 'Came. Noted in a record.', 'Сказала вголос': 'Said it out loud', 'Записи голосом. Не тримай у собі.': 'Records by voice. Don’t keep it in.',

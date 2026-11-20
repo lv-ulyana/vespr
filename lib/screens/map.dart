@@ -12,6 +12,7 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/arcana_more.dart';
 import '../logic/astro.dart';
+import '../logic/sign_texts.dart';
 import '../logic/dates.dart';
 import '../logic/stats.dart';
 import '../ui/d.dart';
@@ -1479,7 +1480,7 @@ class _MyArcanaScreenState extends State<MyArcanaScreen> {
                     padding: const EdgeInsets.all(3),
                     decoration: BoxDecoration(color: K.w(.04), borderRadius: BorderRadius.circular(999), border: Border.all(color: K.w(.07))),
                     child: Row(children: [
-                      for (final t in [('char', 'Характер'), ('love', 'Кохання'), ('bed', 'У ліжку')])
+                      for (final t in [('char', 'Характер'), ('love', 'Кохання'), ('bed', 'У ліжку'), ('sign', 'Знак')])
                         Expanded(
                           child: Semantics(
                             selected: tab == t.$1,
@@ -1505,15 +1506,21 @@ class _MyArcanaScreenState extends State<MyArcanaScreen> {
                     child: KeyedSubtree(
                       key: ValueKey(tab),
                       child: tab == 'char'
-                          ? IntrinsicHeight(
-                              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                                Expanded(child: box(title: 'У плюсі', text: more.plus, plus: true)),
-                                const SizedBox(width: 10),
-                                Expanded(child: box(title: 'У мінусі', text: more.minus, minus: true)),
-                              ]),
-                            )
+                          // тексти довгі — плюс і мінус одне під одним, а не в дві вузькі колонки
+                          ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                              box(title: 'У плюсі', text: more.plus, plus: true),
+                              const SizedBox(height: 10),
+                              box(title: 'У мінусі', text: more.minus, minus: true),
+                            ])
+                          : tab == 'sign'
+                              ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
+                                  box(title: a.signName, text: signTexts[a.sign].core, icon: _icStarFill),
+                                  box(title: 'Кохання', text: signTexts[a.sign].love, icon: _icHeart),
+                                  box(title: 'У ліжку', text: signTexts[a.sign].bed, icon: _icMoon),
+                                  box(title: 'Тінь', text: signTexts[a.sign].shadow, minus: true),
+                                ], 10))
                           : tab == 'love'
-                              ? box(title: 'Кохання', text: arcana[arc].love, icon: _icHeart)
+                              ? box(title: 'Кохання', text: more.love, icon: _icHeart)
                               : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                                   box(title: 'Ти в ліжку', text: more.bed, icon: _icMoon),
                                   if (eff.isNotEmpty) ...[

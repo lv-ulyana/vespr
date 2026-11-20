@@ -58,3 +58,6 @@ T = {
  'Повітря думає, вода відчуває. Перекладайте одне одному почуття словами.': 'Air thinks, water feels. Translate your feelings into words for each other.',
  'Надійно й спокійно. Не забувайте додавати новизни.': 'Solid and calm. Don’t forget to add something new.', 'Вода живить землю: тепло, турбота, довіра. Одна з найлегших пар.': 'Water nourishes earth: warmth, care, trust. One of the easiest pairs.',
 }
+T.update({
+ 'Аспект': 'Aspect', '{0} у коханні': '{0} in love', '{0} у ліжку': '{0} in bed', 'Тінь': 'Shadow side',
+})

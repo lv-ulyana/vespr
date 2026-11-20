@@ -11,6 +11,7 @@ import '../data/store.dart';
 import '../logic/astro.dart';
 import '../logic/dates.dart';
 import '../logic/match_texts.dart';
+import '../logic/sign_texts.dart';
 import '../logic/stats.dart';
 import '../services/files.dart';
 import '../ui/d.dart';
@@ -25,6 +26,8 @@ final _icStarO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 final _icStarF = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="$_starPath"/></svg>';
 final _icRisk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.4v.1"/></svg>';
 final _icOk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const _icHeart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+const _icMoon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
 final _icNo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg>';
 String _elIcon(String el) => switch (el) {
       'Вогонь' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 19h18L12 3z"/></svg>',
@@ -145,6 +148,7 @@ class _MatchScreenState extends State<MatchScreen> {
     if (p == null || me == null || him == null) return const ColoredBox(color: K.bg);
     final arc = me.arc != null && him.arc != null ? pairArcana(me.arc!, him.arc!) : null;
     final easyZ = zodiacEase(me.sign, him.sign) == 'Легко';
+    final asp = aspectOf(me.sign, him.sign); // легкість аспекту збігається з easyZ (перевірено тестом)
     final myInitial = (s.profile.name.isNotEmpty ? s.profile.name[0] : 'Т').toUpperCase();
 
     Widget tag(bool easy, {double h = 28}) => Container(
@@ -329,6 +333,23 @@ class _MatchScreenState extends State<MatchScreen> {
             decoration: BoxDecoration(border: Border(top: BorderSide(color: K.w(.07)))),
             child: Text(elementsText(me.el, him.el), style: rw(14, color: K.soft2, h: 1.55)),
           ),
+          // аспект: відстань між знаками на колі (з'єднання, секстиль, квадрат, тригон…)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+            decoration: BoxDecoration(border: Border(top: BorderSide(color: K.w(.07)))),
+            child: Text.rich(TextSpan(children: [TextSpan(text: tr('Аспект')), const TextSpan(text: ' · '), TextSpan(text: tr(asp.name), style: rw(12, color: K.accSoft, w: FontWeight.w600, ls: .24))]), style: rw(12, color: K.muted, w: FontWeight.w500, ls: .24)),
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
+            alignment: Alignment.centerLeft,
+            child: _rich(asp.rel, rw(15, color: const Color(0xFFE6E2EB), h: 1.55, ls: .07), K.accSoft),
+          ),
+          mr(_icStarF, K.acc, 'Секс', asp.sex, glow: true),
+          mr(_icRisk, K.acc, 'Ризик', asp.risk, risk: true),
+          // його / її знак: кохання і ліжко
+          mr(_icHeart, K.soft, trf('{0} у коханні', [him.signName]), signTexts[him.sign].love),
+          mr(_icMoon, K.soft, trf('{0} у ліжку', [him.signName]), signTexts[him.sign].bed),
         ]),
       ]),
     ));
@@ -338,7 +359,13 @@ class _MatchScreenState extends State<MatchScreen> {
     if (him.arc != null) {
       final bc = bedClaims[him.arc!];
       final es = entriesOf(s.entries, p.id).where((e) => e.hadSex).toList();
-      final vals = es.map((e) => bc.q == 'sx_overall' ? (e.ratings['sx_overall'] ?? e.overall) : e.ratings[bc.q]).whereType<int>().toList();
+      List<int> valsOf(String q) => es.map((e) => q == 'sx_overall' ? (e.ratings['sx_overall'] ?? e.overall) : e.ratings[q]).whereType<int>().toList();
+      var vals = valsOf(bc.q), qLabel = bc.qLabel;
+      // основне питання вимкнене в «Мої питання» → перевіряємо тим, що в записі є завжди
+      if (vals.isEmpty) {
+        final fb = valsOf(BedClaim.fallback);
+        if (fb.isNotEmpty) (vals, qLabel) = (fb, BedClaim.fallbackLabel);
+      }
       final v = avg(vals);
       final ok = !v.isNaN && v >= 3.5;
       check = mx(Container(
@@ -378,7 +405,7 @@ class _MatchScreenState extends State<MatchScreen> {
               Text(v.isNaN ? '—' : fmt(v), style: pr(30, color: K.accSoft, h: 1)),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(v.isNaN ? '«${bc.qLabel}» — ще нема оцінок у записах' : '«${bc.qLabel}» за ${vals.length} ${plural(vals.length, 'зустріч', 'зустрічі', 'зустрічей')}',
+                child: Text(v.isNaN ? '«$qLabel» — ще нема оцінок у записах' : '«$qLabel» за ${vals.length} ${plural(vals.length, 'зустріч', 'зустрічі', 'зустрічей')}',
                     style: rw(12.5, color: const Color(0xFFDCD7E3), h: 1.4)),
               ),
               if (!v.isNaN) ...[
