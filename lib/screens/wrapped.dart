@@ -106,6 +106,9 @@ class _WrappedScreenState extends State<WrappedScreen> {
     super.didChangeDependencies();
     if (_cached) return;
     _cached = true;
+    // відкрили — значок «Новий» в архіві знімається (звідки б не зайшли: головна чи архів)
+    final st = Store.read(context), key = int.parse(widget.month.replaceAll('-', ''));
+    if ((st.profile.counters['wrSeen'] ?? 0) < key) WidgetsBinding.instance.addPostFrameCallback((_) => st.updateProfile((x) => x.counters['wrSeen'] = key));
     // усі фони одразу, щоб текст не з'являвся поверх старого слайда
     for (var k = 0; k < _th.length; k++) {
       precacheImage(AssetImage(wBase(k)), context);
@@ -1343,6 +1346,8 @@ class WrappedArchiveScreen extends StatelessWidget {
     Widget card(String m, {bool big = false}) {
       final t = wrappedTeaser(m, s.db);
       final txt = big ? _ink : K.star;
+      final key = int.parse(m.replaceAll('-', '')); // 2026-10 → 202610
+      final fresh = big && (s.profile.counters['wrSeen'] ?? 0) < key;
       return Press(
         onTap: () => go(context, WrappedScreen(month: m)),
         child: Container(
@@ -1371,7 +1376,7 @@ class WrappedArchiveScreen extends StatelessWidget {
                 Text(t.$2, maxLines: 2, overflow: TextOverflow.ellipsis, style: pr(14, color: txt, h: 1.3)),
               ],
             ]),
-            if (big)
+            if (fresh)
               Positioned(
                 right: -4, top: -4, // 12/12 від краю картки (відступ 16 мінус 4)
                 child: Container(

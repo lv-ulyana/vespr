@@ -92,6 +92,7 @@ class _LockLayerState extends State<LockLayer> with WidgetsBindingObserver {
   static const relock = Duration(seconds: 30);
   bool unlocked = false;
   bool? pinExists;
+  bool? _wasEnabled; // PIN щойно увімкнули в налаштуваннях — не замикаємо одразу
   DateTime? away;
 
   @override
@@ -126,19 +127,24 @@ class _LockLayerState extends State<LockLayer> with WidgetsBindingObserver {
     final p = Store.of(context).profile;
     // Під час онбордингу PIN щойно створено — не просимо його одразу ж ввести
     if (!p.onboarded) unlocked = true;
+    if (_wasEnabled == false && p.pinEnabled) unlocked = true;
+    _wasEnabled = p.pinEnabled;
     final locked = p.onboarded && p.pinEnabled && !unlocked;
     return Stack(children: [
       widget.child,
       if (locked && pinExists != null)
         Positioned.fill(
           // окремий навігатор, щоб «Забула PIN?» і скидання працювали поверх замка
-          child: Navigator(
+          // свій HeroController: інакше після розблокування основний навігатор ламається
+          child: HeroControllerScope.none(
+            child: Navigator(
             key: ValueKey(pinExists),
             onGenerateRoute: (_) => MaterialPageRoute(
               builder: (_) => pinExists!
                   ? PinLockScreen(onUnlock: () => setState(() => unlocked = true))
                   // PIN увімкнено, але його нема (дані відновились на новому телефоні) — задаємо новий
                   : PinNewScreen(onDone: (_) => setState(() { unlocked = true; pinExists = true; })),
+              ),
             ),
           ),
         ),

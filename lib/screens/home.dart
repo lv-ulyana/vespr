@@ -487,7 +487,16 @@ class HomeTab extends StatelessWidget {
                       child: ClipOval(child: Image.asset(aw.img ?? 'assets/img/ach/unknown.webp', width: 48, height: 48, fit: BoxFit.cover)),
                     ),
                     const SizedBox(width: 10),
-                    Expanded(child: Text(aw.name ?? 'Перша вже близько', style: pr(17, color: K.bg, h: 1.2), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                    // довге слово («Астрологиня») не рвемо посередині — зменшуємо шрифт, поки слово влазить
+                    Expanded(
+                      child: LayoutBuilder(builder: (context, box) {
+                        final name = aw.name ?? 'Перша вже близько';
+                        final longest = tr(name).split(' ').reduce((a, b) => a.length >= b.length ? a : b);
+                        final tp = TextPainter(text: TextSpan(text: longest, style: pr(17, h: 1.2)), textDirection: TextDirection.ltr, maxLines: 1)..layout();
+                        final fs = tp.width > box.maxWidth ? math.max(12.0, (17 * box.maxWidth / tp.width).floorToDouble()) : 17.0;
+                        return Text(name, style: pr(fs, color: K.bg, h: 1.2), maxLines: 2, overflow: TextOverflow.ellipsis);
+                      }),
+                    ),
                   ]),
                   Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Container(

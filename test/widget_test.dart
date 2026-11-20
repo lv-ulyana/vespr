@@ -254,6 +254,11 @@ void main() {
     expect(ms.single.place, 'bar');
     expect(ms.single.remind, isTrue);
     expect(unratedMeetings([Meeting(id: 'p', personId: 'a', date: '2026-10-24', time: '20:00'), Meeting(id: 'u', personId: 'm', date: '2026-10-25', time: '20:00')], entries, DateTime(2026, 10, 30)).map((m) => m.id), ['u']);
+    // сьогоднішня зустріч о 19:30: о 20:00 ще йде, о 23:54 вже минула і просить оцінки
+    final today = [Meeting(id: 't', personId: 'z', date: '2026-11-20', time: '19:30')];
+    expect(plannedMeetings(today, DateTime(2026, 11, 20, 20)).length, 1);
+    expect(plannedMeetings(today, DateTime(2026, 11, 20, 23, 54)), isEmpty);
+    expect(unratedMeetings(today, const [], DateTime(2026, 11, 20, 23, 54)).single.id, 't');
   });
 }
 

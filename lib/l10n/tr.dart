@@ -58,9 +58,14 @@ List<_Tpl> get _templates => _tpls ??= () {
 
 /// Перекласти рядок для показу
 String tr(String s) {
-  if (_lang != 'en' || s.isEmpty || !_cyr.hasMatch(s)) return s;
-  return _cache[s] ??= _translate(s);
+  if (_lang != 'en' || s.isEmpty) return s;
+  if (!_cyr.hasMatch(s)) return _dec(s);
+  return _cache[s] ??= _dec(_translate(s));
 }
+
+/// Англійською дробові числа з крапкою: «4,7» → «4.7», «\$3,33» → «\$3.33»
+final _decRe = RegExp(r'(\d),(\d)');
+String _dec(String s) => s.contains(',') ? s.replaceAllMapped(_decRe, (x) => '${x[1]}.${x[2]}') : s;
 
 /// Підставити значення в шаблон і перекласти: trf('Ще {0} записи', [n])
 String trf(String uk, List<Object?> args) {

@@ -50,3 +50,8 @@ T = {
  'Підписка від цього не скасується. Керувати нею можна в налаштуваннях App Store.': 'This won’t cancel your subscription. Manage it in the App Store settings.',
  'Щоб підтвердити, напиши ': 'To confirm, type ', 'Напиши ВИДАЛИТИ': 'Type DELETE', 'Плюс': 'Plus', 'Мінус': 'Minus', '$39,99 на рік': '$39.99 a year', '$6,99 на місяць': '$6.99 a month',
 }
+T.update({
+ 'У безкоштовній версії до {0} людей': 'The free version fits up to {0} people',
+ 'Щоб додати ще когось, перенеси когось у «Минулі» або відкрий Premium.': 'To add someone new, move someone to “Past” or get Premium.',
+ 'Додавати без ліміту': 'Add without limits',
+})

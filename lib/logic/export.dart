@@ -149,16 +149,19 @@ DateTime meetingStart(Meeting m) {
 
 String meetingTitle(Meeting m, String name, bool quiet) => quiet ? quietTitle : trf('Побачення: {0}', [name]);
 
+/// Зустріч ще попереду, поки не минули її ~2 години (а не до кінця дня)
+bool _ended(Meeting m, DateTime now) => !meetingStart(m).add(const Duration(hours: meetingHours)).isAfter(now);
+
 List<Meeting> plannedMeetings(List<Meeting> all, [DateTime? now]) {
-  final t = iso(now ?? DateTime.now());
-  return all.where((m) => m.date.compareTo(t) >= 0).toList()..sort((a, b) => '${a.date}${a.time}'.compareTo('${b.date}${b.time}'));
+  final n = now ?? DateTime.now();
+  return all.where((m) => !_ended(m, n)).toList()..sort((a, b) => '${a.date}${a.time}'.compareTo('${b.date}${b.time}'));
 }
 
 /// Минулі зустрічі, про які ще нема запису (та сама людина, та сама дата) — пропонуємо оцінити
 List<Meeting> unratedMeetings(List<Meeting> all, List<Entry> entries, [DateTime? now]) {
-  final t = iso(now ?? DateTime.now());
+  final n = now ?? DateTime.now();
   final done = entries.map((e) => '${e.personId}|${e.date}').toSet();
-  return all.where((m) => m.date.compareTo(t) < 0 && !done.contains('${m.personId}|${m.date}')).toList()
+  return all.where((m) => _ended(m, n) && !done.contains('${m.personId}|${m.date}')).toList()
     ..sort((a, b) => b.date.compareTo(a.date));
 }
 

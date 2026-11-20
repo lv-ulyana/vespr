@@ -1370,12 +1370,15 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   final fd = FocusNode(), fm = FocusNode();
   Person? prev;
   String? photo; // base64 JPEG, null — без фото
+  bool blocked = false; // ліміт людей вичерпано — замість форми одразу пейвол
 
   @override
   void initState() {
     super.initState();
     final id = widget.personId;
-    prev = id == null ? null : Store.read(context).person(id);
+    final st = Store.read(context);
+    blocked = id == null && !widget.onboarding && !st.profile.premium && st.people.where((p) => !p.isPast).length >= freePeople;
+    prev = id == null ? null : st.person(id);
     final p = prev;
     if (p != null) {
       nick.text = p.name;
@@ -1442,7 +1445,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       return;
     }
     if (widget.onboarding == false && !s.profile.premium && s.people.where((p) => !p.isPast).length >= freePeople) {
-      go(context, const PaywallScreen());
+      go(context, const PaywallScreen(kind: PaywallKind.people));
       return;
     }
     final p = Person(
@@ -1527,7 +1530,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       );
 
   @override
-  Widget build(BuildContext context) => GenderScope.wrap(context, gender, _gBody);
+  Widget build(BuildContext context) => blocked ? const PaywallScreen(kind: PaywallKind.people) : GenderScope.wrap(context, gender, _gBody);
 
   Widget _gBody(BuildContext context) {
     final b = unknown ? null : birth;
@@ -1543,7 +1546,8 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
       builder: (context, h) => Stack(children: [
         Positioned.fill(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 58, 20, 22),
+            // в онбордингу відступи як на попередніх кроках (24), у застосунку — як скрізь (20)
+            padding: EdgeInsets.fromLTRB(widget.onboarding ? 24 : 20, 58, widget.onboarding ? 24 : 20, 22),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gapped([
               prev != null
                   ? SizedBox(height: 44, child: Stack(alignment: Alignment.center, children: [Text('Картка людини', style: rw(13, color: K.muted, w: FontWeight.w500)), const Align(alignment: Alignment.centerLeft, child: BackBtn())]))

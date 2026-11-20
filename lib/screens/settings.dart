@@ -531,7 +531,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 // =====================================================================
 // Пейвол
 // =====================================================================
-enum PaywallKind { main, limit, match }
+enum PaywallKind { main, limit, match, people }
 
 class PaywallScreen extends StatefulWidget {
   final PaywallKind kind;
@@ -689,6 +689,28 @@ class _PaywallScreenState extends State<PaywallScreen> {
           const SizedBox(height: 10),
           Text('Нові записи відкриються 1 ${monthsGen[next.month - 1]}. Або вже зараз з Premium.', textAlign: TextAlign.center, style: rw(14, color: K.soft, h: 1.5)),
         ];
+      case PaywallKind.people:
+        // три зайняті місця + четверте під замком
+        final now = s.people.where((p) => !p.isPast).take(freePeople).toList();
+        return [
+          const SizedBox(height: 10),
+          Center(
+            child: Row(mainAxisSize: MainAxisSize.min, children: gapped([
+              for (var i = 0; i < freePeople; i++)
+                _avatarRing(Blob(seed: i < now.length ? now[i].name.codeUnits.fold(0, (a, b) => a + b) : i * 7, w: 64, h: 64, circle: true), K.a(.6)),
+              Container(
+                width: 72, height: 72,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: K.w(.03), border: Border.all(color: K.acc, width: 1.5), boxShadow: [BoxShadow(color: K.a(.45), blurRadius: 22)]),
+                alignment: Alignment.center,
+                child: Ico(BS.lock, size: 22, color: K.star),
+              ),
+            ], 8, horizontal: true)),
+          ),
+          const SizedBox(height: 20),
+          Text('У безкоштовній версії до $freePeople людей', textAlign: TextAlign.center, style: pr(30, h: 1.15)),
+          const SizedBox(height: 10),
+          Text('Щоб додати ще когось, перенеси когось у «Минулі» або відкрий Premium.', textAlign: TextAlign.center, style: rw(14, color: K.soft, h: 1.5)),
+        ];
       case PaywallKind.match:
         final me = s.profile.name.trim();
         final nm = (widget.name ?? '').trim();
@@ -770,9 +792,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
     }
     final price = y ? Purchases.price(Purchases.yearly, '\$39,99') : Purchases.price(Purchases.monthly, '\$6,99');
     final legal = 'Оплата спишеться з твого Apple ID після підтвердження. Підписка продовжується автоматично: $price ${y ? 'на рік' : 'на місяць'}, якщо не скасувати щонайменше за 24 години до кінця періоду. Керувати і скасувати — в налаштуваннях App Store.';
-    final cta = switch (widget.kind) { PaywallKind.main => 'Відкрити закономірності', PaywallKind.limit => 'Записувати без ліміту', PaywallKind.match => 'Відкрити метч' };
+    final cta = switch (widget.kind) { PaywallKind.main => 'Відкрити закономірності', PaywallKind.limit => 'Записувати без ліміту', PaywallKind.match => 'Відкрити метч', PaywallKind.people => 'Додавати без ліміту' };
     final next = DateTime(DateTime.now().year, DateTime.now().month + 1, 1);
-    final skip = switch (widget.kind) { PaywallKind.main => 'Продовжити безкоштовно', PaywallKind.limit => 'Почекаю до ${monthsGen[next.month - 1]}', PaywallKind.match => 'Повернутись' };
+    final skip = switch (widget.kind) { PaywallKind.main => 'Продовжити безкоштовно', PaywallKind.limit => 'Почекаю до ${monthsGen[next.month - 1]}', PaywallKind.match => 'Повернутись', PaywallKind.people => 'Повернутись' };
 
     Widget planBtn((String, String, String, String, String) p0) {
       // ціни з App Store, коли вже завантажились (у валюті людини)
@@ -1368,26 +1390,7 @@ class DocScreen extends StatelessWidget {
         Text(doc.title, style: pr(32, h: 1.15)),
         const SizedBox(height: 8),
         Text(doc.updated, style: rw(12, color: K.muted)),
-        const SizedBox(height: 22),
-        Container(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: onBase(RadialGradient(center: Alignment.topLeft, radius: 1.4, colors: [K.a(.14), K.a(0)], stops: const [0, .6]), K.card2),
-            border: Border.all(color: K.a(.16)),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text('Коротко', style: rw(12, color: K.accSoft, w: FontWeight.w500, ls: .24)),
-            const SizedBox(height: 10),
-            ...gapped([
-              for (final t in doc.tldr)
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Container(width: 6, height: 6, margin: const EdgeInsets.only(top: 8, right: 10), decoration: const BoxDecoration(shape: BoxShape.circle, color: K.acc)),
-                  Expanded(child: Text.rich(TextSpan(children: _spans(t)), style: rw(14, color: const Color(0xFFE6E2EB), h: 1.5))),
-                ]),
-            ], 9),
-          ]),
-        ),
+        const SizedBox(height: 4),
         for (final sec in doc.secs) ...[
           const SizedBox(height: 28),
           Text.rich(TextSpan(children: [TextSpan(text: '${sec.n}  ', style: rw(16, color: K.haze)), TextSpan(text: sec.title)]), style: rw(16, w: FontWeight.w500, h: 1.35)),
