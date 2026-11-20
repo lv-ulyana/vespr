@@ -93,7 +93,7 @@ DB _variant(String v, DateTime now) {
   // голосове «до зустрічі» без відповіді — щоб новий запис показав картку «Вийшло?»
   if (v == 'full' || v == 'en') {
     for (final p in d.people) {
-      p.wish = v == 'en' ? 'Ask him to slow down' : 'Попросити повільніше';
+      p.wish = v == 'en' ? 'Tell him I want to slow down and see if he listens' : 'Сказати, що хочу повільніше, і подивитись, чи почує';
     }
   }
   if (v == 'photo') {
