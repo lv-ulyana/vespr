@@ -5,7 +5,7 @@ T = {
  'Ми не бачимо, з ким ти зустрічаєшся і що записуєш. На наші сервери це не потрапляє.': 'We can’t see who you date or what you record. None of it reaches our servers.',
  'Резервна копія йде у твій iCloud і зашифрована. Її можна вимкнути.': 'Backups go to your iCloud, encrypted. You can turn them off.',
  'Видалити все можна одним рухом у налаштуваннях.': 'You can delete everything in one tap in settings.', 'Хто ми': 'Who we are',
- 'Vespr створює ⟦[назва компанії]⟧, ⟦[країна, адреса]⟧. Якщо маєш питання про приватність, пиши на ⟦[email]⟧.': 'Vespr is made by ⟦[company name]⟧, ⟦[country, address]⟧. For privacy questions, write to ⟦[email]⟧.',
+ 'Vespr створює ⟦[назва компанії]⟧, ⟦[країна, адреса]⟧. Якщо маєш питання про приватність, пиши на vespr.support@gmail.com.': 'Vespr is made by ⟦[company name]⟧, ⟦[country, address]⟧. For privacy questions, write to vespr.support@gmail.com.',
  'Що зберігається на телефоні': 'What’s stored on your phone', 'Усе, що ти вносиш у Vespr, лишається на пристрої:': 'Everything you put into Vespr stays on your device:',
  '• записи після зустрічей: оцінки, теги, прапорці, нотатки;': '• records after dates: ratings, tags, flags, notes;', '• розшифровки голосових (сам звук не зберігається);': '• voice transcripts (the audio itself isn’t stored);',
  '• люди, яких ти додаєш: псевдонім, фото, дата народження, розмір, тип стосунків;': '• people you add: nickname, photo, birthday, size, relationship type;',
@@ -23,7 +23,7 @@ T = {
  'PIN і Face ID': 'PIN and Face ID', 'PIN зберігається у захищеному сховищі iOS. Face ID обробляє сама система: ми не отримуємо дані твого обличчя.': 'Your PIN is kept in iOS secure storage. Face ID is handled by the system itself: we never get your face data.',
  'Твої права': 'Your rights', '• Видалити всі дані: Налаштування → Видалити все. Це назавжди, відновити не вийде.': '• Delete all data: Settings → Delete everything. It’s permanent and can’t be undone.',
  '• Видалити окремий запис чи людину: через меню «Дії».': '• Delete a single record or person: through the “Actions” menu.', '• Вимкнути копію в iCloud у будь-який момент.': '• Turn off iCloud backup at any time.',
- 'Оскільки дані зберігаються тільки в тебе, запит на видалення до нас не потрібен. Але якщо маєш питання, пиши на ⟦[email]⟧.': 'Since your data is stored only with you, there’s no need to ask us to delete it. But if you have questions, write to ⟦[email]⟧.',
+ 'Оскільки дані зберігаються тільки в тебе, запит на видалення до нас не потрібен. Але якщо маєш питання, пиши на vespr.support@gmail.com.': 'Since your data is stored only with you, there’s no need to ask us to delete it. But if you have questions, write to vespr.support@gmail.com.',
  'Вік': 'Age', 'Vespr лише для людей від 18 років. Ми свідомо не збираємо дані неповнолітніх.': 'Vespr is for people 18 and over only. We don’t knowingly collect data from minors.',
  'Зміни': 'Changes', 'Якщо ми змінимо цю політику, покажемо коротке повідомлення в апці до того, як зміни набудуть чинності.': 'If we change this policy, we’ll show a short notice in the app before the changes take effect.',
  'Це чернетка. Перед публікацією її має переглянути юрист з урахуванням GDPR і законів країни, де працює компанія.': 'This is a draft. Before publishing, a lawyer should review it against GDPR and the laws of the country where the company operates.',
@@ -44,7 +44,7 @@ T = {
  '• використовувати Vespr, щоб стежити за іншою людиною чи контролювати її;': '• using Vespr to spy on or control another person;', '• намагатися зламати апку чи обійти оплату;': '• trying to hack the app or get around payment;',
  '• копіювати або перепродавати тексти й дизайн Vespr.': '• copying or reselling Vespr’s texts and design.', 'Відповідальність': 'Liability',
  'Ми робимо все, щоб Vespr працював стабільно, але не гарантуємо, що в апці ніколи не буде помилок. Оскільки дані зберігаються тільки в тебе, ми не можемо відновити їх, якщо телефон втрачено, а копія в iCloud вимкнена.': 'We do everything we can to keep Vespr running smoothly, but we can’t guarantee it’ll never have bugs. Since your data is stored only with you, we can’t restore it if your phone is lost and iCloud backup is off.',
- 'Зміни і контакти': 'Changes and contact', 'Ми можемо оновлювати ці умови й попередимо про важливі зміни в апці. Питання — на ⟦[email]⟧. Умови регулюються законодавством ⟦[країна]⟧.': 'We may update these terms and will let you know about important changes in the app. Questions: ⟦[email]⟧. These terms are governed by the laws of ⟦[country]⟧.',
+ 'Зміни і контакти': 'Changes and contact', 'Ми можемо оновлювати ці умови й попередимо про важливі зміни в апці. Питання — на vespr.support@gmail.com. Умови регулюються законодавством ⟦[країна]⟧.': 'We may update these terms and will let you know about important changes in the app. Questions: vespr.support@gmail.com. These terms are governed by the laws of ⟦[country]⟧.',
  'Це чернетка. Перед публікацією її має переглянути юрист.': 'This is a draft. A lawyer should review it before publishing.',
 }
 
@@ -123,7 +123,7 @@ T.update({
  'Зміни до політики': 'Changes to this policy',
  'Ми можемо оновлювати цю політику. Про суттєві зміни ми повідомимо в застосунку до того, як вони набудуть чинності. Дату останнього оновлення вказано на початку документа.': 'We may update this policy. We’ll let you know about significant changes in the app before they take effect. The date of the last update is shown at the top of this document.',
  'Контакти': 'Contact us',
- 'З питань щодо цієї політики чи обробки даних пишіть на ⟦[email]⟧.': 'For questions about this policy or how data is handled, write to ⟦[email]⟧.',
+ 'З питань щодо цієї політики чи обробки даних пишіть на vespr.support@gmail.com.': 'For questions about this policy or how data is handled, write to vespr.support@gmail.com.',
  'Загальні положення': 'General',
  'Ці Умови використання (далі — «Умови») регулюють користування застосунком Vespr і діють між вами та Vespr (далі — «ми»).': 'These Terms of Use (“Terms”) govern your use of the Vespr app and apply between you and Vespr (“we”, “us”).',
  'Завантажуючи або використовуючи Vespr, ви підтверджуєте, що прочитали Умови й погоджуєтеся з ними. Якщо ви не погоджуєтеся, не використовуйте застосунок.': 'By downloading or using Vespr, you confirm that you have read and agree to these Terms. If you don’t agree, don’t use the app.',
@@ -166,7 +166,7 @@ T.update({
  'Ми можемо оновлювати ці Умови. Про суттєві зміни ми повідомимо в застосунку. Продовжуючи користуватися Vespr після набуття змінами чинності, ви погоджуєтеся з оновленими Умовами.': 'We may update these Terms. We’ll let you know about significant changes in the app. By continuing to use Vespr after the changes take effect, you agree to the updated Terms.',
  'Застосовне право': 'Governing law',
  'Ці Умови регулюються чинним законодавством. Будь-які спори ми спершу намагаємося вирішити шляхом переговорів, а якщо це не вдасться — у компетентному суді.': 'These Terms are governed by applicable law. We’ll first try to resolve any dispute through good-faith negotiation and, if that fails, in a court of competent jurisdiction.',
- 'З питань щодо цих Умов пишіть на ⟦[email]⟧.': 'For questions about these Terms, write to ⟦[email]⟧.',
+ 'З питань щодо цих Умов пишіть на vespr.support@gmail.com.': 'For questions about these Terms, write to vespr.support@gmail.com.',
 })
 # Політика повернення коштів
 T.update({
@@ -195,9 +195,9 @@ T.update({
  'Перейти між місячною і річною підпискою можна там само, у Підписках. Коли саме зміна набуде чинності й чи буде перерахунок, визначає Apple і показує це перед підтвердженням.': 'You can switch between the monthly and yearly plans in the same place, under Subscriptions. Apple decides when the change takes effect and whether anything is prorated, and shows this before you confirm.',
  'Якщо Premium не працює': 'If Premium isn’t working',
  'Якщо після перевстановлення застосунку чи заміни телефону Premium зник, відкрийте в Vespr Налаштування → Відновити покупки. Підписка прив’язана до вашого Apple ID, тож вона повернеться.': 'If Premium disappeared after reinstalling the app or changing phones, open Settings → Restore purchases in Vespr. The subscription is tied to your Apple ID, so it will come back.',
- 'Якщо помилка в застосунку не дає користуватися Premium, напишіть нам на ⟦[email]⟧. Ми спробуємо її виправити, а якщо не вийде, підкажемо, як подати запит на повернення до Apple.': 'If a bug in the app stops you from using Premium, write to us at ⟦[email]⟧. We’ll try to fix it and, if we can’t, help you request a refund from Apple.',
+ 'Якщо помилка в застосунку не дає користуватися Premium, напишіть нам на vespr.support@gmail.com. Ми спробуємо її виправити, а якщо не вийде, підкажемо, як подати запит на повернення до Apple.': 'If a bug in the app stops you from using Premium, write to us at vespr.support@gmail.com. We’ll try to fix it and, if we can’t, help you request a refund from Apple.',
  'Безкоштовна версія': 'Free version',
  'Безкоштовна версія Vespr нічого не коштує, тому повернення коштів до неї не застосовується.': 'The free version of Vespr costs nothing, so refunds don’t apply to it.',
  'Контакти': 'Contact us',
- 'З питань щодо оплати чи повернення коштів пишіть на ⟦[email]⟧.': 'For questions about payments or refunds, write to ⟦[email]⟧.',
+ 'З питань щодо оплати чи повернення коштів пишіть на vespr.support@gmail.com.': 'For questions about payments or refunds, write to vespr.support@gmail.com.',
 })
