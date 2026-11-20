@@ -85,7 +85,7 @@ T.update({
  '• Ми **не продаємо** дані й не передаємо їх рекламодавцям.': '• We **don’t sell** data or share it with advertisers.',
  '• Ми не відстежуємо вас в інших застосунках і на сайтах.': '• We don’t track you across other apps and websites.',
  'Правові підстави': 'Legal basis',
- 'Дані обробляються на вашому пристрої, щоб застосунок працював: зберігав записи, показував закономірності, нагадування й Wrapped. Підставами є виконання Умов використання і ваша згода, яку ви надаєте, вносячи дані й дозволяючи доступ до мікрофона, фото чи сповіщень.': 'Data is processed on your device so the app can work: keep records, show patterns, reminders and Wrapped. The legal bases are performance of the Terms of Use and your consent, given when you enter data and allow access to the microphone, photos or notifications.',
+ 'Дані обробляються на вашому пристрої, щоб застосунок працював: зберігав записи, показував закономірності, нагадування й Wrapped. Підставами є виконання Умов використання і ваша згода, яку ви надаєте, вносячи дані й дозволяючи доступ до мікрофона, фото, календаря чи сповіщень.': 'Data is processed on your device so the app can work: keep records, show patterns, reminders and Wrapped. The legal bases are performance of the Terms of Use and your consent, given when you enter data and allow access to the microphone, photos, calendar or notifications.',
  'Згоду можна відкликати в будь-який момент: вимкнути дозвіл у налаштуваннях iPhone або видалити дані.': 'You can withdraw consent at any time by turning off the permission in iPhone settings or deleting the data.',
  'Треті сторони': 'Third parties',
  'Vespr не передає ваші дані ні нам, ні іншим компаніям, крім таких випадків:': 'Vespr doesn’t send your data to us or to other companies, except in these cases:',
@@ -156,4 +156,5 @@ T.update({
  'Ми можемо оновлювати ці Умови. Про суттєві зміни ми повідомимо в застосунку. Продовжуючи користуватися Vespr після набуття змінами чинності, ви погоджуєтеся з оновленими Умовами.': 'We may update these Terms. We’ll let you know about significant changes in the app. By continuing to use Vespr after the changes take effect, you agree to the updated Terms.',
  'Застосовне право і контакти': 'Governing law and contact',
  'Ці Умови регулюються законодавством ⟦[країна]⟧. З питань щодо Умов пишіть на ⟦[email]⟧.': 'These Terms are governed by the laws of ⟦[country]⟧. For questions about the Terms, write to ⟦[email]⟧.',
+ 'Якщо ви імпортуєте події з календаря телефону, Vespr лише читає їх за обраний період на пристрої й нічого в календарі не змінює. Додати зустріч у календар можна тільки вручну, через системне вікно.': 'If you import events from your phone’s calendar, Vespr only reads them for the period you choose, on the device, and changes nothing in the calendar. A date can be added to the calendar only manually, through the system dialog.',
 })
