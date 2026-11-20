@@ -302,11 +302,12 @@ class _CompareScreenState extends State<CompareScreen> {
       final pa = pair(a), pb = pair(b);
       final xa = astroOf(a.birth, a.signOnly), xb = astroOf(b.birth, b.signOnly);
 
-      // кожен пункт: хто виграв (a / b / null — порівну) і текст для висновку
+      // кожен пункт: хто виграв (a / b / null — порівну або нема даних) і текст для висновку.
+      // Без дати пункт ніхто не виграє: порівнювати нема з чим.
       (Person?, String) arcPoint() {
         if (pa.$1 == null && pb.$1 == null) return (null, 'в обох нема дати');
-        if (pa.$1 == null) return (b, trf('{0} без дати', [a.name]));
-        if (pb.$1 == null) return (a, trf('{0} без дати', [b.name]));
+        if (pa.$1 == null) return (null, trf('{0} без дати', [a.name]));
+        if (pb.$1 == null) return (null, trf('{0} без дати', [b.name]));
         if (pa.$2 != pb.$2) return (pa.$2 == true ? a : b, pa.$2 == true ? a.name : b.name);
         // теги однакові — вирішують записи: чий блок «Аркан каже» підтверджується сильніше
         final ca = claimCheck(s.entries, a.id, xa!.arc!), cb = claimCheck(s.entries, b.id, xb!.arc!);
@@ -317,8 +318,8 @@ class _CompareScreenState extends State<CompareScreen> {
 
       (Person?, String) zPoint() {
         if (xa == null && xb == null) return (null, 'в обох нема дати');
-        if (xa == null) return (b, trf('{0} без дати', [a.name]));
-        if (xb == null) return (a, trf('{0} без дати', [b.name]));
+        if (xa == null) return (null, trf('{0} без дати', [a.name]));
+        if (xb == null) return (null, trf('{0} без дати', [b.name]));
         final ra = aspectStrength(me!.sign, xa.sign), rb = aspectStrength(me!.sign, xb.sign);
         if (ra != rb) return (ra > rb ? a : b, ra > rb ? a.name : b.name);
         return (null, pa.$4 == true ? 'обидва легко' : 'обидва складно');
