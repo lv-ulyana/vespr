@@ -1402,12 +1402,14 @@ class DocScreen extends StatelessWidget {
                   : Text.rich(TextSpan(children: _spans(b)), style: body),
             ),
         ],
-        const SizedBox(height: 20),
-        Container(
-          padding: const EdgeInsets.only(top: 16),
-          decoration: BoxDecoration(border: Border(top: BorderSide(color: K.w(.07)))),
-          child: Text.rich(TextSpan(children: _spans(doc.foot)), style: rw(12, color: K.muted, h: 1.6)),
-        ),
+        if (doc.foot.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.only(top: 16),
+            decoration: BoxDecoration(border: Border(top: BorderSide(color: K.w(.07)))),
+            child: Text.rich(TextSpan(children: _spans(doc.foot)), style: rw(12, color: K.muted, h: 1.6)),
+          ),
+        ],
       ],
     );
   }
