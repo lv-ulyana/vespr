@@ -90,6 +90,12 @@ DB _variant(String v, DateTime now) {
   final d = demoDb(now);
   if (v == 'en') d.profile.lang = 'en';
   if (v == 'early') d.entries.removeRange(3, d.entries.length);
+  // голосове «до зустрічі» без відповіді — щоб новий запис показав картку «Вийшло?»
+  if (v == 'full' || v == 'en') {
+    for (final p in d.people) {
+      p.wish = v == 'en' ? 'Tell him I want to slow down and see if he listens' : 'Сказати, що хочу повільніше, і подивитись, чи почує';
+    }
+  }
   if (v == 'photo') {
     // справжні фото у двох людей (беремо будь-які квадратні JPEG з асетів)
     d.people[0].photo = base64Encode(File('assets/img/places/his_t.jpg').readAsBytesSync());
