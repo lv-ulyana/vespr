@@ -296,7 +296,7 @@ class _EntryFormState extends State<EntryForm> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
               Text('До зустрічі ти хотіла', style: rw(11, color: K.accSoft, w: FontWeight.w600)),
               const SizedBox(height: 3),
-              Text('«$wish»', translate: false, style: rw(13, h: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+              Text(isEn ? '“$wish”' : '«$wish»', translate: false, style: rw(13, h: 1.3), maxLines: 3, overflow: TextOverflow.ellipsis),
             ]),
           ),
           const SizedBox(width: 10),
