@@ -36,3 +36,7 @@ T = {
  'Рейтинг': 'Ranking', 'на зустріч': 'per date', 'Найчастіше': 'Most often', 'Лідер слави': 'Fame leader', 'Лідер ганьби': 'Shame leader',
  'вона': 'she', 'вона зникне': 'she’ll disappear', 'він зникне': 'he’ll disappear', 'прапорець': 'flag', 'прапорці': 'flags', 'прапорців': 'flags',
 }
+T.update({
+ 'Може, краще в минулі? Записи збережуться, а він зникне зі списку.': 'Maybe move him to the past instead? Records stay, he just leaves the list.',
+ 'Може, краще в минулі? Записи збережуться, а вона зникне зі списку.': 'Maybe move her to the past instead? Records stay, she just leaves the list.',
+})

@@ -902,6 +902,8 @@ const enExact = <String, String>{
   'Мова': 'Language',
   'Мовчання замість розмови, образи «ти мав здогадатись».': 'Silence instead of talking, “you should’ve guessed” resentment.',
   'Могла бути собою': 'Could be yourself',
+  'Може, краще в минулі? Записи збережуться, а вона зникне зі списку.': 'Maybe move her to the past instead? Records stay, she just leaves the list.',
+  'Може, краще в минулі? Записи збережуться, а він зникне зі списку.': 'Maybe move him to the past instead? Records stay, he just leaves the list.',
   'Можна скасувати будь-коли': 'Cancel anytime',
   'Монастир': 'Convent',
   'Монолог на біс. Ти була глядачкою.': 'A monologue with an encore. You were the audience.',
