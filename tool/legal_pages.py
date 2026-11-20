@@ -69,7 +69,9 @@ os.makedirs(out, exist_ok=True)
 for en in (True, False):
     sfx = '' if en else '-uk'
     links = (f'<a href="privacy{sfx}.html">{"Privacy" if en else "Приватність"}</a>'
-             f'<a href="terms{sfx}.html">{"Terms of Use" if en else "Умови"}</a>')
+             f'<a href="terms{sfx}.html">{"Terms of Use" if en else "Умови"}</a>'
+             f'<a href="refunds{sfx}.html">{"Refunds" if en else "Повернення коштів"}</a>')
     page('privacyDoc', en, f'privacy{sfx}.html', f'privacy{"-uk" if en else ""}.html', links)
     page('termsDoc', en, f'terms{sfx}.html', f'terms{"-uk" if en else ""}.html', links)
+    page('refundsDoc', en, f'refunds{sfx}.html', f'refunds{"-uk" if en else ""}.html', links)
 print('ok', out)

@@ -381,6 +381,7 @@ class SettingsScreen extends StatelessWidget {
           Grp(inset: 14, [
             GRow(title: 'Умови використання', arrow: BS.ext, onTap: () => go(context, const DocScreen(doc: termsDoc))),
             GRow(title: 'Політика приватності', arrow: BS.ext, onTap: () => go(context, const DocScreen(doc: privacyDoc))),
+            GRow(title: 'Повернення коштів', arrow: BS.ext, onTap: () => go(context, const DocScreen(doc: refundsDoc))),
           ]),
         ),
         Padding(

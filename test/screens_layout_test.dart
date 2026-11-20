@@ -71,6 +71,7 @@ List<(String, Widget)> _screens(DB db) => [
       ('subscription', const SubscriptionScreen()),
       ('privacy', const DocScreen(doc: privacyDoc)),
       ('terms', const DocScreen(doc: termsDoc)),
+      ('refunds', const DocScreen(doc: refundsDoc)),
       ('backup_export', const BackupScreen(export: true)),
       ('backup_import', const BackupScreen(export: false)),
       ('delete_all', const DeleteAllScreen()),
