@@ -9,6 +9,7 @@ import 'package:vespr/logic/arcana_more.dart';
 import 'package:vespr/logic/astro.dart';
 import 'package:vespr/logic/dates.dart';
 import 'package:vespr/l10n/tr.dart';
+import 'package:vespr/logic/match_check.dart';
 import 'package:vespr/logic/match_texts.dart';
 import 'package:vespr/logic/sign_texts.dart';
 
@@ -135,6 +136,29 @@ void main() {
       }
       setLang('uk');
     });
+  });
+
+  test('сила аспекту: тригон > секстиль > один знак > опозиція > сусідні > квінконс > квадрат, легкі вище складних', () {
+    final byDist = [for (var d = 0; d <= 6; d++) aspectStrength(0, d)];
+    expect(byDist, [4, 2, 5, 0, 6, 1, 3]);
+    for (var i = 0; i < 12; i++) {
+      for (var j = 0; j < 12; j++) {
+        for (var k = 0; k < 12; k++) {
+          final ej = zodiacEase(i, j) == 'Легко', ek = zodiacEase(i, k) == 'Легко';
+          if (ej && !ek) expect(aspectStrength(i, j), greaterThan(aspectStrength(i, k)));
+        }
+      }
+    }
+  });
+
+  test('перевірка «аркан каже»: основне питання, запасне і поріг 3,5', () {
+    Entry r(String p, Map<String, int> rt) => Entry(id: 'r${_n++}', personId: p, date: '2026-11-01', overall: 4, hadSex: true, ratings: rt, createdAt: '');
+    final all = [r('a', {'sx_care': 5}), r('a', {'sx_care': 4}), r('b', {'sx_pleasure': 3}), r('b', {'sx_pleasure': 3})];
+    final ca = claimCheck(all, 'a', 3); // Імператриця → «дбали»
+    expect([ca.qLabel, ca.value, ca.ok], ['Наскільки дбали про тебе', 4.5, true]);
+    final cb = claimCheck(all, 'b', 3); // «дбали» нема → запасне «було добре»
+    expect([cb.qLabel, cb.value, cb.ok], [BedClaim.fallbackLabel, 3.0, false]);
+    expect(claimCheck(all, 'c', 3).hasData, isFalse);
   });
 
   test('люди зберігаються і читаються назад з усіма полями', () {

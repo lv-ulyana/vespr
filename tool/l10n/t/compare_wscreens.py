@@ -51,3 +51,7 @@ T = {
  'найкращий\nвечір': 'best\nnight', 'говорити': 'talking', 'Один': 'One', 'спати': 'sleeping', 'Зовсім інший': 'Totally different', 'твій типаж': 'your type',
  '🎟 закритий показ': '🎟 private screening', 'ніч': 'night', 'ночі': 'nights', 'ночей': 'nights',
 }
+T.update({
+ 'в обох нема дати': 'neither has a birthday', '{0} без дати': '{0} has no birthday', 'обидва легко': 'both easy', 'обидва складно': 'both harder',
+ 'ще нема записів': 'no records yet', 'порівну': 'even',
+})

@@ -10,9 +10,9 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/astro.dart';
 import '../logic/dates.dart';
+import '../logic/match_check.dart';
 import '../logic/match_texts.dart';
 import '../logic/sign_texts.dart';
-import '../logic/stats.dart';
 import '../services/files.dart';
 import '../ui/d.dart';
 import '../ui/kit.dart' show go;
@@ -357,17 +357,10 @@ class _MatchScreenState extends State<MatchScreen> {
     // --- аркан людини: що «каже» і що показують записи
     Widget? check;
     if (him.arc != null) {
-      final bc = bedClaims[him.arc!];
-      final es = entriesOf(s.entries, p.id).where((e) => e.hadSex).toList();
-      List<int> valsOf(String q) => es.map((e) => q == 'sx_overall' ? (e.ratings['sx_overall'] ?? e.overall) : e.ratings[q]).whereType<int>().toList();
-      var vals = valsOf(bc.q), qLabel = bc.qLabel;
-      // основне питання вимкнене в «Мої питання» → перевіряємо тим, що в записі є завжди
-      if (vals.isEmpty) {
-        final fb = valsOf(BedClaim.fallback);
-        if (fb.isNotEmpty) (vals, qLabel) = (fb, BedClaim.fallbackLabel);
-      }
-      final v = avg(vals);
-      final ok = !v.isNaN && v >= 3.5;
+      final cc = claimCheck(s.entries, p.id, him.arc!);
+      final bc = cc.claim, vals = cc.vals, qLabel = cc.qLabel;
+      final v = cc.value;
+      final ok = cc.ok;
       check = mx(Container(
         color: K.card2,
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

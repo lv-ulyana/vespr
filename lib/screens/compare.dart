@@ -8,7 +8,8 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../logic/astro.dart';
 import '../logic/dates.dart';
-import '../logic/match_texts.dart' show easyArcana;
+import '../logic/match_check.dart';
+import '../logic/match_texts.dart' show easyArcana, aspectOf;
 import '../logic/stats.dart';
 import '../ui/board.dart';
 import '../ui/d.dart';
@@ -294,19 +295,49 @@ class _CompareScreenState extends State<CompareScreen> {
         final x = astroOf(p.birth, p.signOnly);
         if (x == null || me == null) return (null, null, null, null);
         final arc = x.arc == null || me.arc == null ? null : pairArcana(me.arc!, x.arc!);
-        final els = me.el == x.el ? '${me.el} і ${x.el.toLowerCase()}' : '${me.el} і ${x.el.toLowerCase()}';
+        final els = aspectOf(me.sign, x.sign).name; // аспект знаків: тригон, квадрат, сусідні…
         return (arc, arc == null ? null : easyArcana.contains(arc), els, zodiacEase(me.sign, x.sign) == 'Легко');
       }
 
       final pa = pair(a), pb = pair(b);
-      int score((int?, bool?, String?, bool?) p) => (p.$2 == true ? 1 : 0) + (p.$4 == true ? 1 : 0);
-      final recA = avg(ea.map((e) => e.overall)), recB = avg(eb.map((e) => e.overall));
-      String side(bool? x, bool? y) => (x == true) == (y == true) ? 'нічия' : (x == true ? a.name : b.name);
-      final arcS = side(pa.$2, pb.$2), zS = side(pa.$4, pb.$4);
-      final recS = recA == recB ? 'нічия' : (recA > recB ? a.name : b.name);
+      final xa = astroOf(a.birth, a.signOnly), xb = astroOf(b.birth, b.signOnly);
+
+      // кожен пункт: хто виграв (a / b / null — порівну) і текст для висновку
+      (Person?, String) arcPoint() {
+        if (pa.$1 == null && pb.$1 == null) return (null, 'в обох нема дати');
+        if (pa.$1 == null) return (b, trf('{0} без дати', [a.name]));
+        if (pb.$1 == null) return (a, trf('{0} без дати', [b.name]));
+        if (pa.$2 != pb.$2) return (pa.$2 == true ? a : b, pa.$2 == true ? a.name : b.name);
+        // теги однакові — вирішують записи: чий блок «Аркан каже» підтверджується сильніше
+        final ca = claimCheck(s.entries, a.id, xa!.arc!), cb = claimCheck(s.entries, b.id, xb!.arc!);
+        double sc(ClaimCheck c) => c.ok ? c.value : -1;
+        if (sc(ca) != sc(cb)) return (sc(ca) > sc(cb) ? a : b, sc(ca) > sc(cb) ? a.name : b.name);
+        return (null, pa.$2 == true ? 'обидва легко' : 'обидва складно');
+      }
+
+      (Person?, String) zPoint() {
+        if (xa == null && xb == null) return (null, 'в обох нема дати');
+        if (xa == null) return (b, trf('{0} без дати', [a.name]));
+        if (xb == null) return (a, trf('{0} без дати', [b.name]));
+        final ra = aspectStrength(me!.sign, xa.sign), rb = aspectStrength(me!.sign, xb.sign);
+        if (ra != rb) return (ra > rb ? a : b, ra > rb ? a.name : b.name);
+        return (null, pa.$4 == true ? 'обидва легко' : 'обидва складно');
+      }
+
+      (Person?, String) recPoint() {
+        if (ea.isEmpty && eb.isEmpty) return (null, 'ще нема записів');
+        if (ea.isEmpty) return (b, b.name);
+        if (eb.isEmpty) return (a, a.name);
+        final recA = avg(ea.map((e) => e.overall)), recB = avg(eb.map((e) => e.overall));
+        if ((recA - recB).abs() < .05) return (null, 'порівну');
+        return (recA > recB ? a : b, recA > recB ? a.name : b.name);
+      }
+
+      final pts = me == null ? const <(Person?, String)>[] : [arcPoint(), zPoint(), recPoint()];
+      final winsA = pts.where((x) => x.$1 == a).length, winsB = pts.where((x) => x.$1 == b).length;
       verdict = me == null
           ? 'Додай свою дату народження в налаштуваннях, щоб порівняти зірки.'
-          : 'Аркани: $arcS. Зодіак: $zS. Записи: ${recS == 'нічия' ? 'нічия' : recS}.';
+          : 'Аркани: ${pts[0].$2}. Зодіак: ${pts[1].$2}. Записи: ${pts[2].$2}.';
       meta = 'аркани · зодіак · записи';
       Widget card(Person p, (int?, bool?, String?, bool?) m, bool lead) => Press(
             onTap: () => openMatch(context, p),
@@ -365,8 +396,8 @@ class _CompareScreenState extends State<CompareScreen> {
             Expanded(child: Text(me == null ? 'Ти: дата народження не вказана' : 'Ти: ${me.signName}${me.arc == null ? '' : ' · ${me.romanNum} ${me.arcanaName}'}', style: rw(13, color: K.muted2))),
           ]),
         ),
-        card(a, pa, score(pa) >= score(pb)),
-        card(b, pb, score(pb) > score(pa)),
+        card(a, pa, winsA >= winsB),
+        card(b, pb, winsB > winsA),
       ];
     }
 
