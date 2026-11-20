@@ -50,6 +50,4 @@ T = {
  '«{0}» — ще нема оцінок у записах': '“{0}”: no ratings in your records yet', '«{0}» за {1} {2}': '“{0}” over {1} {2}',
  'Збігається': 'Matches', 'Не збігається': 'Doesn’t match', 'Ваш метч': 'Your match', 'Аркан каже, записи перевіряють': 'The arcana says, your records check',
  'Для аркана пари потрібна його повна дата народження, а не тільки знак.': 'The couple arcana needs his full birthday, not just the sign.',
- # бажання «до зустрічі» → «Вийшло?» у новому записі (нагорода «Сказала і зробила»)
- 'До зустрічі ти хотіла': 'Before the date you wanted', 'Вийшло': 'Done', 'Нічого, наступного разу': 'Next time, then',
 }

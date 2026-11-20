@@ -224,10 +224,7 @@ class _VoiceScreenState extends State<VoiceScreen> with SingleTickerProviderStat
     if (before) {
       if (t.isNotEmpty) {
         final d = parseIso(today());
-        await s.updatePerson(personId, (p) {
-          p.notes = [p.notes.trim(), '${d.day} ${monthsGen[d.month - 1]}, до зустрічі: $t'].where((x) => x.isNotEmpty).join('\n');
-          p.wish = t; // після зустрічі запис спитає «Вийшло?» → нагорода «Сказала і зробила»
-        });
+        await s.updatePerson(personId, (p) => p.notes = [p.notes.trim(), '${d.day} ${monthsGen[d.month - 1]}, до зустрічі: $t'].where((x) => x.isNotEmpty).join('\n'));
         if (mounted) dToast(context, 'Додано в нотатки');
       }
       if (mounted) Navigator.pop(context);
