@@ -17,7 +17,7 @@ ASPECTS = [
   dict(
     name=('Сусідні знаки', 'Neighbouring signs'), easy=False,
     rel=('Ви сусіди на зодіакальному колі: стихії різні, і *кожен бачить у другому те, чого бракує самому*. Це стосунки-навчання: дратує, але й змушує рости. Потрібно більше слів, ніж здається.',
-         'You’re neighbours on the zodiac wheel: different elements, and *each sees in the other what they lack*. It’s a learning relationship: irritating at times, but it makes you grow. It needs more words than it seems.'),
+         'You’re neighbours on the zodiac wheel: different elements, and *each sees in the other what they lack*. It’s a learning relationship: irritating at times, but it makes you grow. It takes more talking than you’d think.'),
     sex=('Різний темп і різні мови бажання. *Цікаво саме через різницю*, якщо обоє готові питати й підказувати.',
          'Different pace and different languages of desire. *It’s exciting precisely because of the difference*, if you’re both ready to ask and guide.'),
     risk=('Дрібні непорозуміння накопичуються, бо здається, що все очевидно. Мовчання тут шкодить більше, ніж сварка.',
