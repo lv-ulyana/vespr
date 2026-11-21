@@ -1,0 +1,49 @@
+
+::group::❌ /home/runner/work/vespr/vespr/test/screens_layout_test.dart: Апка: верстка всіх екранів (failed)
+[tr] нема перекладу: «Довга прелюдія»
+[tr] нема перекладу: «Одразу до справи»
+[tr] нема перекладу: «Довга прелюдія»
+[tr] нема перекладу: «Одразу до справи»
+[tr] нема перекладу: «Довга прелюдія»
+[tr] нема перекладу: «Одразу до справи»
+ПРОБЛЕМИ ВЕРСТКИ (5):
+full/home: обрізано «Архітектор, у понеділок 19:30»
+early/home: обрізано «Архітектор, у понеділок 19:30»
+photo/home: обрізано «Архітектор, у понеділок 19:30»
+se_full/home: обрізано «Архітектор, у понеділок 19:30»
+xs_full/home: обрізано «Архітектор, у понеділок 19:30»
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: empty
+  Actual: [
+            Issue:full/home: обрізано «Архітектор, у понеділок 19:30»,
+            Issue:early/home: обрізано «Архітектор, у понеділок 19:30»,
+            Issue:photo/home: обрізано «Архітектор, у понеділок 19:30»,
+            Issue:se_full/home: обрізано «Архітектор, у понеділок 19:30»,
+            Issue:xs_full/home: обрізано «Архітектор, у понеділок 19:30»
+          ]
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///home/runner/work/vespr/vespr/test/screens_layout_test.dart:241:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1968:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///home/runner/work/vespr/vespr/test/screens_layout_test.dart line 241
+The test description was:
+  Апка: верстка всіх екранів
+════════════════════════════════════════════════════════════════════════════════════════════════════
+Test failed. See exception logs above.
+The test description was: Апка: верстка всіх екранів
+
+::endgroup::
+::group::✅ Passing tests
+✅ /home/runner/work/vespr/vespr/test/wrapped_layout_test.dart: Wrapped: верстка слайдів
+::endgroup::
+
+::error::1 test passed, 1 failed.
