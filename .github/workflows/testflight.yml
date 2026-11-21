@@ -1,0 +1,96 @@
+# Збірка для айфона і відправка в TestFlight. Запуск вручну: Actions → testflight → Run workflow.
+# Потрібні секрети репозиторію (Settings → Secrets and variables → Actions):
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 — ключ App Store Connect API (роль Admin)
+#   APPLE_TEAM_ID — Team ID з developer.apple.com → Account → Membership
+# Підпис автоматичний: Xcode сам створює сертифікат і профіль через ключ, нічого вручну не треба.
+name: testflight
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Перевірка секретів
+        env:
+          K: ${{ secrets.ASC_KEY_ID }}
+          I: ${{ secrets.ASC_ISSUER_ID }}
+          P: ${{ secrets.ASC_KEY_P8 }}
+          T: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for v in K I P T; do [ -n "${!v}" ] || { echo "::error::Не вистачає секрету (ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_P8 / APPLE_TEAM_ID)"; exit 1; }; done
+
+      - name: Тести
+        run: flutter pub get && flutter test
+
+      - name: Підготовка iOS-проєкту (tool/setup.sh)
+        run: bash tool/setup.sh
+
+      - name: Ключ App Store Connect у файл
+        env:
+          P8: ${{ secrets.ASC_KEY_P8 }}
+          KID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$P8" > "$RUNNER_TEMP/keys/AuthKey_$KID.p8"
+
+      - name: Шифрування — лише стандартне (захист даних користувача), без анкети на кожну збірку
+        run: /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/Runner/Info.plist || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" ios/Runner/Info.plist
+
+      - name: Збірка Flutter (без підпису)
+        run: |
+          NAME=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
+          flutter build ios --release --no-codesign --build-name "$NAME" --build-number "${{ github.run_number }}"
+
+      - name: Архів і підпис
+        env:
+          KID: ${{ secrets.ASC_KEY_ID }}
+          ISS: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Runner.xcarchive" archive \
+            DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$KID.p8" \
+            -authenticationKeyID "$KID" -authenticationKeyIssuerID "$ISS"
+
+      - name: Відправка в App Store Connect → TestFlight
+        env:
+          KID: ${{ secrets.ASC_KEY_ID }}
+          ISS: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/out" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$KID.p8" \
+            -authenticationKeyID "$KID" -authenticationKeyIssuerID "$ISS"
+          echo "Готово: збірка ${{ github.run_number }} завантажена. Через 5–30 хв з'явиться в TestFlight."
+
+      - name: Прибрати ключ
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"

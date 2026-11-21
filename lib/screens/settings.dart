@@ -80,36 +80,6 @@ class SettingsScreen extends StatelessWidget {
         ]),
       );
 
-  void _iconSheet(BuildContext context, AppStore s) {
-    Widget tile(bool dark) => Container(
-          width: 44, height: 44,
-          decoration: BoxDecoration(
-            color: dark ? K.bg : K.star,
-            borderRadius: BorderRadius.circular(12),
-            border: dark ? Border.all(color: K.w(.14)) : null,
-          ),
-          alignment: Alignment.center,
-          child: Text('v', style: pr(24, color: dark ? K.star : K.bg, h: 1)),
-        );
-    showSheet(
-      context,
-      (ctx) => Sheet(children: [
-        sheetTitle('Іконка апки'),
-        sheetText('Світла менше впадає в око на екрані телефона.'),
-        for (final d in const [true, false])
-          XOpt(
-            title: d ? 'Темна' : 'Світла',
-            lead: tile(d),
-            on: (s.profile.appIcon == 'dark') == d,
-            onTap: () {
-              s.updateProfile((x) => x.appIcon = d ? 'dark' : 'light');
-              Navigator.pop(ctx);
-            },
-          ),
-        sheetCancel(ctx),
-      ]),
-    );
-  }
 
   void _datingSheet(BuildContext context, AppStore s) => showSheet(
         context,
@@ -341,7 +311,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               if (p.pinEnabled) GRow(icon: BS.dots, title: 'Змінити PIN', arrow: BS.chev, onTap: () => go(context, const PinNewScreen())),
-              GRow(icon: BS.square, title: 'Іконка апки', value: p.appIcon == 'light' ? 'Світла' : 'Темна', arrow: BS.chev, onTap: () => _iconSheet(context, s)),
               GRow(
                 icon: BS.eyeOff,
                 title: 'Розмивати фото',

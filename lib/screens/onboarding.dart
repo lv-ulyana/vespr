@@ -908,8 +908,8 @@ class _GPrivate extends StatelessWidget {
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text('Темна іконка', style: rw(14, w: FontWeight.w700)),
-                            Text('або світла, як тобі до вподоби', style: rw(12, color: K.soft)),
+                            Text('Скромна іконка', style: rw(14, w: FontWeight.w700)),
+                            Text('Просто «v», нічого не видає на екрані', style: rw(12, color: K.soft)),
                           ]),
                         ),
                       ]),
@@ -936,7 +936,7 @@ class _GPrivate extends StatelessWidget {
       ]);
 }
 
-/// Іконка апки «v» з крапкою (темна або світла)
+/// Іконка апки «v» з крапкою (у застосунку одна — темна)
 class _AppIcon extends StatelessWidget {
   final bool dark;
   final double size;
@@ -1303,38 +1303,6 @@ class SetupScreen extends StatelessWidget {
                       Sw(on: p.pinEnabled, label: 'PIN-код', onChanged: (v) => store.updateProfile((x) => x.pinEnabled = v)),
                     ]),
                   ),
-                ]),
-              ),
-              const SizedBox(height: 24),
-              Rise(
-                delay: .15,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text('Іконка апки', style: rw(13, color: K.muted)),
-                  const SizedBox(height: 14),
-                  Row(children: gapped([
-                    for (final ic in [('dark', 'Темна'), ('light', 'Світла')])
-                      Expanded(
-                        child: Press(
-                          onTap: () => store.updateProfile((x) => x.appIcon = ic.$1),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            curve: easeD,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(22),
-                              border: Border.all(color: p.appIcon == ic.$1 ? K.a(.55) : K.w(.08)),
-                              gradient: onBase(p.appIcon == ic.$1
-                                  ? RadialGradient(center: Alignment.topLeft, radius: 1.3, colors: [K.a(.16), K.a(0)], stops: const [0, .65])
-                                  : null, p.appIcon == ic.$1 ? null : K.w(.025))),
-                            child: Row(children: [
-                              _AppIcon(dark: ic.$1 == 'dark'),
-                              const SizedBox(width: 14),
-                              Text(ic.$2, style: rw(14, color: p.appIcon == ic.$1 ? K.star : K.soft2, w: FontWeight.w500)),
-                            ]),
-                          ),
-                        ),
-                      ),
-                  ], 10, horizontal: true)),
                 ]),
               ),
               const Spacer(),

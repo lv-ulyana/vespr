@@ -42,3 +42,4 @@ T = {
  'Аркан пари XVII Зірка, легко': 'Couple arcana XVII The Star, easy', 'не вказано': 'not set', '{0} з 4': '{0} of 4',
  'Вона': 'She',
 }
+T.update({'Скромна іконка': 'A discreet icon', 'Просто «v», нічого не видає на екрані': 'Just a “v”, nothing gives it away on your screen'})

@@ -179,6 +179,22 @@ else
   echo "  ! Нема інструмента xcodeproj. У Xcode перетягни ios/Runner/PrivacyInfo.xcprivacy та папки en.lproj і uk.lproj у групу Runner."
 fi
 
+echo "› Іконка апки (темна, одна для всіх): iOS 1024 + Android mipmap"
+IC=ios/Runner/Assets.xcassets/AppIcon.appiconset
+rm -f "$IC"/*.png
+cp assets/icon/app_icon.png "$IC/app_icon.png"
+cat > "$IC/Contents.json" <<'JSON'
+{
+  "images" : [
+    { "filename" : "app_icon.png", "idiom" : "universal", "platform" : "ios", "size" : "1024x1024" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
+JSON
+for d in assets/icon/android/mipmap-*; do
+  cp "$d/ic_launcher.png" "android/app/src/main/res/$(basename "$d")/ic_launcher.png"
+done
+
 echo "› Залежності"
 flutter pub get
 
